@@ -8,9 +8,12 @@
   <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <title>弓道大会 参加・集金管理アプリ</title>
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://unpkg.com/lucide@1.60.0/dist/umd/lucide.min.js"
+          integrity="sha384-7t6ugxIvI5KM451iZguW/w4WR9KsajFzrdbn/efIoggU1wLCUBTbdndWJwbkPFQP"
+          crossorigin="anonymous"></script>
+  <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
   <style>
     @media print {
       .no-print {
@@ -563,6 +566,86 @@
       return appStore.years[appStore.currentYear];
     }
 
+    // --- データの検証・無害化（クラウド／バックアップ／端末内の全データに適用） ---
+    // IDは英数字・_・- のみ許可（HTMLの onclick に埋め込むため）。型・長さ・値も制限する。
+    const VALID_STATUS = ['paid', 'attending', 'absent', 'none'];
+    const BLOCKED_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+    function safeId(v, fallback) {
+      const s = String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+      return s || fallback;
+    }
+
+    function sanitizeYears(years) {
+      const out = {};
+      if (!years || typeof years !== 'object') return out;
+      Object.keys(years).slice(0, 200).forEach(yk => {
+        const key = String(yk).slice(0, 60);
+        const y = years[yk];
+        if (!key || BLOCKED_KEYS.includes(key) || !y || typeof y !== 'object') return;
+
+        const idMap = {};
+        const usedT = new Set();
+        const tournaments = (Array.isArray(y.tournaments) ? y.tournaments : []).slice(0, 50).map((t, i) => {
+          t = (t && typeof t === 'object') ? t : {};
+          let id = safeId(t.id, 't' + (i + 1));
+          while (usedT.has(id)) id += '_';
+          usedT.add(id);
+          idMap[String(t.id)] = id;
+          const fee = Number(t.fee);
+          return {
+            id: id,
+            name: String(t.name == null ? '' : t.name).slice(0, 100),
+            deadline: String(t.deadline == null ? '' : t.deadline).slice(0, 40),
+            date: String(t.date == null ? '' : t.date).slice(0, 40),
+            isCanceled: t.isCanceled === true,
+            fee: (isFinite(fee) && fee >= 0) ? Math.min(Math.round(fee), 10000000) : 0
+          };
+        });
+
+        const usedM = new Set();
+        const members = (Array.isArray(y.members) ? y.members : []).slice(0, 2000).map((m, i) => {
+          m = (m && typeof m === 'object') ? m : {};
+          let id = safeId(m.id, 'm_' + i + '_' + Math.random().toString(36).slice(2, 7));
+          while (usedM.has(id)) id += '_';
+          usedM.add(id);
+          const records = {};
+          if (m.records && typeof m.records === 'object') {
+            Object.keys(m.records).forEach(k => {
+              const nk = idMap[k];
+              const st = m.records[k];
+              if (nk && VALID_STATUS.includes(st)) records[nk] = st;
+            });
+          }
+          return { id: id, name: String(m.name == null ? '' : m.name).slice(0, 100), records: records };
+        });
+
+        out[key] = {
+          title: String(y.title == null ? '大会参加・参加費管理表' : y.title).slice(0, 100),
+          tournaments: tournaments,
+          members: members
+        };
+      });
+      return out;
+    }
+
+    function normalizeStore() {
+      appStore.years = sanitizeYears(appStore.years);
+      const keys = Object.keys(appStore.years);
+      if (!keys.length) {
+        appStore.years['令和7年度'] = {
+          title: '大会参加・参加費管理表',
+          tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+          members: []
+        };
+        keys.push('令和7年度');
+      }
+      if (typeof appStore.currentYear !== 'string' || !appStore.years[appStore.currentYear]) {
+        appStore.currentYear = keys[0];
+      }
+      appStore.showExamples = appStore.showExamples !== false;
+    }
+
     // --- ローカルストレージ連携 ---
     // 参考例と同じ名前かどうかを判定（空白・全角半角・「（例）」付きの揺れを吸収）
     const EXAMPLE_BASE_NAMES = ['龍翔太郎', '弓道花子', '的中次郎'];
@@ -593,6 +676,7 @@
           const parsed = JSON.parse(saved);
           if (parsed && parsed.years && parsed.currentYear) {
             appStore = parsed;
+            normalizeStore();
             // 中止フラグ補完
             Object.values(appStore.years).forEach(y => {
               if (y.tournaments) {
@@ -625,6 +709,7 @@
               members: legacy.members || []
             };
           }
+          normalizeStore();
           cleanDuplicateExamples();
           saveLocal();
         }
@@ -656,14 +741,7 @@
 
     function setStoreFromCloud(years) {
       appStore.years = years || {};
-      if (!appStore.years[appStore.currentYear]) {
-        appStore.currentYear = Object.keys(appStore.years)[0] || '令和7年度';
-      }
-      Object.values(appStore.years).forEach(y => {
-        if (y && y.tournaments) {
-          y.tournaments.forEach(t => { if (t.isCanceled === undefined) t.isCanceled = false; });
-        }
-      });
+      normalizeStore();
       cleanDuplicateExamples();
       saveLocal();
     }
@@ -1485,6 +1563,14 @@
     }
 
     // --- CSVエクスポート ---
+    // Excelで開いたときに数式として実行されないよう、先頭が = + - @ の文字列は ' を付ける
+    function csvCell(v) {
+      if (typeof v === 'number') return String(v);
+      let t = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+      return '"' + t.replace(/"/g, '""') + '"';
+    }
+
     function exportCSV() {
       const current = getCurrentData();
       const row1 = ['', '', ...current.tournaments.map(t => `締切: ${t.deadline || '未定'}${t.isCanceled ? '【中止】' : ''}`), ''];
@@ -1497,25 +1583,25 @@
 
       current.members.forEach((m, idx) => {
         let unpaid = 0;
-        const row = [idx + 1, `"${m.name}"`];
+        const row = [idx + 1, m.name];
         current.tournaments.forEach(t => {
           if (t.isCanceled) {
-            row.push('"中止"');
+            row.push('中止');
             return;
           }
           const st = (m.records && m.records[t.id]) || 'none';
-          if (st === 'paid') row.push('"○済"');
+          if (st === 'paid') row.push('○済');
           else if (st === 'attending') {
-            row.push('"○"');
+            row.push('○');
             unpaid++;
-          } else if (st === 'absent') row.push('"×"');
-          else row.push('"ー"');
+          } else if (st === 'absent') row.push('×');
+          else row.push('ー');
         });
         row.push(unpaid);
         rows.push(row);
       });
 
-      const csvContent = '\uFEFF' + rows.map(e => e.join(',')).join('\n');
+      const csvContent = '\uFEFF' + rows.map(e => e.map(csvCell).join(',')).join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -1546,6 +1632,7 @@
           const imported = JSON.parse(e.target.result);
           if (imported.years && imported.currentYear) {
             appStore = imported;
+            normalizeStore();
             saveStore();
             init();
             alert('全年度データを正常に復元しました！');
