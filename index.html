@@ -192,6 +192,10 @@
             <i data-lucide="user-plus" class="w-4 h-4"></i>
             <span>氏名追加</span>
           </button>
+          <button onclick="addTournamentQuick()" class="flex items-center gap-1.5 px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white text-sm font-semibold rounded-lg shadow-sm transition" title="表の右端に新しい大会の列を追加します">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>大会追加</span>
+          </button>
           <button onclick="openTournamentSettingsModal()" class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg shadow-sm transition">
             <i data-lucide="calendar-cog" class="w-4 h-4"></i>
             <span>大会・日程一括編集</span>
@@ -274,7 +278,7 @@
     </div>
 
     <!-- 統計サマリー（大会ごとの集計） -->
-    <div class="no-print mb-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2" id="tournamentStatsSummary">
+    <div class="no-print mb-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2" id="tournamentStatsSummary">
       <!-- JSで動的生成 -->
     </div>
 
@@ -310,7 +314,7 @@
     <!-- フッター（操作補助） -->
     <footer class="no-print mt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
       <div>
-        <span>💡 見出しの<strong>締切日</strong>・<strong>開催日</strong>をクリックして編集できます。<strong>【中止】</strong>ボタンで大会中止の切り替えが可能です。</span>
+        <span>💡 見出しの<strong>締切日</strong>・<strong>開催日</strong>をクリックして編集できます。<strong>【中止】</strong>ボタンで大会中止の切り替え、表右端の<strong>【＋大会追加】</strong>で大会を増やせます。</span>
       </div>
       <div>
         <span>データはクラウドに自動保存され、ログインした全端末で共有されます（参考例は集計対象外）。</span>
@@ -1048,6 +1052,13 @@
         `).join('')}
         <th class="py-1.5 px-2 text-center text-xs border-r border-slate-700 text-slate-400"></th>
         <th class="py-1.5 px-1 text-center text-xs no-print text-slate-400"></th>
+        <th rowspan="2" class="no-print w-14 bg-slate-900 align-middle border-l border-slate-700">
+          <button onclick="addTournamentQuick()" title="大会を追加"
+                  class="mx-auto flex flex-col items-center gap-1 px-2 py-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold transition">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            <span style="writing-mode:vertical-rl;letter-spacing:.1em">大会追加</span>
+          </button>
+        </th>
       `;
 
       // 2. ヘッダー2行目：年度・大会名・開催日・中止トグル・参加費
@@ -1066,6 +1077,9 @@
                       class="px-1.5 py-0.2 rounded text-[10px] font-bold transition flex items-center gap-0.5 ${t.isCanceled ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-2xs' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}"
                       title="${t.isCanceled ? '大会は中止に設定されています。クリックで通常開催に戻す' : 'クリックして中止に設定'}">
                 ${t.isCanceled ? '⚠️ 中止' : '中止切替'}
+              </button>
+              <button onclick="deleteTournament('${t.id}')" class="ml-1 p-0.5 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-700 transition" title="この大会を削除">
+                <i data-lucide="trash-2" class="w-3 h-3"></i>
               </button>
             </div>
             
@@ -1086,12 +1100,15 @@
                      title="大会開催日をクリックして直接入力 (例: 6/21)">
             </div>
 
-            <!-- 参加費 -->
-            ${t.fee ? `
-              <div class="text-[10px] ${t.isCanceled ? 'text-slate-500 line-through' : 'text-slate-400'} font-normal mt-0.5">
-                ¥${t.fee.toLocaleString()}
-              </div>
-            ` : ''}
+            <!-- 参加費（画面では直接編集、印刷では文字で表示） -->
+            <div class="no-print mt-0.5 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-slate-500 line-through' : 'text-slate-400'}">
+              <span>¥</span>
+              <input type="number" min="0" step="100" value="${t.fee || 0}"
+                     onchange="updateTournamentField('${t.id}', 'fee', this.value)"
+                     class="th-inline-input w-16 text-center text-[10px] text-slate-300 py-0.5"
+                     title="参加費（円）をクリックして直接入力">
+            </div>
+            ${t.fee ? `<div class="hidden print-title text-[10px] font-normal mt-0.5">¥${t.fee.toLocaleString()}</div>` : ''}
           </th>
         `).join('')}
         <th class="py-2.5 px-2 font-semibold min-w-[85px] border-r border-slate-700 text-center text-xs md:text-sm">未払計</th>
@@ -1344,12 +1361,71 @@
       }).join('');
     }
 
+    // --- 大会をメイン画面から追加・削除 ---
+    const MAX_TOURNAMENTS = 50;
+
+    function newTournamentId() {
+      return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    function addTournamentQuick() {
+      const current = getCurrentData();
+      if (current.tournaments.length >= MAX_TOURNAMENTS) {
+        alert(`大会は最大${MAX_TOURNAMENTS}件までです。`);
+        return;
+      }
+      // 直前の大会と同じ参加費を引き継ぐ
+      const last = current.tournaments[current.tournaments.length - 1];
+      const id = newTournamentId();
+      current.tournaments.push({
+        id: id,
+        name: `新大会 ${current.tournaments.length + 1}`,
+        deadline: '',
+        date: '',
+        isCanceled: false,
+        fee: last ? (last.fee || 1000) : 1000
+      });
+      saveStore();
+      renderTable();
+      // 追加した列へスクロールして、大会名を入力できる状態にする
+      const inputs = document.querySelectorAll('#tournamentHeaderRow input[type="text"]');
+      const nameInputs = Array.from(inputs).filter((_, i) => i % 2 === 0); // 大会名・開催日が交互に並ぶ
+      const target = nameInputs[nameInputs.length - 1];
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        target.focus();
+        target.select();
+      }
+    }
+
+    function deleteTournament(id) {
+      const current = getCurrentData();
+      if (current.tournaments.length <= 1) {
+        alert('大会は最低1つ必要です。');
+        return;
+      }
+      const t = current.tournaments.find(x => x.id === id);
+      if (!t) return;
+      const recCount = current.members.filter(m => m.records && m.records[id] && m.records[id] !== 'none').length;
+      const msg = `大会「${t.name}」を削除しますか？` + (recCount ? `\n（${recCount}名分の参加・支払い記録も削除されます）` : '');
+      if (!confirm(msg)) return;
+      current.tournaments = current.tournaments.filter(x => x.id !== id);
+      current.members.forEach(m => { if (m.records) delete m.records[id]; });
+      saveStore();
+      renderTable();
+    }
+
     // --- 大会フィールド更新 ---
     function updateTournamentField(id, field, value) {
       const current = getCurrentData();
       const tournament = current.tournaments.find(t => t.id === id);
       if (tournament) {
-        tournament[field] = value.trim();
+        if (field === 'fee') {
+          const n = parseInt(value, 10);
+          tournament.fee = (isFinite(n) && n >= 0) ? Math.min(n, 10000000) : 0;
+        } else {
+          tournament[field] = String(value).trim();
+        }
         saveStore();
         renderTable();
       }
@@ -1446,7 +1522,24 @@
     }
 
     // --- 大会編集モーダル ---
+    let tournamentDraft = null;
+
+    function syncDraftFromDom() {
+      if (!tournamentDraft) return;
+      const rows = document.querySelectorAll('#tournamentEditorList > div');
+      rows.forEach((row, idx) => {
+        const t = tournamentDraft[idx];
+        if (!t) return;
+        t.name = row.querySelector('.t-edit-name').value.trim() || `大会 ${idx + 1}`;
+        t.deadline = row.querySelector('.t-edit-deadline').value.trim();
+        t.date = row.querySelector('.t-edit-date').value.trim();
+        t.isCanceled = row.querySelector('.t-edit-canceled').checked;
+        t.fee = parseInt(row.querySelector('.t-edit-fee').value, 10) || 0;
+      });
+    }
+
     function openTournamentSettingsModal() {
+      tournamentDraft = JSON.parse(JSON.stringify(getCurrentData().tournaments));
       document.getElementById('modalCurrentYearDisplay').textContent = appStore.currentYear;
       renderTournamentEditor();
       document.getElementById('tournamentModal').classList.remove('hidden');
@@ -1454,13 +1547,13 @@
     }
 
     function closeTournamentSettingsModal() {
+      tournamentDraft = null;
       document.getElementById('tournamentModal').classList.add('hidden');
     }
 
     function renderTournamentEditor() {
-      const current = getCurrentData();
       const container = document.getElementById('tournamentEditorList');
-      container.innerHTML = current.tournaments.map((t, index) => `
+      container.innerHTML = tournamentDraft.map((t, index) => `
         <div class="bg-slate-50 p-3 rounded-lg border ${t.isCanceled ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200'} space-y-2" data-idx="${index}">
           <div class="flex items-center gap-2">
             <span class="text-xs text-slate-400 font-mono w-4 font-bold">${index + 1}</span>
@@ -1505,58 +1598,57 @@
     }
 
     function addNewTournamentRow() {
-      const current = getCurrentData();
-      const newId = 't_' + Date.now();
-      current.tournaments.push({
-        id: newId,
-        name: `新大会 ${current.tournaments.length + 1}`,
+      if (!tournamentDraft) return;
+      if (tournamentDraft.length >= MAX_TOURNAMENTS) {
+        alert(`大会は最大${MAX_TOURNAMENTS}件までです。`);
+        return;
+      }
+      syncDraftFromDom();
+      const last = tournamentDraft[tournamentDraft.length - 1];
+      tournamentDraft.push({
+        id: newTournamentId(),
+        name: `新大会 ${tournamentDraft.length + 1}`,
         deadline: '',
         date: '',
         isCanceled: false,
-        fee: 1000
+        fee: last ? (last.fee || 1000) : 1000
       });
       renderTournamentEditor();
       lucide.createIcons();
+      const list = document.getElementById('tournamentEditorList');
+      list.scrollTop = list.scrollHeight;
+      const names = list.querySelectorAll('.t-edit-name');
+      const el = names[names.length - 1];
+      if (el) { el.focus(); el.select(); }
     }
 
     function removeTournamentRow(index) {
-      const current = getCurrentData();
-      if (current.tournaments.length <= 1) {
+      if (!tournamentDraft) return;
+      if (tournamentDraft.length <= 1) {
         alert('大会は最低1つ必要です。');
         return;
       }
-      const t = current.tournaments[index];
-      if (confirm(`大会「${t.name}」を削除しますか？\n（この大会の記録データも削除されます）`)) {
-        current.tournaments.splice(index, 1);
+      syncDraftFromDom();
+      const t = tournamentDraft[index];
+      if (confirm(`大会「${t.name}」を削除しますか？\n（「変更を保存」を押すと、この大会の記録データも削除されます）`)) {
+        tournamentDraft.splice(index, 1);
         renderTournamentEditor();
         lucide.createIcons();
       }
     }
 
     function saveTournamentsConfig() {
+      if (!tournamentDraft) return;
+      syncDraftFromDom();
       const current = getCurrentData();
-      const rows = document.querySelectorAll('#tournamentEditorList > div');
-      const updated = [];
-      
-      rows.forEach((row, idx) => {
-        const nameInput = row.querySelector('.t-edit-name');
-        const deadlineInput = row.querySelector('.t-edit-deadline');
-        const dateInput = row.querySelector('.t-edit-date');
-        const feeInput = row.querySelector('.t-edit-fee');
-        const canceledInput = row.querySelector('.t-edit-canceled');
-        const originalT = current.tournaments[idx];
-
-        updated.push({
-          id: originalT ? originalT.id : ('t_' + Date.now() + '_' + idx),
-          name: nameInput.value.trim() || `大会 ${idx + 1}`,
-          deadline: deadlineInput.value.trim(),
-          date: dateInput.value.trim(),
-          isCanceled: canceledInput.checked,
-          fee: parseInt(feeInput.value, 10) || 0
-        });
+      const keepIds = new Set(tournamentDraft.map(t => t.id));
+      // 削除された大会の記録を掃除
+      current.members.forEach(m => {
+        if (!m.records) return;
+        Object.keys(m.records).forEach(k => { if (!keepIds.has(k)) delete m.records[k]; });
       });
-
-      current.tournaments = updated;
+      current.tournaments = tournamentDraft;
+      tournamentDraft = null;
       saveStore();
       closeTournamentSettingsModal();
       renderTable();
