@@ -131,15 +131,6 @@
           Googleでログイン・新規登録
         </button>
       </div>
-      <div id="pendingBlock" class="hidden space-y-3">
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-900 leading-relaxed">
-          <p class="font-bold mb-1">管理者の承認待ちです</p>
-          <p>登録を受け付けました。管理者が承認すると利用できるようになります。</p>
-          <p class="mt-1 text-amber-700 break-all">登録アカウント: <span id="pendingEmail"></span></p>
-        </div>
-        <button type="button" onclick="location.reload()" class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold rounded-lg transition">承認状況を再確認</button>
-        <button type="button" onclick="cloudLogout(true)" class="w-full py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium rounded-lg border border-slate-300 transition">ログアウト</button>
-      </div>
       <p id="loginFatal" class="hidden text-xs text-rose-600 font-medium leading-relaxed mt-2"></p>
     </div>
   </div>
@@ -1658,7 +1649,6 @@
     function showLogin(message) {
       $('loginOverlay').classList.remove('hidden');
       $('loginLoading').classList.add('hidden');
-      $('pendingBlock').classList.add('hidden');
       $('loginForm').classList.remove('hidden');
       $('googleBlock').classList.remove('hidden');
       $('loginError').textContent = message || '';
@@ -1671,17 +1661,7 @@
       $('loginOverlay').classList.remove('hidden');
       $('loginForm').classList.add('hidden');
       $('googleBlock').classList.add('hidden');
-      $('pendingBlock').classList.add('hidden');
       $('loginLoading').classList.remove('hidden');
-    }
-
-    function showPending(user) {
-      $('loginOverlay').classList.remove('hidden');
-      $('loginLoading').classList.add('hidden');
-      $('loginForm').classList.add('hidden');
-      $('googleBlock').classList.add('hidden');
-      $('pendingEmail').textContent = user.email || '';
-      $('pendingBlock').classList.remove('hidden');
     }
 
     // ログイン／新規登録の切り替え
@@ -1815,39 +1795,11 @@
     let started = false;
     let pendingLoginMessage = '';
 
-    // 利用承認の確認（members/{uid} の approved が true なら利用可）
-    async function checkMembership(user) {
-      const mref = doc(db, 'members', user.uid);
-      const msnap = await getDoc(mref);
-      if (!msnap.exists()) {
-        await setDoc(mref, {
-          email: user.email || '',
-          displayName: user.displayName || '',
-          approved: false,
-          requestedAt: serverTimestamp()
-        });
-        return 'pending';
-      }
-      return msnap.data().approved === true ? 'approved' : 'pending';
-    }
-
     onAuthStateChanged(auth, async (user) => {
       window.__authReady = true;
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
 
       if (!user) { showLogin(pendingLoginMessage); pendingLoginMessage = ''; return; }
-
-      showLoading();
-      let membership;
-      try {
-        membership = await checkMembership(user);
-      } catch (e) {
-        console.error('membership check failed', e);
-        pendingLoginMessage = '利用状況を確認できませんでした（' + (e.code || 'error') + '）。Firestoreのルール設定を確認してください。';
-        await signOut(auth);
-        return;
-      }
-      if (membership !== 'approved') { showPending(user); return; }
 
       $('loginOverlay').classList.add('hidden');
       const label = $('loginUserLabel');
@@ -1883,7 +1835,7 @@
         setStatus('☁ 接続エラー（この端末のデータを表示中）', 'err');
         if (e && e.code === 'permission-denied' && !started) {
           // 許可されていないアカウント → ログアウトしてログイン画面へ
-          pendingLoginMessage = 'このアカウント（' + (user.email || '') + '）には利用権限がありません。許可されたアカウントでログインしてください。';
+          pendingLoginMessage = 'クラウドの読み書きが許可されていません。Firestoreのルール設定を確認してください。';
           await signOut(auth);
           return;
         }
