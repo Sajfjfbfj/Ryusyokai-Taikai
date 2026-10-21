@@ -266,7 +266,7 @@
 
     <!-- 印刷用タイトルヘッダー（印刷時のみ表示） -->
     <div class="hidden print-title mb-3">
-      <h1 id="printFullTitle" class="text-xl font-bold text-center tracking-wide">令和7年度 大会参加申し込み表</h1>
+      <h1 id="printFullTitle" class="text-xl font-bold text-center tracking-wide">令和8年度 大会参加申し込み表</h1>
       <div class="flex justify-between items-center text-xs mt-1 px-1">
         <span>弓道部 / 弓道連盟支部</span>
         <span>印刷日: <span id="printDate"></span></span>
@@ -542,10 +542,10 @@
     const STORAGE_KEY = 'kyudo_tournament_app_v3';
     
     let appStore = {
-      currentYear: '令和7年度',
+      currentYear: '令和8年度',
       showExamples: true,
       years: {
-        '令和7年度': {
+        '令和8年度': {
           title: '大会参加・参加費管理表',
           tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
           members: [] // 実際の登録者（最初は空、またはユーザー追加分）
@@ -633,12 +633,12 @@
       appStore.years = sanitizeYears(appStore.years);
       const keys = Object.keys(appStore.years);
       if (!keys.length) {
-        appStore.years['令和7年度'] = {
+        appStore.years['令和8年度'] = {
           title: '大会参加・参加費管理表',
           tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
           members: []
         };
-        keys.push('令和7年度');
+        keys.push('令和8年度');
       }
       if (typeof appStore.currentYear !== 'string' || !appStore.years[appStore.currentYear]) {
         appStore.currentYear = keys[0];
@@ -699,9 +699,9 @@
           const legacy = JSON.parse(legacySaved);
           if (legacy.years) {
             appStore.years = legacy.years;
-            appStore.currentYear = legacy.currentYear || '令和7年度';
+            appStore.currentYear = legacy.currentYear || '令和8年度';
           } else {
-            const yr = legacy.year || '令和7年度';
+            const yr = legacy.year || '令和8年度';
             appStore.currentYear = yr;
             appStore.years[yr] = {
               title: legacy.title || '大会参加・参加費管理表',
@@ -1649,10 +1649,10 @@
     function resetDataPrompt() {
       if (confirm('初期状態にリセットしますか？\n（入力したデータは消去されます）')) {
         appStore = {
-          currentYear: '令和7年度',
+          currentYear: '令和8年度',
           showExamples: true,
           years: {
-            '令和7年度': {
+            '令和8年度': {
               title: '大会参加・参加費管理表',
               tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
               members: []
