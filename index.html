@@ -1903,8 +1903,10 @@
         if (snap.exists()) {
           const remoteJson = snap.data().data;
           const remoteYears = JSON.parse(remoteJson);
-          if (countMembersIn(remoteYears) === 0 && countMembersIn(getYearsForCloud()) > 0) {
-            // クラウドが空で、この端末にデータがある → この端末のデータをクラウドへ
+          let linked = false;
+          try { linked = localStorage.getItem('kyudo_cloud_linked') === '1'; } catch (e) { /* ignore */ }
+          if (!linked && countMembersIn(remoteYears) === 0 && countMembersIn(getYearsForCloud()) > 0) {
+            // この端末が初めてクラウドに接続する時だけ：クラウドが空で端末にデータがあれば、端末のデータをクラウドへ
             backupLocalOnce();
             lastJson = null;
             await pushNow();
@@ -1920,6 +1922,7 @@
           await pushNow();
         }
         ok = true;
+        try { localStorage.setItem('kyudo_cloud_linked', '1'); } catch (e) { /* ignore */ }
       } catch (e) {
         console.error('cloud load failed', e);
         setStatus('☁ 接続エラー（この端末のデータを表示中）', 'err');
