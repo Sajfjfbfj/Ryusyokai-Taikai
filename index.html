@@ -507,17 +507,40 @@
       </div>
     </div>
 
-    <!-- 統計サマリー（大会ごとの集計カード群） -->
-    <div class="no-print mb-5">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-          <i data-lucide="bar-chart-2" class="w-3.5 h-3.5 text-brand-600"></i>
-          大会別 参加・集金状況サマリー
-        </h2>
-        <span class="text-[11px] text-slate-400">カードをクリックすると表の大会列へ移動</span>
+    <!-- 統合統計サマリーウィジェット（印刷非表示） -->
+    <div class="no-print mb-5 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden transition-all" id="summaryWidget">
+      <!-- 1. 全体重要KPIバー（常時1行に集約表示） -->
+      <div class="p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/70 via-white to-slate-50/70">
+        <!-- 左側：全体KPI -->
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs" id="overallKpiBar">
+          <!-- JSで動的生成 -->
+        </div>
+
+        <!-- 右側：カードスクロール操作 ＆ 折りたたみボタン -->
+        <div class="flex items-center gap-1.5 ml-auto shrink-0">
+          <div id="cardScrollControls" class="flex items-center gap-0.5">
+            <button onclick="scrollStatsCards(-220)" class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="前の大会へ">
+              <i data-lucide="chevron-left" class="w-4 h-4"></i>
+            </button>
+            <button onclick="scrollStatsCards(220)" class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="次の大会へ">
+              <i data-lucide="chevron-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="h-3.5 w-[1px] bg-slate-200 mx-1"></div>
+          <button onclick="toggleSummaryDetails()" id="summaryToggleBtn"
+                  class="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-brand-800 hover:bg-brand-50/80 rounded-xl border border-slate-200 transition"
+                  title="大会別カードの表示・非表示を切り替え">
+            <span id="summaryToggleText">大会別カード</span>
+            <i data-lucide="chevron-down" id="summaryToggleIcon" class="w-3.5 h-3.5 transition-transform duration-200"></i>
+          </button>
+        </div>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2.5" id="tournamentStatsSummary">
-        <!-- JSで動的生成 -->
+
+      <!-- 2. 大会別カード（横1行のスライダーデッキ：折りたたみ可能） -->
+      <div id="tournamentStatsDetailWrap" class="p-2.5 sm:p-3 bg-slate-50/40 transition-all">
+        <div class="flex items-stretch gap-2.5 overflow-x-auto pb-1 table-scroll scroll-smooth" id="tournamentStatsSummary">
+          <!-- JSで動的生成 -->
+        </div>
       </div>
     </div>
 
@@ -1544,13 +1567,128 @@
       `;
     }
 
-    // --- 統計サマリー（大会ごとの集計カード） ---
+    // --- 統計サマリーのスクロール ＆ 開閉トグル ---
+    let summaryCollapsed = false;
+    try {
+      summaryCollapsed = localStorage.getItem('kyudo_summary_collapsed') === '1';
+    } catch(e) {}
+
+    function toggleSummaryDetails() {
+      summaryCollapsed = !summaryCollapsed;
+      try {
+        localStorage.setItem('kyudo_summary_collapsed', summaryCollapsed ? '1' : '0');
+      } catch(e) {}
+      applySummaryCollapsedState();
+    }
+
+    function applySummaryCollapsedState() {
+      const wrap = document.getElementById('tournamentStatsDetailWrap');
+      const text = document.getElementById('summaryToggleText');
+      const icon = document.getElementById('summaryToggleIcon');
+      const scrollBtns = document.getElementById('cardScrollControls');
+      if (!wrap || !text || !icon) return;
+
+      if (summaryCollapsed) {
+        wrap.classList.add('hidden');
+        text.textContent = '大会別カードを展開';
+        icon.style.transform = 'rotate(-90deg)';
+        if (scrollBtns) scrollBtns.classList.add('opacity-30', 'pointer-events-none');
+      } else {
+        wrap.classList.remove('hidden');
+        text.textContent = '大会別カードを閉じる';
+        icon.style.transform = 'rotate(0deg)';
+        if (scrollBtns) scrollBtns.classList.remove('opacity-30', 'pointer-events-none');
+      }
+      lucide.createIcons();
+    }
+
+    function scrollStatsCards(offset) {
+      const el = document.getElementById('tournamentStatsSummary');
+      if (el) {
+        el.scrollBy({ left: offset, behavior: 'smooth' });
+      }
+    }
+
+    // --- 統合統計サマリー描画 ---
     function renderStatsSummary() {
       const current = getCurrentData();
+      const kpiBar = document.getElementById('overallKpiBar');
       const container = document.getElementById('tournamentStatsSummary');
-      if (!container) return;
+      if (!kpiBar || !container) return;
 
-      container.innerHTML = current.tournaments.map(t => {
+      // 1. 全体重要KPIの集計
+      const memberCount = current.members.length;
+      let totalAttendingOverall = 0;
+      let totalUnpaidAmountOverall = 0;
+      let totalUnpaidCountOverall = 0;
+      let totalRefundCountOverall = 0;
+      let canceledCount = 0;
+
+      current.tournaments.forEach(t => {
+        if (t.isCanceled) {
+          canceledCount++;
+          current.members.forEach(m => {
+            if (m.records && m.records[t.id] === 'paid') totalRefundCountOverall++;
+          });
+        } else {
+          current.members.forEach(m => {
+            const st = m.records && m.records[t.id];
+            if (st === 'paid') totalAttendingOverall++;
+            else if (st === 'attending') {
+              totalAttendingOverall++;
+              totalUnpaidCountOverall++;
+              totalUnpaidAmountOverall += (t.fee || 0);
+            }
+          });
+        }
+      });
+
+      // 全体KPIバーのHTML
+      kpiBar.innerHTML = `
+        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
+          <i data-lucide="users" class="w-3.5 h-3.5 text-brand-600"></i>
+          <span>登録者:</span>
+          <span class="font-extrabold text-slate-900 tnum">${memberCount}</span>名
+        </div>
+
+        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
+          <i data-lucide="target" class="w-3.5 h-3.5 text-blue-600"></i>
+          <span>延べ参加:</span>
+          <span class="font-extrabold text-slate-900 tnum">${totalAttendingOverall}</span>名
+        </div>
+
+        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
+          <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
+          <span>大会数:</span>
+          <span class="font-extrabold text-slate-900 tnum">${current.tournaments.length}</span>件
+          ${canceledCount > 0 ? `<span class="text-[10px] text-rose-600 font-semibold">(中止${canceledCount})</span>` : ''}
+        </div>
+
+        ${totalUnpaidCountOverall > 0 ? `
+          <div class="flex items-center gap-1.5 font-bold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-300 shadow-xs animate-pulse">
+            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            <span>未払総額:</span>
+            <span class="font-extrabold text-amber-800 tnum">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
+            <span class="text-[10px] text-amber-700">(${totalUnpaidCountOverall}件)</span>
+          </div>
+        ` : `
+          <div class="flex items-center gap-1.5 font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-300 shadow-xs">
+            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
+            <span>全額集金完了 ✨</span>
+          </div>
+        `}
+
+        ${totalRefundCountOverall > 0 ? `
+          <div class="flex items-center gap-1.5 font-bold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-xl border border-rose-300 shadow-xs">
+            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i>
+            <span>返金要:</span>
+            <span class="font-extrabold text-rose-700 tnum">${totalRefundCountOverall}</span>名
+          </div>
+        ` : ''}
+      `;
+
+      // 2. 大会別カード（横1行のスライダーデッキ）
+      container.innerHTML = current.tournaments.map((t, idx) => {
         if (t.isCanceled) {
           let paid = 0;
           current.members.forEach(m => {
@@ -1558,19 +1696,22 @@
           });
           return `
             <div onclick="scrollToTournament('${t.id}')"
-                 class="bg-white/80 hover:bg-white p-3 rounded-2xl border border-rose-200 shadow-xs hover:shadow-md transition-all cursor-pointer group relative overflow-hidden">
-              <div class="absolute top-0 right-0 transform translate-x-3 -translate-y-3 w-10 h-10 bg-rose-100 rounded-full flex items-end justify-start pl-1 pb-1">
-                <span class="text-[9px] font-bold text-rose-700">中止</span>
+                 class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-rose-50/20 p-2.5 rounded-xl border border-rose-200 shadow-xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between gap-1 mb-0.5">
+                  <span class="text-[10px] font-mono text-slate-400 font-bold">#${idx + 1}</span>
+                  <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded">中止</span>
+                </div>
+                <div class="text-xs font-bold text-slate-700 truncate group-hover:text-rose-700 transition" title="${escapeHtml(t.name)}">
+                  ${escapeHtml(t.name)}
+                </div>
+                <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+                  ${t.date ? escapeHtml(t.date) : '日程未定'}
+                </div>
               </div>
-              <div class="text-xs font-bold text-slate-700 truncate pr-5 group-hover:text-brand-700 transition" title="${escapeHtml(t.name)}">
-                ${escapeHtml(t.name)}
-              </div>
-              <div class="text-[10px] text-slate-400 mt-0.5">
-                ${t.date ? escapeHtml(t.date) : '日程未定'}
-              </div>
-              <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-baseline justify-between">
-                <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-200">大会中止</span>
-                ${paid > 0 ? `<span class="text-[10px] font-bold text-amber-700">返金: ${paid}名</span>` : '<span class="text-[10px] text-slate-400">集金なし</span>'}
+              <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
+                <span class="text-[10px] font-bold text-rose-600">中止</span>
+                ${paid > 0 ? `<span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1 rounded">返金:${paid}</span>` : '<span class="text-[9px] text-slate-400">集金無</span>'}
               </div>
             </div>
           `;
@@ -1588,27 +1729,33 @@
 
         return `
           <div onclick="scrollToTournament('${t.id}')"
-               class="bg-white/80 hover:bg-white p-3 rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-brand-500/40 transition-all cursor-pointer group">
-            <div class="flex items-center justify-between gap-1">
+               class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-brand-500/50 transition-all cursor-pointer group flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-1 mb-0.5">
+                <span class="text-[10px] font-mono text-slate-400 font-bold">#${idx + 1}</span>
+                <span class="text-[10px] font-mono text-slate-400">¥${(t.fee || 0).toLocaleString()}</span>
+              </div>
               <div class="text-xs font-bold text-slate-800 truncate group-hover:text-brand-700 transition" title="${escapeHtml(t.name)}">
                 ${escapeHtml(t.name)}
               </div>
-              <span class="text-[10px] font-mono text-slate-400 shrink-0">¥${(t.fee || 0).toLocaleString()}</span>
+              <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+                ${t.date ? escapeHtml(t.date) : (t.deadline ? `締:${escapeHtml(t.deadline)}` : '未定')}
+              </div>
             </div>
-            <div class="text-[10px] text-slate-400 mt-0.5">
-              ${t.date ? escapeHtml(t.date) : (t.deadline ? `締切: ${escapeHtml(t.deadline)}` : '日程未定')}
-            </div>
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-baseline justify-between">
-              <span class="text-lg font-extrabold text-slate-900 tnum leading-none">
+            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-baseline justify-between">
+              <span class="text-base font-extrabold text-slate-900 tnum leading-none">
                 ${total}<span class="text-[10px] font-normal text-slate-500 ml-0.5">名</span>
               </span>
-              <span class="text-[10px] font-bold ${attending > 0 ? 'text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded-full border border-amber-200' : 'text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded-full border border-emerald-200'}">
-                ${attending > 0 ? `未払: ${attending}` : '集金済 ✨'}
+              <span class="text-[10px] font-bold ${attending > 0 ? 'text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-full border border-amber-200' : 'text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200'}">
+                ${attending > 0 ? `未:${attending}` : '済 ✨'}
               </span>
             </div>
           </div>
         `;
       }).join('');
+
+      applySummaryCollapsedState();
+      lucide.createIcons();
     }
 
     // --- 大会追加・削除 ---
