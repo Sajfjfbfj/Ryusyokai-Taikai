@@ -813,6 +813,10 @@
                 class="w-full py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
           LOGOUT / ログアウト
         </button>
+        <button onclick="closeSideMenu(); cloudWithdraw()"
+                class="w-full mt-2 py-2 bg-white hover:bg-red-50 text-uq-red border border-red-200 text-xs font-black tracking-wider transition">
+          退会（アカウント削除）
+        </button>
       </div>
     </aside>
     <!-- 印刷用タイトルヘッダー（印刷時のみ表示） -->
@@ -2497,6 +2501,13 @@
       if (skipConfirm !== true && !confirm('ログアウトしますか？')) return;
       await signOut(auth);
       location.reload();
+    };
+
+    // 退会（アカウント削除）：本体は withdraw.js（必要になったときだけ読み込む）
+    window.cloudWithdraw = () => {
+      import('./withdraw.js')
+        .then(m => m.openWithdraw({ onDone: () => location.reload() }))
+        .catch(e => { console.error(e); alert('退会画面を開けませんでした。ネットワークを確認して再読み込みしてください。'); });
     };
 
     async function pushNow() {

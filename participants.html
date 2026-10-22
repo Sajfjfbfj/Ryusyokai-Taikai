@@ -290,6 +290,7 @@
         <a class="sm-small" style="padding:6px 10px" href="index.html#setname">変更</a>
       </div>
       <button class="sm-logout" onclick="cloudLogout()">LOGOUT / ログアウト</button>
+      <button class="sm-logout" style="margin-top:8px;color:#ED0006;border-color:#F3C0C0;" onclick="cloudWithdraw()">退会（アカウント削除）</button>
     </div>
   </aside>
 
@@ -523,6 +524,11 @@
     $('searchInput').addEventListener('input', render);
     $('onlyAttending').addEventListener('change', render);
 
+    window.cloudWithdraw = () => {
+      import('./withdraw.js')
+        .then(m => m.openWithdraw())
+        .catch(e => { console.error(e); alert('退会画面を開けませんでした。ネットワークを確認して再読み込みしてください。'); });
+    };
     window.cloudLogout = async () => {
       if (!confirm('ログアウトしますか？')) return;
       try { await signOut(auth); } catch (e) { /* ignore */ }
