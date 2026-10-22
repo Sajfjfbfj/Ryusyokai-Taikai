@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 既存：大会参加・集金管理アプリのデータ（今の設定をそのまま残してください）
+    // match /apps/{doc} { allow read, write: if request.auth != null; }
+
+    // 支部内掲示板：ログイン済みなら誰でも投稿OK、削除は投稿者本人のみ
+    match /board_posts/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update: if false;
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+
+    // お手伝い募集：ログイン済みなら誰でも募集作成OK
+    //  ・参加表明（volunteers の追加/取消）は誰でもOK
+    //  ・締切・削除は募集した本人のみ
+    match /helper_calls/{id} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid;
+      allow update: if request.auth != null
+                    && (resource.data.uid == request.auth.uid
+                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['volunteers']));
+      allow delete: if request.auth != null
+                    && resource.data.uid == request.auth.uid;
+    }
+  }
+}
