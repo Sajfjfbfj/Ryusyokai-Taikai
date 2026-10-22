@@ -87,12 +87,184 @@
     .canceled-col {
       background-color: rgba(241, 245, 249, 0.7);
     }
+
+    /* 画面表示の情報設計。印刷用レイアウトには影響させない。 */
+    :root {
+      color-scheme: light;
+    }
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(5, 150, 105, 0.06), transparent 28rem),
+        #f4f7f6;
+      letter-spacing: 0.01em;
+    }
+    button,
+    input,
+    select,
+    textarea {
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid rgba(5, 150, 105, 0.18) !important;
+      outline-offset: 2px;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .app-shell {
+      max-width: 96rem;
+    }
+    .app-header {
+      border-color: #dce6e1;
+      border-radius: 1.25rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+    .header-main {
+      align-items: flex-start;
+    }
+    .brand-row {
+      row-gap: 0.75rem;
+    }
+    .action-toolbar {
+      padding: 0.375rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.875rem;
+      background: #f8fafc;
+    }
+    .control-bar {
+      margin-left: -1.25rem;
+      margin-right: -1.25rem;
+      margin-bottom: -1.25rem;
+      padding: 1rem 1.25rem 1.25rem;
+      border-radius: 0 0 1.25rem 1.25rem;
+      background: #fafcfb;
+    }
+    .auth-card {
+      border-color: #dce6e1;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+    }
+    .stats-grid > div {
+      min-height: 6.25rem;
+      border-radius: 0.875rem;
+      padding: 0.875rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .stats-grid > div:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+      transform: translateY(-1px);
+    }
+    .data-panel {
+      border-color: #d8e2de;
+      border-radius: 1.125rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 18px 44px rgba(15, 23, 42, 0.07);
+    }
+    .table-scroll {
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+    }
+    #mainTable {
+      line-height: 1.4;
+    }
+    #mainTable thead {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 2px 0 rgba(15, 23, 42, 0.18);
+    }
+    #mainTable tbody tr {
+      height: 3.25rem;
+    }
+    #mainTable tbody tr:nth-child(even):not(.print-example-bg) {
+      background-color: rgba(248, 250, 252, 0.72);
+    }
+    #mainTable tbody tr:hover {
+      background-color: #ecfdf5;
+    }
+    #mainTable tbody td {
+      border-color: #e2e8f0;
+    }
+    #mainTable tbody td:nth-child(2),
+    #mainTable thead th:nth-child(2) {
+      box-shadow: 1px 0 0 #dbe4e0;
+    }
+    #mainTable .status-cell {
+      cursor: pointer;
+    }
+    #mainTable .status-cell:hover {
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .status-badge {
+      min-width: 2.75rem;
+      min-height: 1.75rem;
+      border-radius: 9999px;
+      box-shadow: none;
+    }
+    .th-inline-input:focus {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    #tableFoot {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.06);
+    }
+    .help-footer {
+      padding: 1rem 1.125rem;
+      border: 1px solid #dce6e1;
+      border-radius: 0.875rem;
+      background: rgba(255, 255, 255, 0.76);
+      line-height: 1.7;
+    }
+    #newYearModal > div,
+    #yearManageModal > div,
+    #addMemberModal > div,
+    #tournamentModal > div {
+      border-radius: 1.25rem;
+      border-color: #dce6e1;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
+    }
+    #statusMenu {
+      border-radius: 0.875rem;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+    }
+    @media (max-width: 767px) {
+      .app-header {
+        border-radius: 1rem;
+      }
+      .action-toolbar {
+        width: 100%;
+      }
+      .action-toolbar > button,
+      .action-toolbar > div {
+        flex-grow: 1;
+      }
+      .control-bar {
+        border-radius: 0 0 1rem 1rem;
+      }
+      #appTitle {
+        width: 100%;
+      }
+    }
+    @media print {
+      body {
+        letter-spacing: normal;
+      }
+      #mainTable thead,
+      #tableFoot {
+        position: static;
+        box-shadow: none;
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-100 text-slate-800 min-h-screen font-sans">
   <!-- ログイン画面（Firebase認証） -->
   <div id="loginOverlay" class="no-print fixed inset-0 z-[100] bg-slate-100 flex items-center justify-center p-4">
-    <div class="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+    <div class="auth-card w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
       <div class="flex items-center gap-3 mb-4">
         <span class="inline-flex items-center justify-center p-2.5 bg-emerald-700 text-white rounded-xl shadow-sm text-lg leading-none">🎯</span>
         <div>
@@ -140,13 +312,13 @@
       <p id="loginFatal" class="hidden text-xs text-rose-600 font-medium leading-relaxed mt-2"></p>
     </div>
   </div>
-  <div class="max-w-7xl mx-auto px-3 sm:px-6 py-6 print-container">
+  <div class="app-shell max-w-7xl mx-auto px-3 sm:px-6 py-6 print-container">
     
     <!-- 操作・設定ヘッダー（印刷非表示） -->
-    <header class="no-print bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+    <header class="app-header no-print bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
+      <div class="header-main flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <div class="flex flex-wrap items-center gap-3">
+          <div class="brand-row flex flex-wrap items-center gap-3">
             <span class="inline-flex items-center justify-center p-2.5 bg-emerald-700 text-white rounded-xl shadow-sm">
               <i data-lucide="target" class="w-6 h-6"></i>
             </span>
@@ -186,7 +358,7 @@
         </div>
 
         <!-- アクションボタン群 -->
-        <div class="flex flex-wrap items-center gap-2">
+        <div class="action-toolbar flex flex-wrap items-center gap-2">
           <span id="syncStatus" class="text-xs font-medium text-slate-500 px-2 py-1 rounded bg-slate-50 border border-slate-200" title="クラウド同期の状態">☁ 未接続</span>
           <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow-sm transition">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
@@ -235,7 +407,7 @@
       </div>
 
       <!-- コントロールバー（検索・フィルタ・参考例トグル・凡例） -->
-      <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <div class="control-bar mt-4 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div class="flex flex-wrap items-center gap-3">
           <div class="relative min-w-[200px]">
             <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
@@ -278,13 +450,13 @@
     </div>
 
     <!-- 統計サマリー（大会ごとの集計） -->
-    <div class="no-print mb-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2" id="tournamentStatsSummary">
+    <div class="stats-grid no-print mb-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3" id="tournamentStatsSummary">
       <!-- JSで動的生成 -->
     </div>
 
     <!-- メインテーブル -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-      <div class="overflow-x-auto">
+    <div class="data-panel bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="table-scroll overflow-x-auto">
         <table class="w-full border-collapse text-sm text-center" id="mainTable">
           <thead>
             <!-- 1行目：支部内締切日行 -->
@@ -312,7 +484,7 @@
     </div>
 
     <!-- フッター（操作補助） -->
-    <footer class="no-print mt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+    <footer class="help-footer no-print mt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
       <div>
         <span>💡 見出しの<strong>締切日</strong>・<strong>開催日</strong>をクリックして編集できます。<strong>【中止】</strong>ボタンで大会中止の切り替え、表右端の<strong>【＋大会追加】</strong>で大会を増やせます。</span>
       </div>
@@ -1122,8 +1294,8 @@
       if (appStore.showExamples !== false) {
         exampleRowsHtml = FIXED_EXAMPLE_MEMBERS.map((exMember, idx) => `
           <tr class="bg-amber-50/50 hover:bg-amber-50 transition border-b border-amber-200/70 print-example-bg">
-            <td class="py-2 px-2 text-amber-700 font-mono text-[11px] text-center border-r border-slate-200 font-bold">例${idx + 1}</td>
-            <td class="py-2 px-3 text-left font-bold text-amber-950 border-r border-slate-200">
+            <td class="py-3 px-2 text-amber-700 font-mono text-[11px] text-center border-r border-slate-200 font-bold">例${idx + 1}</td>
+            <td class="py-3 px-3 text-left font-bold text-amber-950 border-r border-slate-200">
               <div class="flex items-center gap-1.5">
                 <span class="inline-block px-1.5 py-0.2 bg-amber-200 text-amber-900 text-[10px] font-bold rounded">参考例</span>
                 <span>${escapeHtml(exMember.name)}</span>
@@ -1132,12 +1304,12 @@
             ${current.tournaments.map(t => {
               const status = exMember.records[t.id] || 'none';
               return `
-                <td class="py-2 px-1 text-center border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}">
+                <td class="py-3 px-1 text-center border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}">
                   ${getStatusBadge(status, t.isCanceled)}
                 </td>
               `;
             }).join('')}
-            <td class="py-2 px-2 text-center border-r border-slate-200">
+            <td class="py-3 px-2 text-center border-r border-slate-200">
               <span class="text-[11px] text-slate-400 font-medium">（例示）</span>
             </td>
             <td class="py-2 px-1 text-center no-print">
@@ -1200,8 +1372,8 @@
 
           return `
             <tr class="hover:bg-slate-50 transition border-b border-slate-200">
-              <td class="py-2 px-2 text-slate-500 font-mono text-xs text-center border-r border-slate-200">${index + 1}</td>
-              <td class="py-2 px-3 text-left font-semibold text-slate-900 border-r border-slate-200">
+              <td class="py-3 px-2 text-slate-500 font-mono text-xs text-center border-r border-slate-200">${index + 1}</td>
+              <td class="py-3 px-3 text-left font-semibold text-slate-900 border-r border-slate-200">
                 <input type="text" value="${escapeHtml(member.name)}" 
                        onchange="updateMemberName('${member.id}', this.value)"
                        class="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none rounded px-1 text-sm font-semibold">
@@ -1209,14 +1381,14 @@
               ${current.tournaments.map(t => {
                 const status = (member.records && member.records[t.id]) || 'none';
                 return `
-                  <td class="py-2 px-1 text-center status-cell border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}"
+                  <td class="py-3 px-1 text-center status-cell border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}"
                       onclick="${t.isCanceled ? '' : `cycleStatus('${member.id}', '${t.id}')`}"
                       oncontextmenu="${t.isCanceled ? '' : `openContextMenu(event, '${member.id}', '${t.id}')`}">
                     ${getStatusBadge(status, t.isCanceled)}
                   </td>
                 `;
               }).join('')}
-              <td class="py-2 px-2 text-center border-r border-slate-200">
+              <td class="py-3 px-2 text-center border-r border-slate-200">
                 ${unpaidCount > 0 ? `
                   <span class="inline-flex items-center gap-1 font-bold text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -1314,10 +1486,10 @@
             if (m.records && m.records[t.id] === 'paid') paid++;
           });
           return `
-            <div class="bg-rose-50/60 rounded-lg p-2.5 border border-rose-300 shadow-xs flex flex-col justify-between">
+            <div class="bg-rose-50/60 rounded-lg p-3 border border-rose-300 shadow-xs flex flex-col justify-between transition">
               <div>
-                <div class="text-xs font-bold text-rose-950 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
-                <div class="text-[10px] text-rose-600 font-bold mt-0.5">⚠️ 大会中止</div>
+                <div class="text-sm font-bold text-rose-950 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
+                <div class="text-[11px] text-rose-600 font-bold mt-1">⚠️ 大会中止</div>
               </div>
               <div class="mt-2 flex items-baseline justify-between border-t border-rose-200/60 pt-1">
                 <span class="text-xs text-rose-800 font-bold">中止</span>
@@ -1342,16 +1514,16 @@
         const isComplete = total > 0 && attending === 0;
 
         return `
-          <div class="bg-white rounded-lg p-2.5 border ${isComplete ? 'border-emerald-300 bg-emerald-50/20' : attending > 0 ? 'border-amber-200' : 'border-slate-200'} shadow-xs flex flex-col justify-between">
+          <div class="bg-white rounded-lg p-3 border ${isComplete ? 'border-emerald-300 bg-emerald-50/20' : attending > 0 ? 'border-amber-200' : 'border-slate-200'} shadow-xs flex flex-col justify-between transition">
             <div>
-              <div class="text-xs font-bold text-slate-800 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
-              <div class="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
+              <div class="text-sm font-bold text-slate-800 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
+              <div class="flex items-center gap-1 text-[11px] text-slate-500 mt-1 truncate">
                 ${t.date ? `<span class="text-emerald-700 font-medium">開: ${escapeHtml(t.date)}</span>` : ''}
                 ${t.deadline ? `<span class="text-amber-700 font-medium ml-1">切: ${escapeHtml(t.deadline)}</span>` : ''}
               </div>
             </div>
             <div class="mt-2 flex items-baseline justify-between border-t border-slate-100 pt-1">
-              <span class="text-base font-extrabold text-slate-900">${total}<span class="text-[10px] font-normal text-slate-500 ml-0.5">名</span></span>
+              <span class="text-xl font-extrabold text-slate-900">${total}<span class="text-[10px] font-normal text-slate-500 ml-0.5">名</span></span>
               <span class="text-[10px] font-semibold ${attending > 0 ? 'text-amber-600 bg-amber-50 px-1 py-0.2 rounded border border-amber-200' : 'text-emerald-600'}">
                 ${attending > 0 ? `未払: ${attending}` : '集金済'}
               </span>
