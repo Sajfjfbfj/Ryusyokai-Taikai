@@ -123,10 +123,142 @@
     .res:not(.top) .bar-fill { background: #999; }
     .anon { display: inline-block; font-size: 10px; font-weight: 900; padding: 1px 7px; background: #111; color: #fff; margin-left: 6px; vertical-align: middle; }
     .check-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; font-weight: 700; }
+
+    /* ===== 共通メニュー（管理表と同じサイドメニュー） ===== */
+    .sm-menu-btn { display: inline-flex; align-items: center; gap: 4px; height: 32px; padding: 0 12px; background: #111; color: #fff; border: 0; font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .1em; cursor: pointer; flex-shrink: 0; }
+    .sm-menu-btn:hover { background: #222; }
+    .sm-chip { display: none; align-items: center; gap: 4px; height: 32px; padding: 0 10px; max-width: 160px; background: #fff; color: #111; border: 1px solid #E5E5E5; font-size: 12px; font-weight: 900; text-decoration: none; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; }
+    .sm-chip:hover { background: #F5F5F5; }
+    @media (min-width: 640px) { .sm-menu-btn { height: 36px; padding: 0 14px; } .sm-chip { height: 36px; } }
+    @media (min-width: 768px) { .sm-chip { display: inline-flex; } }
+    #sideMenuBackdrop { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 60; display: none; opacity: 0; transition: opacity .2s; }
+    #sideMenuBackdrop.show { display: block; }
+    #sideMenuBackdrop.on { opacity: 1; }
+    #sideMenuDrawer { position: fixed; top: 0; right: 0; bottom: 0; width: min(85vw, 320px); background: #fff; z-index: 70; box-shadow: 0 25px 50px -12px rgba(0,0,0,.4); border-left: 2px solid #000; transform: translateX(100%); visibility: hidden; transition: transform .2s, visibility 0s .2s; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
+    #sideMenuDrawer.open { transform: none; visibility: visible; transition: transform .2s, visibility 0s; }
+    @media (min-width: 640px) { #sideMenuDrawer { width: 384px; } }
+    .sm-head { padding: 16px; background: #111; color: #fff; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #000; }
+    .sm-head-l { display: flex; align-items: center; gap: 10px; }
+    .sm-logo { width: 32px; height: 32px; background: #ED0006; color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; line-height: 1; font-size: 9px; letter-spacing: -0.05em; }
+    .sm-head small { display: block; font-size: 9px; font-weight: 900; letter-spacing: .15em; color: #ED0006; }
+    .sm-head b { font-size: 14px; font-weight: 900; }
+    .sm-close { background: none; border: 0; color: #fff; font-size: 24px; line-height: 1; cursor: pointer; padding: 4px 8px; }
+    .sm-close:hover { color: #ED0006; }
+    .sm-body { padding: 16px; display: flex; flex-direction: column; gap: 24px; }
+    .sm-sec-title { display: flex; align-items: center; gap: 6px; font-size: 10px; font-weight: 900; color: #767676; letter-spacing: .15em; margin-bottom: 8px; }
+    .sm-sec-title::before { content: ""; width: 6px; height: 6px; background: #ED0006; display: inline-block; }
+    .sm-list { display: flex; flex-direction: column; gap: 8px; }
+    .sm-item { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px; background: #fff; color: #111; border: 1px solid #111; font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .04em; text-decoration: none; cursor: pointer; text-align: left; }
+    .sm-item:hover { background: #F5F5F5; }
+    .sm-item.cur { background: #111; color: #fff; }
+    .sm-item i { font-style: normal; opacity: .6; }
+    .sm-grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .sm-small { display: flex; align-items: center; justify-content: center; padding: 10px 6px; background: #fff; color: #111; border: 1px solid #E5E5E5; font: inherit; font-size: 12px; font-weight: 700; text-decoration: none; text-align: center; cursor: pointer; }
+    .sm-small:hover { background: #111; color: #fff; }
+    .sm-small.red { color: #ED0006; border-color: #F3C0C0; font-weight: 900; }
+    .sm-small.red:hover { background: #FFF1F1; color: #ED0006; }
+    .sm-box { background: #F5F5F5; border: 1px solid #E5E5E5; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .sm-foot { padding: 16px; background: #F5F5F5; border-top: 1px solid #E5E5E5; }
+    .sm-foot .lbl { font-size: 10px; font-weight: 900; color: #767676; letter-spacing: .15em; margin-bottom: 4px; }
+    .sm-foot .val { font-size: 12px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 12px; }
+    .sm-foot .name-line { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .sm-foot .name-line .val { flex: 1; margin: 0; font-size: 14px; font-weight: 900; }
+    .sm-logout { width: 100%; padding: 8px; background: #fff; color: #111; border: 1px solid #111; font: inherit; font-size: 12px; font-weight: 900; letter-spacing: .06em; cursor: pointer; }
+    .sm-logout:hover { background: #111; color: #fff; }
+    @media print { #sideMenuBackdrop, #sideMenuDrawer, .sm-menu-btn, .sm-chip { display: none !important; } }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
+
+  <!-- ===== 共通サイドメニュー（管理表と同じ） ===== -->
+  <div id="sideMenuBackdrop" onclick="closeSideMenu()"></div>
+  <aside id="sideMenuDrawer" aria-label="メニュー">
+    <div>
+      <div class="sm-head">
+        <div class="sm-head-l">
+          <div class="sm-logo"><span>龍翔</span><span>会</span></div>
+          <div><small>NAVIGATION</small><b>メニュー設定</b></div>
+        </div>
+        <button class="sm-close" onclick="closeSideMenu()" title="閉じる" aria-label="閉じる">×</button>
+      </div>
+      <div class="sm-body">
+        <div>
+          <div class="sm-sec-title">YEAR MANAGEMENT / 年度切替・設定</div>
+          <div class="sm-box">
+            <div class="sm-grid2">
+              <a class="sm-small" href="index.html#newyear">新年度追加</a>
+              <a class="sm-small" href="index.html#yearmanage">年度編集</a>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="sm-sec-title">DATA OPERATIONS / 主要操作</div>
+          <div class="sm-list">
+            <a class="sm-item" href="index.html" onclick="closeSideMenu()"><span>管理表（参加・集金チェック）</span><i>›</i></a>
+            <a class="sm-item" href="index.html#tournaments" onclick="closeSideMenu()"><span>大会・日程・参加費編集</span><i>›</i></a>
+            <a class="sm-item" href="participants.html" onclick="closeSideMenu()"><span>参加者一覧（誰がどの大会に出るか）</span><i>›</i></a>
+            <a class="sm-item cur" href="board.html" onclick="closeSideMenu()"><span>支部内掲示板</span><i>›</i></a>
+            <a class="sm-item" href="board.html#help" onclick="closeSideMenu()"><span>お手伝い募集</span><i>›</i></a>
+            <a class="sm-item" href="board.html#poll" onclick="closeSideMenu()"><span>アンケート</span><i>›</i></a>
+          </div>
+        </div>
+
+        <div>
+          <div class="sm-sec-title">OUTPUT / 出力・印刷</div>
+          <div class="sm-grid2">
+            <a class="sm-small" href="index.html#print">印刷 (A4)</a>
+            <a class="sm-small" href="index.html#csv">CSV出力</a>
+          </div>
+        </div>
+
+        <div>
+          <div class="sm-sec-title">SYSTEM &amp; BACKUP / バックアップ管理</div>
+          <div class="sm-box">
+            <a class="sm-small" style="justify-content:flex-start" href="index.html#backup">全年度バックアップ保存</a>
+            <a class="sm-small" style="justify-content:flex-start" href="index.html">バックアップから復元（管理表で）</a>
+            <a class="sm-small red" style="justify-content:flex-start" href="index.html#reset">初期状態にリセット</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sm-foot">
+      <div class="lbl">LOGGED IN AS</div>
+      <div class="val" id="loginUserLabel" style="font-family:ui-monospace,monospace"></div>
+      <div class="lbl">YOUR NAME / 表示名</div>
+      <div class="name-line">
+        <div class="val" id="drawerNameLabel">未登録</div>
+        <a class="sm-small" style="padding:6px 10px" href="index.html#setname">変更</a>
+      </div>
+      <button class="sm-logout" onclick="cloudLogout()">LOGOUT / ログアウト</button>
+    </div>
+  </aside>
+
+  <script>
+    // 共通メニューの開閉（管理表と同じ）
+    function openSideMenu() {
+      const m = document.getElementById('sideMenuDrawer'), b = document.getElementById('sideMenuBackdrop');
+      b.classList.add('show');
+      setTimeout(() => { b.classList.add('on'); m.classList.add('open'); }, 10);
+    }
+    function closeSideMenu() {
+      const m = document.getElementById('sideMenuDrawer'), b = document.getElementById('sideMenuBackdrop');
+      b.classList.remove('on'); m.classList.remove('open');
+      setTimeout(() => b.classList.remove('show'), 200);
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSideMenu(); });
+    // 表示名をメニュー・ヘッダーに反映
+    function refreshMyNameUI() {
+      let n = '';
+      try { n = (localStorage.getItem('ryusyokai_my_name') || '').trim(); } catch (e) { /* ignore */ }
+      const c = document.getElementById('myNameLink'); if (c) c.textContent = n ? '👤 ' + n : '名前を登録';
+      const d = document.getElementById('drawerNameLabel'); if (d) d.textContent = n || '未登録';
+    }
+    document.addEventListener('DOMContentLoaded', refreshMyNameUI);
+  </script>
+
   <div class="wrap">
     <header class="bar">
       <div class="bar-top">
@@ -137,11 +269,13 @@
             <h1>支部内掲示板・お手伝い募集</h1>
           </div>
         </div>
-        <div class="links">
-          <a class="btn" href="index.html">← 管理表へ</a>
+        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0; min-width:0;">
+          <a class="sm-chip" id="myNameLink" href="index.html#setname" title="あなたの表示名（クリックで変更）">名前を登録</a>
+          <button class="sm-menu-btn" id="hamburgerBtn" onclick="openSideMenu()">☰ <span>MENU</span></button>
         </div>
       </div>
     </header>
+
 
     <p class="status" id="status">読み込み中…</p>
 
@@ -241,7 +375,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged }
+    import { getAuth, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
     import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc,
              query, orderBy, limit, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment }
@@ -263,6 +397,11 @@
     const POSTS = 'board_posts';
     const HELPS = 'helper_calls';
     const POLLS = 'polls';
+    window.cloudLogout = async () => {
+      if (!confirm('ログアウトしますか？')) return;
+      try { await signOut(auth); } catch (e) { /* ignore */ }
+      location.href = 'index.html';
+    };
     const NAME_KEY = 'ryusyokai_my_name';
 
     const $ = (id) => document.getElementById(id);
@@ -327,7 +466,16 @@
         $('tab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', on);
       });
       try { history.replaceState(null, '', name === 'board' ? location.pathname : '#' + name); } catch (e) { /* ignore */ }
+      document.querySelectorAll('#sideMenuDrawer .sm-item').forEach(a => {
+        const k = a.getAttribute('href');
+        a.classList.toggle('cur', k === (name === 'board' ? 'board.html' : 'board.html#' + name));
+      });
     };
+    // ページ上部のメニューから #help / #poll に移動したときもタブを切り替える
+    window.addEventListener('hashchange', () => {
+      const h = location.hash.replace('#', '');
+      window.showTab(['help', 'poll'].includes(h) ? h : 'board');
+    });
 
     // ---------- 掲示板 ----------
     function renderPosts() {
@@ -657,6 +805,7 @@
 
       $('gate').style.display = 'none';
       $('app').classList.remove('hidden');
+      $('loginUserLabel').textContent = user.email || '';
       setStatus('');
 
       $('myNameView').textContent = myName() || '未登録';

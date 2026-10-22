@@ -466,12 +466,17 @@
       <div class="text-[10px] font-black text-uq-red uppercase tracking-widest mb-1">YOUR NAME</div>
       <h2 class="text-base font-black text-uq-black mb-2">あなたの名前を入力してください</h2>
       <p class="text-xs font-bold text-uq-muted leading-relaxed mb-3">
-        掲示板の投稿者名、お手伝い募集・参加の名前、支部内締切日の設定者として表示されます。<br>
-        ひとつ登録すれば、すべてのページで使われます。
+        参加表の氏名・掲示板の投稿者名・お手伝い募集・支部内締切日の設定者として使われます。<br>
+        ひとつ登録すれば、すべてのページで共通です。名簿にある名前はそこから選べます。
       </p>
-      <input type="text" id="nameInput" maxlength="30" placeholder="例）鈴木 太郎" autocomplete="name"
+      <input type="text" id="nameInput" maxlength="30" placeholder="例）鈴木 太郎" autocomplete="off" list="nameRosterList"
              onkeydown="if(event.key==='Enter'){saveMyName()}"
              class="w-full h-10 px-3 text-sm font-bold border border-uq-border focus:border-uq-black focus:outline-none">
+      <datalist id="nameRosterList"></datalist>
+      <label id="nameRosterRow" class="flex items-center gap-2 mt-2 text-xs font-bold text-uq-black cursor-pointer select-none">
+        <input type="checkbox" id="nameRosterCheck" checked class="accent-uq-red w-4 h-4">
+        <span id="nameRosterNote">参加表（名簿）にも自分を追加する</span>
+      </label>
       <div id="nameError" class="text-xs font-bold text-uq-red min-h-[16px] mt-1"></div>
       <div class="flex gap-2 justify-end mt-2">
         <button id="nameCancel" onclick="closeNameModal()" class="hidden px-4 h-9 bg-white hover:bg-uq-gray text-uq-black border border-uq-border text-xs font-black">キャンセル</button>
@@ -587,13 +592,6 @@
             <span id="myNameText" class="truncate">名前を登録</span>
           </button>
 
-          <!-- ＋氏名追加 -->
-          <button onclick="openAddMemberModal()"
-                  class="flex items-center gap-1 px-1.5 sm:px-3.5 h-7 sm:h-9 bg-uq-red hover:bg-uq-darkred text-white text-[11px] sm:text-xs font-black tracking-wider uppercase transition shadow-xs">
-            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-            <span>＋氏名</span>
-          </button>
-
           <!-- MENUボタン（画面右端にピシッと表示！） -->
           <button onclick="openSideMenu()" id="hamburgerBtn"
                   class="flex items-center gap-1 px-2 sm:px-3.5 h-7 sm:h-9 bg-uq-black hover:bg-uq-charcoal text-white text-[11px] sm:text-xs font-black tracking-widest uppercase transition">
@@ -705,16 +703,6 @@
               DATA OPERATIONS / 主要操作
             </div>
             <div class="space-y-2">
-              <!-- 氏名追加 -->
-              <button onclick="openAddMemberModal(); closeSideMenu();"
-                      class="w-full flex items-center justify-between p-3 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider transition shadow-xs">
-                <div class="flex items-center gap-2">
-                  <i data-lucide="user-plus" class="w-4 h-4"></i>
-                  <span>参加者の氏名追加</span>
-                </div>
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </button>
-
               <!-- 大会・日程編集 -->
               <button onclick="openTournamentSettingsModal(); closeSideMenu();"
                       class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
@@ -735,12 +723,30 @@
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </a>
 
-              <!-- 支部内掲示板・お手伝い募集ページ -->
+              <!-- 支部内掲示板・お手伝い募集・アンケート -->
               <a href="board.html"
                  class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
                 <div class="flex items-center gap-2">
                   <i data-lucide="message-square" class="w-4 h-4"></i>
-                  <span>支部内掲示板・お手伝い募集</span>
+                  <span>支部内掲示板</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </a>
+
+              <a href="board.html#help"
+                 class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="hand-helping" class="w-4 h-4"></i>
+                  <span>お手伝い募集</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </a>
+
+              <a href="board.html#poll"
+                 class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+                  <span>アンケート</span>
                 </div>
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </a>
@@ -944,35 +950,6 @@
           <button onclick="closeYearManageModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
           <button onclick="renameCurrentYear()" class="px-5 py-2 text-xs font-black bg-uq-black hover:bg-uq-charcoal text-white uppercase tracking-wider transition">保存</button>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- 氏名追加モーダル -->
-  <div id="addMemberModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
-    <div class="bg-white border-2 border-black max-w-md w-full p-6 shadow-2xl">
-      <div class="flex items-center justify-between mb-4 pb-3 border-b-2 border-black">
-        <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
-          <span class="w-3 h-3 bg-uq-red inline-block"></span>
-          ADD MEMBERS / 参加者の氏名追加
-        </h3>
-        <button onclick="closeAddMemberModal()" class="text-uq-black hover:text-uq-red p-1 transition">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="space-y-3">
-        <p class="text-xs text-uq-muted font-medium">
-          1行に1名ずつ入力してください。名簿から複数人を改行で一括貼り付けできます。
-        </p>
-        <textarea id="newMemberNames" rows="6"
-                  placeholder="山田 太郎&#10;佐藤 花子&#10;鈴木 一郎"
-                  class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-bold leading-relaxed"></textarea>
-      </div>
-
-      <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-uq-border">
-        <button onclick="closeAddMemberModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
-        <button onclick="saveNewMembers()" class="px-5 py-2 text-xs font-black bg-uq-red hover:bg-uq-darkred text-white uppercase tracking-wider transition">登録する</button>
       </div>
     </div>
   </div>
@@ -1787,8 +1764,8 @@
               <div class="flex flex-col items-center justify-center gap-2">
                 <i data-lucide="users" class="w-8 h-8 text-uq-border"></i>
                 <p class="text-sm font-bold text-uq-black">まだこの年度（${escapeHtml(appStore.currentYear)}）の参加者が登録されていません。</p>
-                <button onclick="openAddMemberModal()" class="mt-2 px-5 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider transition">
-                  ＋ 参加者の氏名を追加
+                <button onclick="openNameModal()" class="mt-2 px-5 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider transition">
+                  自分の名前を登録して参加表に追加
                 </button>
               </div>
             </td>
@@ -1819,7 +1796,7 @@
 
           return `
             <tr class="${rowBg} hover:bg-red-50/20 transition-colors border-b border-uq-border group h-11">
-              <td class="sticky-col-no py-2 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border ${rowBg} font-bold align-middle">${index + 1}</td>
+              <td class="sticky-col-no py-2 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border ${rowBg} font-bold align-middle"${(getMyName() && normName(member.name) === normName(getMyName())) ? ' style="box-shadow: inset 4px 0 0 #ED0006" title="あなた"' : ''}>${index + 1}</td>
               <td class="sticky-col-name py-2 px-3 text-left font-black text-uq-black border-r border-uq-border ${rowBg} align-middle">
                 <input type="text" value="${escapeHtml(member.name)}" 
                        onchange="updateMemberName('${member.id}', this.value)"
@@ -1990,37 +1967,6 @@
         saveStore();
         renderTable();
       }
-    }
-
-    // --- 氏名追加 ---
-    function openAddMemberModal() {
-      document.getElementById('newMemberNames').value = '';
-      document.getElementById('addMemberModal').classList.remove('hidden');
-      document.getElementById('newMemberNames').focus();
-    }
-
-    function closeAddMemberModal() {
-      document.getElementById('addMemberModal').classList.add('hidden');
-    }
-
-    function saveNewMembers() {
-      const text = document.getElementById('newMemberNames').value.trim();
-      if (!text) return;
-
-      const current = getCurrentData();
-      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0 && !isExampleName(l));
-      lines.forEach(name => {
-        const newId = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
-        current.members.push({
-          id: newId,
-          name: name,
-          records: {}
-        });
-      });
-
-      saveStore();
-      closeAddMemberModal();
-      renderTable();
     }
 
     // --- 大会編集モーダル ---
@@ -2284,31 +2230,98 @@
       const d = document.getElementById('drawerNameLabel');
       if (d) d.textContent = n || '未登録';
     }
+    function normName(n) { return String(n || '').normalize('NFKC').replace(/\s+/g, ''); }
+    function rosterMembers() {
+      try { return getCurrentData().members.filter(m => m && m.name && !isExampleName(m.name)); } catch (e) { return []; }
+    }
+    function findRosterMember(name) {
+      const k = normName(name);
+      return k ? rosterMembers().find(m => normName(m.name) === k) : null;
+    }
+    function updateNameRosterNote() {
+      const typed = document.getElementById('nameInput').value.trim();
+      const cur = getMyName();
+      const row = document.getElementById('nameRosterRow');
+      const note = document.getElementById('nameRosterNote');
+      const chk = document.getElementById('nameRosterCheck');
+      if (typed && findRosterMember(typed)) {
+        row.classList.add('hidden'); row.classList.remove('flex');
+        chk.checked = true;
+      } else if (cur && typed && normName(typed) !== normName(cur) && findRosterMember(cur)) {
+        row.classList.remove('hidden'); row.classList.add('flex');
+        note.textContent = '名簿の「' + cur + '」も、この名前に変更する';
+        chk.checked = true;
+      } else {
+        row.classList.remove('hidden'); row.classList.add('flex');
+        note.textContent = '参加表（名簿）にも自分を追加する';
+      }
+    }
     function openNameModal(prefill, forced) {
       const ov = document.getElementById('nameOverlay');
       if (!ov) return;
       const cur = getMyName();
-      document.getElementById('nameInput').value = cur || prefill || '';
+      const input = document.getElementById('nameInput');
+      input.value = cur || prefill || '';
+      input.oninput = updateNameRosterNote;
+      document.getElementById('nameRosterList').innerHTML =
+        rosterMembers().map(m => '<option value="' + escapeHtml(m.name) + '"></option>').join('');
+      document.getElementById('nameRosterCheck').checked = true;
+      updateNameRosterNote();
       document.getElementById('nameError').textContent = '';
       document.getElementById('nameCancel').classList.toggle('hidden', !cur || forced === true);
       ov.classList.remove('hidden'); ov.classList.add('flex');
-      setTimeout(() => { const i = document.getElementById('nameInput'); i.focus(); i.select(); }, 30);
+      setTimeout(() => { input.focus(); input.select(); }, 30);
     }
     function closeNameModal() {
       const ov = document.getElementById('nameOverlay');
       if (!getMyName()) return;
       ov.classList.add('hidden'); ov.classList.remove('flex');
     }
+    // 自分の名前を名簿（参加表）と揃える：既にあれば何もしない／旧名があれば改名／なければ追加
+    function syncMyNameToRoster(oldName, newName, addIfMissing) {
+      try {
+        if (findRosterMember(newName) || isExampleName(newName)) return;
+        const old = oldName ? findRosterMember(oldName) : null;
+        if (old) {
+          old.name = newName;
+        } else if (addIfMissing) {
+          getCurrentData().members.push({
+            id: 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+            name: newName, records: {}
+          });
+        } else { return; }
+        saveStore();
+      } catch (e) { console.error('roster sync failed', e); }
+    }
     function saveMyName() {
       const v = document.getElementById('nameInput').value.trim().slice(0, 30);
       if (!v) { document.getElementById('nameError').textContent = '名前を入力してください。'; return; }
+      const old = getMyName();
+      const addIfMissing = document.getElementById('nameRosterCheck').checked;
       try { localStorage.setItem(MYNAME_KEY, v); } catch (e) { /* ignore */ }
       if (window.__syncNameToAuth) window.__syncNameToAuth(v);
+      syncMyNameToRoster(old, v, addIfMissing);
       const ov = document.getElementById('nameOverlay');
       ov.classList.add('hidden'); ov.classList.remove('flex');
       refreshMyNameUI();
       if (typeof renderTable === 'function' && window.__appStarted) renderTable();
     }
+    // 他のページのメニューから来たときに、対応する操作をそのまま開く（例：index.html#print）
+    window.runHashAction = () => {
+      const h = location.hash.replace('#', '');
+      const map = {
+        tournaments: () => openTournamentSettingsModal(),
+        newyear: () => openNewYearModal(),
+        yearmanage: () => openYearManageModal(),
+        print: () => printSheet(),
+        csv: () => exportCSV(),
+        backup: () => exportJSON(),
+        reset: () => resetDataPrompt()
+      };
+      if (!map[h]) return;
+      try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
+      setTimeout(() => { try { map[h](); } catch (e) { console.error(e); } }, 300);
+    };
     // ログイン後に呼ぶ：名前が未登録なら入力を求める（Googleログインの表示名は候補として入れる）
     window.ensureMyName = (user) => {
       refreshMyNameUI();
@@ -2586,8 +2599,12 @@
         }
       }
 
-      if (!started) { started = true; window.__appStarted = true; startApp(); } else { refreshUI(); }
-      window.ensureMyName(user);
+      // 名前の登録は、表の描画でエラーが出ても必ず先に実行する
+      try { window.ensureMyName(user); } catch (e) { console.error('ensureMyName failed', e); }
+      try {
+        if (!started) { started = true; window.__appStarted = true; startApp(); } else { refreshUI(); }
+      } catch (e) { console.error('app render failed', e); }
+      try { window.runHashAction(); } catch (e) { console.error(e); }
 
       if (ok) {
         unsubscribe = onSnapshot(dataRef, (snap) => {
