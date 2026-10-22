@@ -465,114 +465,214 @@
   <div class="max-w-[1720px] mx-auto px-3 sm:px-6 py-4 print-container">
 
     <!-- UNIQLO風 操作・設定ヘッダー（印刷非表示） -->
-    <header class="no-print bg-white border border-uq-border p-4 sm:p-5 mb-4 shadow-xs">
-      <!-- 1段目：ブランドロゴ（赤のスクエアロゴ）＆ 同期ステータス -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-uq-border">
+    <header class="no-print bg-white border border-uq-border p-3 sm:p-4 mb-3 shadow-xs">
+      <div class="flex items-center justify-between gap-3">
+        <!-- 左側：UNIQLOロゴ ＆ タイトル ＆ 現在の年度バッジ -->
         <div class="flex items-center gap-3">
-          <!-- UNIQLOオマージュ：赤のスクエアロゴバッジ -->
-          <div class="w-12 h-12 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-xs tracking-tighter shrink-0 select-none shadow-sm">
+          <!-- UNIQLOオマージュ：赤のスクエアロゴ -->
+          <div class="w-10 h-10 sm:w-11 sm:h-11 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[10px] sm:text-xs tracking-tighter shrink-0 select-none shadow-sm">
             <span>龍弓</span>
             <span>会道</span>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-[10px] font-black uppercase tracking-widest text-uq-red">RYUSYOKAI KYUDO SYSTEM</span>
+              <span class="text-[9px] font-black uppercase tracking-widest text-uq-red">RYUSYOKAI KYUDO SYSTEM</span>
+              <span id="headerCurrentYearBadge" class="text-[10px] font-black text-white bg-uq-black px-1.5 py-0.2 tracking-wider">令和8年度</span>
             </div>
-            <!-- アプリタイトル（インライン編集） -->
+            <!-- アプリタイトル（インライン編集可能） -->
             <input type="text" id="appTitle" value="大会参加・参加費管理表"
-                   class="text-lg sm:text-2xl font-black text-uq-black bg-transparent border-b-2 border-transparent hover:border-uq-black focus:border-uq-red focus:bg-white focus:outline-none px-1 tracking-tight"
+                   class="text-base sm:text-xl font-black text-uq-black bg-transparent border-b-2 border-transparent hover:border-uq-black focus:border-uq-red focus:bg-white focus:outline-none px-0.5 tracking-tight"
                    title="クリックして表タイトルを変更可能">
           </div>
         </div>
 
-        <!-- 右上：クラウド同期・ユーザー・ログアウト -->
-        <div class="flex flex-wrap items-center gap-2 text-xs">
-          <span id="syncStatus" class="font-bold px-2.5 py-1 border border-uq-border text-uq-muted bg-white flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
-            <span class="w-2 h-2 bg-uq-muted"></span>
+        <!-- 右側：クラウド同期 ＆ ＋氏名追加クイックボタン ＆ ハンバーガーMENUボタン -->
+        <div class="flex items-center gap-2">
+          <!-- 同期ステータス -->
+          <span id="syncStatus" class="hidden md:flex font-black px-2 py-1 border border-uq-border text-uq-muted bg-white items-center gap-1.5 uppercase tracking-wider text-[10px]">
+            <span class="w-1.5 h-1.5 bg-uq-muted"></span>
             ☁ 準備中…
           </span>
-          <span id="loginUserLabel" class="text-uq-muted font-mono hidden sm:inline px-2"></span>
-          <button onclick="cloudLogout()" class="px-3 py-1 text-uq-black hover:bg-uq-black hover:text-white border border-uq-black font-bold transition text-xs uppercase tracking-wider">
-            LOGOUT / ログアウト
+
+          <!-- よく使う「＋氏名追加」ボタン（ヘッダーから1クリックで可能） -->
+          <button onclick="openAddMemberModal()"
+                  class="flex items-center gap-1.5 px-3 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase transition shadow-xs">
+            <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
+            <span class="hidden sm:inline">＋ 氏名追加</span>
+            <span class="sm:hidden">＋氏名</span>
+          </button>
+
+          <!-- ハンバーガーMENUボタン（UNIQLO風 ブラックソリッドボタン） -->
+          <button onclick="openSideMenu()" id="hamburgerBtn"
+                  class="flex items-center gap-1.5 px-3 py-2 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black tracking-widest uppercase transition"
+                  title="メニューを開く（年度切替・大会編集・印刷・CSV・バックアップなど）">
+            <i data-lucide="menu" class="w-4 h-4"></i>
+            <span>MENU</span>
           </button>
         </div>
       </div>
 
-      <!-- 2段目：年度切替 ＆ 主要アクションボタン（モジュラーUI） -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-4">
-        <!-- 年度セレクター & 操作 -->
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="flex items-center bg-uq-gray border border-uq-border p-1">
-            <span class="text-xs font-black text-uq-black px-2 uppercase tracking-wider">YEAR</span>
-            <select id="yearSelect" onchange="switchYear(this.value)"
-                    class="bg-transparent text-sm font-black text-uq-black focus:outline-none pr-3 py-1 cursor-pointer">
-              <!-- JSで動的生成 -->
-            </select>
-            <button onclick="openNewYearModal()"
-                    class="flex items-center gap-1 text-xs bg-white hover:bg-uq-black hover:text-white text-uq-black font-bold px-2.5 py-1 border border-uq-border transition"
-                    title="新しい年度を追加">
-              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
-              <span>新年度</span>
-            </button>
+      <!-- コントロールバー（検索・フィルター・参考例・凡例） -->
+      <div class="mt-3 pt-3 border-t border-uq-border flex flex-wrap items-center justify-between gap-2.5">
+        <!-- 検索とフィルター -->
+        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
+          <!-- 氏名検索 -->
+          <div class="relative flex-1 max-w-xs">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-uq-muted"></i>
+            <input type="text" id="searchInput" oninput="filterTable()" placeholder="SEARCH / 氏名検索..."
+                   class="w-full pl-7 pr-3 py-1 text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold uppercase tracking-wider">
           </div>
 
-          <button onclick="openYearManageModal()"
-                  class="p-2 text-uq-muted hover:text-uq-black hover:bg-uq-gray border border-transparent hover:border-uq-border transition"
-                  title="年度名の変更・削除">
-            <i data-lucide="settings-2" class="w-4 h-4"></i>
+          <!-- 絞り込みフィルター -->
+          <select id="filterSelect" onchange="filterTable()"
+                  class="text-xs bg-white border border-uq-border px-2.5 py-1 font-bold text-uq-black focus:outline-none focus:border-uq-black">
+            <option value="all">全員表示 (ALL)</option>
+            <option value="has_unpaid">⚠️ 未払いがある人のみ</option>
+            <option value="attending_any">いずれかに参加予定の人</option>
+          </select>
+
+          <!-- 参考例表示切り替え -->
+          <label class="flex items-center gap-1.5 text-xs text-uq-black bg-uq-gray hover:bg-white px-2.5 py-1 border border-uq-border cursor-pointer select-none transition">
+            <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
+                   class="accent-uq-red cursor-pointer">
+            <span class="font-bold">参考例（1名）を表示</span>
+          </label>
+        </div>
+
+        <!-- 凡例 -->
+        <div class="flex flex-wrap items-center gap-1.5 text-[10px] text-uq-black bg-white px-2.5 py-1 border border-uq-border">
+          <span class="font-black text-uq-muted uppercase tracking-wider">STATUS:</span>
+          <span class="inline-flex items-center font-black text-white bg-uq-black px-1.5 py-0.2">○済 (支払済)</span>
+          <span class="inline-flex items-center font-black text-white bg-uq-red px-1.5 py-0.2">○ (未払い)</span>
+          <span class="inline-flex items-center font-bold text-uq-muted bg-uq-gray px-1.5 py-0.2 border border-uq-border">× (不参加)</span>
+          <span class="inline-flex items-center text-uq-muted bg-white px-1.5 py-0.2 border border-uq-border">ー (未定)</span>
+          <span class="inline-flex items-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 py-0.2">中止</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ================= UNIQLO風 サイドドロワーメニュー（ハンバーガー展開時） ================= -->
+    <div id="sideMenuBackdrop" onclick="closeSideMenu()"
+         class="no-print fixed inset-0 bg-black/60 z-[60] hidden opacity-0 transition-opacity duration-200"></div>
+
+    <aside id="sideMenuDrawer"
+           class="no-print fixed top-0 right-0 bottom-0 w-80 sm:w-96 bg-white z-[70] shadow-2xl border-l-2 border-black transform translate-x-full transition-transform duration-200 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <!-- ドロワーヘッダー -->
+        <div class="p-4 bg-uq-black text-white flex items-center justify-between border-b-2 border-black">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[9px] tracking-tighter">
+              <span>龍弓</span>
+              <span>会道</span>
+            </div>
+            <div>
+              <div class="text-[9px] font-black uppercase tracking-widest text-uq-red">NAVIGATION</div>
+              <div class="text-sm font-black text-white">メニュー設定</div>
+            </div>
+          </div>
+          <button onclick="closeSideMenu()" class="p-1 text-white hover:text-uq-red transition" title="閉じる">
+            <i data-lucide="x" class="w-6 h-6"></i>
           </button>
         </div>
 
-        <!-- 主要ボタンツールバー（UNIQLOボールドボタンスタイル） -->
-        <div class="flex flex-wrap items-center gap-2">
-          <!-- 氏名追加（鮮烈なUNIQLOレッドボタン） -->
-          <button onclick="openAddMemberModal()"
-                  class="flex items-center gap-1.5 px-4 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase shadow-xs transition active:translate-y-px">
-            <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>＋ 氏名追加</span>
-          </button>
+        <div class="p-4 space-y-6">
+          <!-- セクション 1: 年度管理 (YEAR) -->
+          <div>
+            <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
+              YEAR MANAGEMENT / 年度切替・設定
+            </div>
+            <div class="bg-uq-gray p-3 border border-uq-border space-y-2.5">
+              <div>
+                <label class="block text-[11px] font-black text-uq-black mb-1 uppercase tracking-wider">表示中の年度</label>
+                <select id="yearSelect" onchange="switchYear(this.value); closeSideMenu();"
+                        class="w-full bg-white text-sm font-black text-uq-black border border-black px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uq-red cursor-pointer">
+                  <!-- JSで動的生成 -->
+                </select>
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <button onclick="openNewYearModal(); closeSideMenu();"
+                        class="flex items-center justify-center gap-1 text-xs bg-white hover:bg-uq-black hover:text-white text-uq-black font-bold py-2 border border-uq-black transition">
+                  <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  <span>新年度追加</span>
+                </button>
+                <button onclick="openYearManageModal(); closeSideMenu();"
+                        class="flex items-center justify-center gap-1 text-xs bg-white hover:bg-uq-black hover:text-white text-uq-black font-bold py-2 border border-uq-border transition">
+                  <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
+                  <span>年度編集</span>
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <!-- 大会・日程編集 -->
-          <button onclick="openTournamentSettingsModal()"
-                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition">
-            <i data-lucide="sliders" class="w-4 h-4"></i>
-            <span>大会・日程編集</span>
-          </button>
+          <!-- セクション 2: 主要操作メニュー (ACTIONS) -->
+          <div>
+            <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
+              DATA OPERATIONS / 主要操作
+            </div>
+            <div class="space-y-2">
+              <!-- 氏名追加 -->
+              <button onclick="openAddMemberModal(); closeSideMenu();"
+                      class="w-full flex items-center justify-between p-3 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider transition shadow-xs">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="user-plus" class="w-4 h-4"></i>
+                  <span>参加者の氏名追加</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
 
-          <!-- 印刷（A4） -->
-          <button onclick="printSheet()"
-                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition">
-            <i data-lucide="printer" class="w-4 h-4"></i>
-            <span>印刷 (A4)</span>
-          </button>
+              <!-- 大会・日程編集 -->
+              <button onclick="openTournamentSettingsModal(); closeSideMenu();"
+                      class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
+                <div class="flex items-center gap-2">
+                  <i data-lucide="sliders" class="w-4 h-4"></i>
+                  <span>大会・日程・参加費編集</span>
+                </div>
+                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+              </button>
+            </div>
+          </div>
 
-          <!-- CSV出力 -->
-          <button onclick="exportCSV()"
-                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition"
-                  title="Excel用CSVファイルをダウンロード">
-            <i data-lucide="download" class="w-4 h-4"></i>
-            <span>CSV出力</span>
-          </button>
+          <!-- セクション 3: 出力・印刷 (OUTPUT & EXPORT) -->
+          <div>
+            <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
+              OUTPUT / 出力・印刷
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="printSheet(); closeSideMenu();"
+                      class="flex items-center justify-center gap-1.5 p-2.5 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-border text-xs font-bold transition">
+                <i data-lucide="printer" class="w-4 h-4"></i>
+                <span>印刷 (A4)</span>
+              </button>
+              <button onclick="exportCSV(); closeSideMenu();"
+                      class="flex items-center justify-center gap-1.5 p-2.5 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-border text-xs font-bold transition">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                <span>CSV出力</span>
+              </button>
+            </div>
+          </div>
 
-          <!-- バックアップ・復元メニュー -->
-          <div class="relative inline-block text-left">
-            <button onclick="toggleDataMenu(event)"
-                    class="p-2 bg-white hover:bg-uq-gray text-uq-black border border-uq-border transition"
-                    title="データ保存・バックアップ">
-              <i data-lucide="database" class="w-4 h-4"></i>
-            </button>
-            <div id="dataMenuDropdown" class="hidden absolute right-0 mt-1 w-48 bg-white border border-uq-black py-1 z-50 text-xs shadow-xl">
-              <button onclick="exportJSON()" class="w-full text-left px-3 py-2 hover:bg-uq-gray text-uq-black font-bold flex items-center gap-2">
+          <!-- セクション 4: バックアップと復元 (BACKUP) -->
+          <div>
+            <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-2 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
+              SYSTEM & BACKUP / バックアップ管理
+            </div>
+            <div class="bg-uq-gray p-3 border border-uq-border space-y-2 text-xs">
+              <button onclick="exportJSON(); closeSideMenu();"
+                      class="w-full text-left p-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-border font-bold flex items-center gap-2 transition">
                 <i data-lucide="file-down" class="w-4 h-4 text-uq-muted"></i>
                 全年度バックアップ保存
               </button>
-              <label class="w-full text-left px-3 py-2 hover:bg-uq-gray text-uq-black font-bold flex items-center gap-2 cursor-pointer">
+              <label class="w-full text-left p-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-border font-bold flex items-center gap-2 cursor-pointer transition">
                 <i data-lucide="file-up" class="w-4 h-4 text-uq-muted"></i>
                 バックアップから復元
-                <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
+                <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event); closeSideMenu();">
               </label>
-              <hr class="my-1 border-uq-border">
-              <button onclick="resetDataPrompt()" class="w-full text-left px-3 py-2 hover:bg-red-50 text-uq-red font-black flex items-center gap-2">
+              <button onclick="resetDataPrompt(); closeSideMenu();"
+                      class="w-full text-left p-2 bg-white hover:bg-red-50 text-uq-red border border-red-200 font-black flex items-center gap-2 transition">
                 <i data-lucide="rotate-ccw" class="w-4 h-4 text-uq-red"></i>
                 初期状態にリセット
               </button>
@@ -581,45 +681,16 @@
         </div>
       </div>
 
-      <!-- 3段目：検索・フィルター・参考例表示・凡例（コントロールバー） -->
-      <div class="mt-4 pt-3 border-t border-uq-border flex flex-wrap items-center justify-between gap-3">
-        <!-- 検索とフィルター -->
-        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-          <!-- 氏名検索 -->
-          <div class="relative flex-1 max-w-xs">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-uq-muted"></i>
-            <input type="text" id="searchInput" oninput="filterTable()" placeholder="SEARCH / 氏名検索..."
-                   class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold uppercase tracking-wider">
-          </div>
-
-          <!-- 絞り込みフィルター -->
-          <select id="filterSelect" onchange="filterTable()"
-                  class="text-xs bg-white border border-uq-border px-3 py-1.5 font-bold text-uq-black focus:outline-none focus:border-uq-black">
-            <option value="all">全員表示 (ALL)</option>
-            <option value="has_unpaid">⚠️ 未払いがある人のみ (UNPAID ONLY)</option>
-            <option value="attending_any">いずれかに参加予定の人</option>
-          </select>
-
-          <!-- 参考例表示切り替え -->
-          <label class="flex items-center gap-2 text-xs text-uq-black bg-uq-gray hover:bg-white px-3 py-1.5 border border-uq-border cursor-pointer select-none transition">
-            <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
-                   class="accent-uq-red cursor-pointer">
-            <span class="font-bold">参考例（1名）を表示</span>
-          </label>
-        </div>
-
-        <!-- 凡例（UNIQLOサイズタグ風） -->
-        <div class="flex flex-wrap items-center gap-2 text-[11px] text-uq-black bg-white px-3 py-1.5 border border-uq-border">
-          <span class="font-black text-uq-muted uppercase tracking-wider">STATUS:</span>
-          <span class="inline-flex items-center font-black text-white bg-uq-black px-2 py-0.5 text-[10px]">○済 (支払済)</span>
-          <span class="inline-flex items-center font-black text-white bg-uq-red px-2 py-0.5 text-[10px]">○ (未払い)</span>
-          <span class="inline-flex items-center font-bold text-uq-muted bg-uq-gray px-2 py-0.5 border border-uq-border text-[10px]">× (不参加)</span>
-          <span class="inline-flex items-center text-uq-muted bg-white px-2 py-0.5 border border-uq-border text-[10px]">ー (未定)</span>
-          <span class="inline-flex items-center font-black text-uq-red bg-red-50 border border-uq-red px-2 py-0.5 text-[10px]">中止</span>
-        </div>
+      <!-- ドロワーフッター：アカウント情報 ＆ ログアウト -->
+      <div class="p-4 bg-uq-gray border-t border-uq-border">
+        <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-1">LOGGED IN AS</div>
+        <div id="loginUserLabel" class="text-xs font-mono font-bold text-uq-black truncate mb-3"></div>
+        <button onclick="cloudLogout()"
+                class="w-full py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
+          LOGOUT / ログアウト
+        </button>
       </div>
-    </header>
-
+    </aside>
     <!-- 印刷用タイトルヘッダー（印刷時のみ表示） -->
     <div class="hidden print-title mb-4">
       <h1 id="printFullTitle" class="text-xl font-black text-center tracking-wide text-black">令和8年度 大会参加申し込み表</h1>
@@ -1105,6 +1176,35 @@
       lucide.createIcons();
     }
 
+    // --- UNIQLO風 ハンバーガー・サイドメニュー制御 ---
+    function openSideMenu() {
+      const menu = document.getElementById('sideMenuDrawer');
+      const backdrop = document.getElementById('sideMenuBackdrop');
+      if (!menu || !backdrop) return;
+      backdrop.classList.remove('hidden');
+      setTimeout(() => {
+        backdrop.classList.remove('opacity-0');
+        menu.classList.remove('translate-x-full');
+      }, 10);
+      lucide.createIcons();
+    }
+
+    function closeSideMenu() {
+      const menu = document.getElementById('sideMenuDrawer');
+      const backdrop = document.getElementById('sideMenuBackdrop');
+      if (!menu || !backdrop) return;
+      backdrop.classList.add('opacity-0');
+      menu.classList.add('translate-x-full');
+      setTimeout(() => {
+        backdrop.classList.add('hidden');
+      }, 200);
+    }
+
+    // ESCキーでサイドメニューを閉じる
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSideMenu();
+    });
+
     function init(skipLoad) {
       if (skipLoad !== true) loadStore();
       renderYearSelect();
@@ -1123,6 +1223,8 @@
 
       updatePrintTitle();
       document.getElementById('printDate').textContent = new Date().toLocaleDateString('ja-JP');
+      const badge = document.getElementById('headerCurrentYearBadge');
+      if (badge) badge.textContent = appStore.currentYear;
 
       renderTable();
       renderStatsSummary();
@@ -1177,6 +1279,8 @@
 
         const current = getCurrentData();
         document.getElementById('appTitle').value = current.title || '大会参加・参加費管理表';
+        const badge = document.getElementById('headerCurrentYearBadge');
+        if (badge) badge.textContent = newYear;
         updatePrintTitle();
         renderTable();
         renderStatsSummary();
