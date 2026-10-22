@@ -2,11 +2,52 @@
 // 各ページの cloudWithdraw() から必要になったときだけ読み込まれます。
 import { getAuth, deleteUser, reauthenticateWithCredential, reauthenticateWithPopup, EmailAuthProvider, GoogleAuthProvider }
   from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
-import { getFirestore, collection, query, where, getDocs, deleteDoc, updateDoc, arrayRemove }
+import { getFirestore, collection, query, where, getDocs, deleteDoc, updateDoc, arrayRemove, doc, runTransaction, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
 const CONFIRM_WORD = '退会';
-const LOCAL_KEYS = ['ryusyokai_my_name', 'kyudo_cloud_linked'];
+const NAME_KEY = 'ryusyokai_my_name';
+const LOCAL_KEYS = [NAME_KEY, 'kyudo_cloud_linked', 'kyudo_tournament_app_v3', 'kyudo_tournament_app_v3_backup_before_cloud'];
+const normName = (n) => String(n || '').normalize('NFKC').replace(/\s+/g, '');
+
+// 登録している名前（この端末の表示名。無ければアカウントの表示名）
+function myRegisteredName(user) {
+  let n = '';
+  try { n = (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) { /* ignore */ }
+  return n || (user.displayName || '').trim();
+}
+
+// 共有の名簿（参加表）から、自分の名前のメンバーを全年度分削除する。
+// 共有データに残る「最終更新者＝自分のメール」も消す。削除した件数を返す。
+async function removeFromRoster(db, user, name) {
+  const key = normName(name);
+  const ref = doc(db, 'apps', 'kyudoTournament');
+  let removed = 0;
+  await runTransaction(db, async (tx) => {
+    removed = 0;
+    const snap = await tx.get(ref);
+    if (!snap.exists()) return;
+    const d = snap.data();
+    let years;
+    try { years = JSON.parse(d.data); } catch (e) { return; }
+    if (key) {
+      Object.values(years || {}).forEach(y => {
+        if (!y || !Array.isArray(y.members)) return;
+        const before = y.members.length;
+        y.members = y.members.filter(m => !(m && normName(m.name) === key));
+        removed += before - y.members.length;
+      });
+    }
+    const clearEmail = !!d.updatedBy && d.updatedBy === user.email;
+    if (!removed && !clearEmail) return;
+    tx.set(ref, {
+      data: removed ? JSON.stringify(years) : d.data,
+      updatedAt: serverTimestamp(),
+      updatedBy: clearEmail ? '' : (d.updatedBy || '')
+    });
+  });
+  return removed;
+}
 const RED = '#ED0006';
 
 function errText(code) {
@@ -53,6 +94,7 @@ export function openWithdraw(opts = {}) {
 
   const hasPassword = user.providerData.some(p => p.providerId === 'password');
   const hasGoogle = user.providerData.some(p => p.providerId === 'google.com');
+  const rosterName = myRegisteredName(user);
 
   const ov = document.createElement('div');
   ov.id = 'withdrawOverlay';
@@ -68,14 +110,17 @@ export function openWithdraw(opts = {}) {
         <ul style="margin:2px 0 10px;padding-left:20px;">
           <li>ログインアカウント（${esc(user.email || '')}）</li>
           <li>自分が投稿した掲示板・お手伝い募集・アンケート</li>
+          ${rosterName ? `<li>名簿（参加表）に登録した自分の名前「${esc(rosterName)}」と、全年度の参加・集金の記録（下のチェックで残すこともできます）</li>` : ''}
           <li>他の募集への「参加表明」</li>
           <li>この端末に保存した表示名</li>
         </ul>
         <div style="font-weight:900;">削除されないもの</div>
         <ul style="margin:2px 0 0;padding-left:20px;">
-          <li>参加表（名簿）の記録・集金データ（全員共有のデータです。名簿から外したい場合は、先に管理表で削除してください）</li>
           <li>アンケートの匿名の回答（誰の回答か分からない形で保存されています）</li>
         </ul>
+        ${rosterName ? `<label style="display:flex;gap:8px;align-items:flex-start;margin-top:14px;font-size:12px;font-weight:700;cursor:pointer;">
+          <input id="wdRoster" type="checkbox" checked style="margin-top:3px;width:16px;height:16px;">
+          <span>名簿（参加表）から「${esc(rosterName)}」を削除する<br><span style="font-weight:400;color:#767676;">集金済みの記録も消えます。会計に必要な場合はチェックを外してください。</span></span></label>` : ''}
         ${hasPassword ? `<div id="wdPwBlock"><label style="${labelCss}">PASSWORD / 本人確認のためパスワードを入力
           <input id="wdPassword" type="password" autocomplete="current-password" style="${inputCss}"></label></div>` : ''}
         ${hasGoogle ? `<p id="wdGoogleNote" style="margin:14px 0 0;font-size:12px;color:#767676;">「退会する」を押すと、本人確認のためGoogleのログイン画面が開きます。ログイン中のGoogleアカウント（${esc(user.email || '')}）を選んでください。</p>` : ''}
@@ -133,7 +178,11 @@ export function openWithdraw(opts = {}) {
         provider.setCustomParameters({ prompt: 'select_account' });
         await reauthenticateWithPopup(user, provider);
       }
-      // 2) 自分のデータを削除
+      // 2) 名簿から自分の名前を削除 → 自分の投稿などを削除
+      let rosterFailed = false, rosterRemoved = 0;
+      const rosterChk = $('wdRoster');
+      try { rosterRemoved = await removeFromRoster(getFirestore(), user, rosterChk && !rosterChk.checked ? '' : rosterName); }
+      catch (e) { console.error('roster removal failed', e); rosterFailed = true; }
       let failed = 0;
       try { failed = await cleanupMyData(getFirestore(), user.uid); }
       catch (e) { console.error('withdraw cleanup failed', e); failed = -1; }
@@ -141,6 +190,8 @@ export function openWithdraw(opts = {}) {
       await deleteUser(user);
       LOCAL_KEYS.forEach(k => { try { localStorage.removeItem(k); } catch (e) { /* ignore */ } });
       alert('退会しました。ご利用ありがとうございました。' +
+            (rosterRemoved ? '\n名簿から ' + rosterRemoved + ' 件削除しました。' : '') +
+            (rosterFailed ? '\n（名簿からの削除に失敗しました。管理表で手動で削除してください）' : '') +
             (failed !== 0 ? '\n（一部の投稿が削除できなかった可能性があります）' : ''));
       if (typeof opts.onDone === 'function') opts.onDone(); else location.href = 'index.html';
     } catch (e) {
