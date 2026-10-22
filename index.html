@@ -46,7 +46,7 @@
 
   <style>
     /* ========================================================
-       UNIQLO UI スタイリング規約（機能美・明快・幾何学・ボールド）
+       UNIQLO UI スタイリング規約（徹底した幾何学的整列・機能美）
        ======================================================== */
     :root {
       color-scheme: light;
@@ -56,15 +56,16 @@
       letter-spacing: -0.01em;
       background-color: #F8F8F8;
       color: #111111;
+      margin: 0;
+      padding: 0;
     }
 
-    /* 等幅数字 */
     .tnum {
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum";
     }
 
-    /* UNIQLOスタイルのスクロールバー */
+    /* テーブル横スクロールバー（スリム＆クリーン） */
     .table-scroll {
       scrollbar-width: thin;
       scrollbar-color: #CCCCCC #F5F5F5;
@@ -83,7 +84,7 @@
       background: #999999;
     }
 
-    /* 固定列（Sticky Columns）のシャープな境界線 */
+    /* 固定列（Sticky Columns）の精緻な配置と境界線 */
     .sticky-col-no {
       position: sticky;
       left: 0;
@@ -91,12 +92,16 @@
       width: 44px;
       min-width: 44px;
       max-width: 44px;
+      text-align: center;
     }
     .sticky-col-name {
       position: sticky;
       left: 44px;
       z-index: 12;
-      min-width: 150px;
+      width: 160px;
+      min-width: 160px;
+      max-width: 160px;
+      text-align: left;
     }
     .sticky-col-name::after {
       content: "";
@@ -118,29 +123,43 @@
       z-index: 20;
     }
 
-    /* 中止大会列のパターン（シャープなグレーアウト） */
+    /* 中止大会列の背景 */
     .canceled-col {
-      background-color: #F0F0F0;
-      opacity: 0.85;
+      background-color: #F0F0F0 !important;
     }
 
-    /* ステータスバッジのUNIQLOボールドタグスタイル */
+    /* セル内ステータスバッジの均一サイズ（48px × 24px） */
     .status-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 24px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.02em;
       transition: all 0.1s ease;
       user-select: none;
+      box-sizing: border-box;
+    }
+    .status-cell {
+      cursor: pointer;
+      vertical-align: middle;
+      padding: 6px 4px !important;
     }
     .status-cell:hover .status-badge {
-      transform: scale(1.05);
+      transform: scale(1.08);
     }
     .status-cell:active .status-badge {
-      transform: scale(0.95);
+      transform: scale(0.94);
     }
 
     /* テーブルヘッダーのインライン編集入力欄 */
     .th-inline-input {
       background: transparent;
       border: 1px solid transparent;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
+      box-sizing: border-box;
     }
     .th-inline-input:hover {
       border-color: rgba(255, 255, 255, 0.4);
@@ -150,7 +169,7 @@
       background: #FFFFFF;
       color: #111111 !important;
       border-color: #ED0006;
-      box-shadow: 0 0 0 2px rgba(237, 0, 6, 0.2);
+      box-shadow: 0 0 0 2px rgba(237, 0, 6, 0.3);
       outline: none;
     }
 
@@ -189,7 +208,6 @@
         padding: 0 !important;
       }
 
-      /* 印刷ヘッダー（タイトル） */
       .print-title {
         display: block !important;
       }
@@ -202,7 +220,6 @@
         font-size: 7.5pt !important;
       }
 
-      /* テーブルを囲むdivのoverflow/widthを完全に開放 */
       .bg-white,
       .overflow-hidden,
       .table-scroll,
@@ -217,7 +234,6 @@
         background: transparent !important;
       }
 
-      /* 画面表示用の固定列スタイルを印刷時は無効化 */
       .sticky-col-no,
       .sticky-col-name,
       thead,
@@ -230,7 +246,6 @@
         display: none !important;
       }
 
-      /* メインテーブル：A4縦の横幅に100%収める fixed レイアウト */
       #mainTable {
         width: 100% !important;
         max-width: 100% !important;
@@ -241,7 +256,6 @@
         margin: 0 !important;
       }
 
-      /* 全セル共通 */
       #mainTable th,
       #mainTable td {
         border: 1px solid #111111 !important;
@@ -257,7 +271,6 @@
         box-sizing: border-box !important;
       }
 
-      /* No列の幅（極小で十分） */
       #mainTable th.sticky-col-no,
       #mainTable td.sticky-col-no {
         width: 22px !important;
@@ -267,7 +280,6 @@
         font-size: 7pt !important;
       }
 
-      /* 氏名列の幅 */
       #mainTable th.sticky-col-name,
       #mainTable td.sticky-col-name {
         width: 66px !important;
@@ -278,18 +290,14 @@
         font-size: 7.5pt !important;
       }
 
-      /* 未払計列の幅 */
       #mainTable th.col-unpaid-total,
-      #mainTable td.col-unpaid-total,
-      #mainTable th:nth-last-child(2),
-      #mainTable td:nth-last-child(2) {
+      #mainTable td.col-unpaid-total {
         width: 36px !important;
         min-width: 34px !important;
         max-width: 40px !important;
         font-size: 7pt !important;
       }
 
-      /* 各大会列（画面用min-w-[100px]の完全解除） */
       #mainTable th:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(.col-unpaid-total),
       #mainTable td:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(.col-unpaid-total) {
         min-width: 0 !important;
@@ -297,7 +305,6 @@
         padding: 2px 1px !important;
       }
 
-      /* ヘッダー行の背景色（印刷用の淡いトーン） */
       #deadlineHeaderRow,
       #deadlineHeaderRow th {
         background-color: #F0F0F0 !important;
@@ -313,7 +320,6 @@
         font-size: 7pt !important;
       }
 
-      /* インライン入力欄を完全にプレーンテキスト化 */
       #mainTable input {
         border: none !important;
         background: transparent !important;
@@ -334,13 +340,11 @@
         font-size: 7.5pt !important;
       }
 
-      /* 参考例行 */
       .print-example-bg,
       .print-example-bg td {
         background-color: #F9F9F9 !important;
       }
 
-      /* ステータスバッジの印刷最適化 */
       .status-badge {
         display: inline-block !important;
         background: transparent !important;
@@ -353,12 +357,13 @@
         color: #000000 !important;
         line-height: 1 !important;
         transform: none !important;
+        width: auto !important;
+        height: auto !important;
       }
       .status-badge span {
         color: #000000 !important;
       }
 
-      /* 未払い表示の文字化 */
       #mainTable td span {
         background: transparent !important;
         border: none !important;
@@ -368,12 +373,10 @@
         font-size: 7pt !important;
       }
 
-      /* 中止大会列 */
       .canceled-col {
         background-color: #F0F0F0 !important;
       }
 
-      /* フッター合計行 */
       #tableFoot,
       #tableFoot tr,
       #tableFoot td {
@@ -383,13 +386,11 @@
         color: #000000 !important;
       }
 
-      /* 印刷用下部注釈 */
       .print-title.mt-4 {
         margin-top: 8px !important;
         font-size: 7.5pt !important;
       }
-    }
-  </style>
+    }  </style>
 </head>
 <body class="min-h-screen font-sans antialiased bg-[#F8F8F8]">
 
@@ -465,46 +466,43 @@
   <div class="max-w-[1720px] mx-auto px-3 sm:px-6 py-4 print-container">
 
     <!-- UNIQLO風 操作・設定ヘッダー（印刷非表示） -->
-    <header class="no-print bg-white border border-uq-border p-3 sm:p-4 mb-3 shadow-xs">
+    <header class="no-print bg-white border border-uq-border p-3 sm:px-4 sm:py-3 mb-3 shadow-xs">
+      <!-- 1段目：ブランド ＆ アプリタイトル ＆ 右上メニューボタングループ -->
       <div class="flex items-center justify-between gap-3">
         <!-- 左側：UNIQLOロゴ ＆ タイトル ＆ 現在の年度バッジ -->
-        <div class="flex items-center gap-3">
-          <!-- UNIQLOオマージュ：赤のスクエアロゴ -->
-          <div class="w-10 h-10 sm:w-11 sm:h-11 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[10px] sm:text-xs tracking-tighter shrink-0 select-none shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <!-- 赤のスクエアロゴ -->
+          <div class="w-9 h-9 sm:w-10 sm:h-10 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[9px] sm:text-[10px] tracking-tighter shrink-0 select-none shadow-xs">
             <span>龍弓</span>
             <span>会道</span>
           </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-[9px] font-black uppercase tracking-widest text-uq-red">RYUSYOKAI KYUDO SYSTEM</span>
-              <span id="headerCurrentYearBadge" class="text-[10px] font-black text-white bg-uq-black px-1.5 py-0.2 tracking-wider">令和8年度</span>
-            </div>
-            <!-- アプリタイトル（インライン編集可能） -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="headerCurrentYearBadge" class="text-[10px] font-black text-white bg-uq-black px-2 py-0.5 tracking-wider uppercase">令和8年度</span>
             <input type="text" id="appTitle" value="大会参加・参加費管理表"
-                   class="text-base sm:text-xl font-black text-uq-black bg-transparent border-b-2 border-transparent hover:border-uq-black focus:border-uq-red focus:bg-white focus:outline-none px-0.5 tracking-tight"
+                   class="text-base sm:text-lg font-black text-uq-black bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-1 tracking-tight"
                    title="クリックして表タイトルを変更可能">
           </div>
         </div>
 
-        <!-- 右側：クラウド同期 ＆ ＋氏名追加クイックボタン ＆ ハンバーガーMENUボタン -->
-        <div class="flex items-center gap-2">
+        <!-- 右側：クラウド同期 ＆ ＋氏名追加 ＆ MENUボタン（高さ36px h-9 でピシッと統一） -->
+        <div class="flex items-center gap-2 shrink-0">
           <!-- 同期ステータス -->
-          <span id="syncStatus" class="hidden md:flex font-black px-2 py-1 border border-uq-border text-uq-muted bg-white items-center gap-1.5 uppercase tracking-wider text-[10px]">
+          <span id="syncStatus" class="hidden md:inline-flex font-black px-2.5 h-9 border border-uq-border text-uq-muted bg-white items-center gap-1.5 uppercase tracking-wider text-[10px]">
             <span class="w-1.5 h-1.5 bg-uq-muted"></span>
-            ☁ 準備中…
+            ☁ 同期中
           </span>
 
-          <!-- よく使う「＋氏名追加」ボタン（ヘッダーから1クリックで可能） -->
+          <!-- ＋氏名追加（赤のスクエアボタン、高さ36px） -->
           <button onclick="openAddMemberModal()"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase transition shadow-xs">
+                  class="flex items-center gap-1.5 px-3.5 h-9 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase transition shadow-xs">
             <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
             <span class="hidden sm:inline">＋ 氏名追加</span>
             <span class="sm:hidden">＋氏名</span>
           </button>
 
-          <!-- ハンバーガーMENUボタン（UNIQLO風 ブラックソリッドボタン） -->
+          <!-- MENUボタン（黒のスクエアボタン、高さ36px） -->
           <button onclick="openSideMenu()" id="hamburgerBtn"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black tracking-widest uppercase transition"
+                  class="flex items-center gap-1.5 px-3.5 h-9 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black tracking-widest uppercase transition"
                   title="メニューを開く（年度切替・大会編集・印刷・CSV・バックアップなど）">
             <i data-lucide="menu" class="w-4 h-4"></i>
             <span>MENU</span>
@@ -512,46 +510,47 @@
         </div>
       </div>
 
-      <!-- コントロールバー（検索・フィルター・参考例・凡例） -->
-      <div class="mt-3 pt-3 border-t border-uq-border flex flex-wrap items-center justify-between gap-2.5">
+      <!-- 2段目：コントロールバー（検索・フィルター・参考例・凡例を高さ34pxで幾何学的に揃える） -->
+      <div class="mt-3 pt-2.5 border-t border-uq-border flex flex-wrap items-center justify-between gap-2 text-xs">
         <!-- 検索とフィルター -->
-        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[260px]">
+        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
           <!-- 氏名検索 -->
           <div class="relative flex-1 max-w-xs">
             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-uq-muted"></i>
-            <input type="text" id="searchInput" oninput="filterTable()" placeholder="SEARCH / 氏名検索..."
-                   class="w-full pl-7 pr-3 py-1 text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold uppercase tracking-wider">
+            <input type="text" id="searchInput" oninput="filterTable()" placeholder="氏名を検索..."
+                   class="w-full pl-8 pr-3 h-[34px] text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold">
           </div>
 
           <!-- 絞り込みフィルター -->
           <select id="filterSelect" onchange="filterTable()"
-                  class="text-xs bg-white border border-uq-border px-2.5 py-1 font-bold text-uq-black focus:outline-none focus:border-uq-black">
+                  class="h-[34px] bg-white border border-uq-border px-3 font-bold text-uq-black focus:outline-none focus:border-uq-black cursor-pointer">
             <option value="all">全員表示 (ALL)</option>
             <option value="has_unpaid">⚠️ 未払いがある人のみ</option>
             <option value="attending_any">いずれかに参加予定の人</option>
           </select>
 
           <!-- 参考例表示切り替え -->
-          <label class="flex items-center gap-1.5 text-xs text-uq-black bg-uq-gray hover:bg-white px-2.5 py-1 border border-uq-border cursor-pointer select-none transition">
+          <label class="flex items-center gap-1.5 h-[34px] text-xs text-uq-black bg-uq-gray hover:bg-white px-3 border border-uq-border cursor-pointer select-none transition">
             <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
                    class="accent-uq-red cursor-pointer">
             <span class="font-bold">参考例（1名）を表示</span>
           </label>
         </div>
 
-        <!-- 凡例 -->
-        <div class="flex flex-wrap items-center gap-1.5 text-[10px] text-uq-black bg-white px-2.5 py-1 border border-uq-border">
-          <span class="font-black text-uq-muted uppercase tracking-wider">STATUS:</span>
-          <span class="inline-flex items-center font-black text-white bg-uq-black px-1.5 py-0.2">○済 (支払済)</span>
-          <span class="inline-flex items-center font-black text-white bg-uq-red px-1.5 py-0.2">○ (未払い)</span>
-          <span class="inline-flex items-center font-bold text-uq-muted bg-uq-gray px-1.5 py-0.2 border border-uq-border">× (不参加)</span>
-          <span class="inline-flex items-center text-uq-muted bg-white px-1.5 py-0.2 border border-uq-border">ー (未定)</span>
-          <span class="inline-flex items-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 py-0.2">中止</span>
+        <!-- 凡例（高さ34pxで揃えた端正なタグインジケーター） -->
+        <div class="flex items-center gap-1.5 h-[34px] px-3 bg-white border border-uq-border text-[10px] text-uq-black shrink-0">
+          <span class="font-black text-uq-muted uppercase tracking-wider mr-1">STATUS:</span>
+          <span class="inline-flex items-center justify-center font-black text-white bg-uq-black px-1.5 h-5 leading-none">○済</span>
+          <span class="text-uq-muted text-[10px]">支払済</span>
+          <span class="inline-flex items-center justify-center font-black text-white bg-uq-red px-1.5 h-5 leading-none ml-1">○</span>
+          <span class="text-uq-muted text-[10px]">未払い</span>
+          <span class="inline-flex items-center justify-center font-bold text-uq-muted bg-uq-gray px-1.5 h-5 leading-none border border-uq-border ml-1">×</span>
+          <span class="text-uq-muted text-[10px]">不参加</span>
+          <span class="inline-flex items-center justify-center text-uq-muted px-1.5 h-5 leading-none border border-uq-border ml-1">ー</span>
+          <span class="inline-flex items-center justify-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 h-5 leading-none ml-1">中止</span>
         </div>
       </div>
-    </header>
-
-    <!-- ================= UNIQLO風 サイドドロワーメニュー（ハンバーガー展開時） ================= -->
+    </header>    <!-- ================= UNIQLO風 サイドドロワーメニュー（ハンバーガー展開時） ================= -->
     <div id="sideMenuBackdrop" onclick="closeSideMenu()"
          class="no-print fixed inset-0 bg-black/60 z-[60] hidden opacity-0 transition-opacity duration-200"></div>
 
@@ -1550,45 +1549,45 @@
         }
       });
 
-      // UNIQLO風 全体KPIバーのHTML
+      // 全体KPIバー（高さ32pxで綺麗に揃える）
       kpiBar.innerHTML = `
-        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px]">MEMBERS:</span>
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px] font-black">MEMBERS</span>
           <span class="font-black text-uq-black tnum text-sm">${memberCount}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px]">ENTRIES:</span>
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px] font-black">ENTRIES</span>
           <span class="font-black text-uq-black tnum text-sm">${totalAttendingOverall}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px]">EVENTS:</span>
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px] font-black">EVENTS</span>
           <span class="font-black text-uq-black tnum text-sm">${current.tournaments.length}</span>件
           ${canceledCount > 0 ? `<span class="text-[10px] text-uq-red font-bold">(中止${canceledCount})</span>` : ''}
         </div>
 
         ${totalUnpaidCountOverall > 0 ? `
-          <div class="flex items-center gap-2 font-black text-white bg-uq-red px-3 py-1 text-xs uppercase tracking-wider shadow-sm">
-            <span>UNPAID / 未払総額:</span>
+          <div class="flex items-center gap-2 font-black text-white bg-uq-red px-3 h-8 text-xs uppercase tracking-wider shadow-xs">
+            <span>未払総額:</span>
             <span class="font-black text-white tnum text-sm">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
-            <span class="text-[10px] bg-black/20 px-1 py-0.2">${totalUnpaidCountOverall}件</span>
+            <span class="text-[10px] bg-black/25 px-1 py-0.2 font-mono">${totalUnpaidCountOverall}件</span>
           </div>
         ` : `
-          <div class="flex items-center gap-1.5 font-black text-white bg-uq-black px-3 py-1 text-xs uppercase tracking-wider">
+          <div class="flex items-center gap-1.5 font-black text-white bg-uq-black px-3 h-8 text-xs uppercase tracking-wider">
             <span>ALL PAID / 全員集金完了 ✨</span>
           </div>
         `}
 
         ${totalRefundCountOverall > 0 ? `
-          <div class="flex items-center gap-1.5 font-black text-uq-red bg-red-50 border border-uq-red px-3 py-1 text-xs uppercase tracking-wider">
-            <span>REFUND / 返金要:</span>
+          <div class="flex items-center gap-1.5 font-black text-uq-red bg-red-50 border border-uq-red px-2.5 h-8 text-xs uppercase tracking-wider">
+            <span>返金要:</span>
             <span class="font-black text-uq-red tnum text-sm">${totalRefundCountOverall}</span>名
           </div>
         ` : ''}
       `;
 
-      // 2. 大会別カード（UNIQLO風 モジュラープライスタグ）
+      // 2. 大会別カード（幅155px、高さ88pxで完全均一化）
       container.innerHTML = current.tournaments.map((t, idx) => {
         if (t.isCanceled) {
           let paid = 0;
@@ -1597,22 +1596,22 @@
           });
           return `
             <div onclick="scrollToTournament('${t.id}')"
-                 class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-red-50 p-3 border border-uq-red shadow-xs transition cursor-pointer group flex flex-col justify-between">
+                 class="w-[155px] min-w-[155px] h-[88px] bg-white hover:bg-red-50 p-2.5 border border-uq-red shadow-xs transition cursor-pointer group flex flex-col justify-between box-border">
               <div>
-                <div class="flex items-center justify-between gap-1 mb-1">
+                <div class="flex items-center justify-between gap-1 mb-0.5">
                   <span class="text-[10px] font-mono text-uq-muted font-black">#${idx + 1}</span>
-                  <span class="text-[9px] font-black text-white bg-uq-red px-1.5 py-0.2 uppercase tracking-wider">CANCELED</span>
+                  <span class="text-[9px] font-black text-white bg-uq-red px-1 py-0.2 leading-none uppercase">CANCELED</span>
                 </div>
                 <div class="text-xs font-black text-uq-black truncate group-hover:text-uq-red transition" title="${escapeHtml(t.name)}">
                   ${escapeHtml(t.name)}
                 </div>
-                <div class="text-[10px] text-uq-muted mt-0.5 truncate font-medium">
+                <div class="text-[10px] text-uq-muted truncate font-medium">
                   ${t.date ? escapeHtml(t.date) : '日程未定'}
                 </div>
               </div>
-              <div class="mt-2 pt-2 border-t border-uq-border flex items-center justify-between">
-                <span class="text-[10px] font-black text-uq-red">中止</span>
-                ${paid > 0 ? `<span class="text-[10px] font-black text-uq-red bg-red-50 px-1 border border-uq-red">返金:${paid}</span>` : '<span class="text-[9px] text-uq-muted">集金無</span>'}
+              <div class="pt-1 border-t border-uq-border flex items-center justify-between text-[10px]">
+                <span class="font-black text-uq-red">中止</span>
+                ${paid > 0 ? `<span class="font-black text-uq-red bg-red-50 px-1 border border-uq-red">返金:${paid}</span>` : '<span class="text-uq-muted">集金無</span>'}
               </div>
             </div>
           `;
@@ -1630,21 +1629,21 @@
 
         return `
           <div onclick="scrollToTournament('${t.id}')"
-               class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:border-black p-3 border border-uq-border shadow-xs transition cursor-pointer group flex flex-col justify-between">
+               class="w-[155px] min-w-[155px] h-[88px] bg-white hover:border-black p-2.5 border border-uq-border shadow-xs transition cursor-pointer group flex flex-col justify-between box-border">
             <div>
-              <div class="flex items-center justify-between gap-1 mb-1">
+              <div class="flex items-center justify-between gap-1 mb-0.5">
                 <span class="text-[10px] font-mono text-uq-muted font-black">#${idx + 1}</span>
                 <span class="text-[10px] font-mono font-bold text-uq-black">¥${(t.fee || 0).toLocaleString()}</span>
               </div>
               <div class="text-xs font-black text-uq-black truncate group-hover:text-uq-red transition" title="${escapeHtml(t.name)}">
                 ${escapeHtml(t.name)}
               </div>
-              <div class="text-[10px] text-uq-muted mt-0.5 truncate font-medium">
+              <div class="text-[10px] text-uq-muted truncate font-medium">
                 ${t.date ? escapeHtml(t.date) : (t.deadline ? `締:${escapeHtml(t.deadline)}` : '未定')}
               </div>
             </div>
-            <div class="mt-2 pt-2 border-t border-uq-border flex items-baseline justify-between">
-              <span class="text-lg font-black text-uq-black tnum leading-none">
+            <div class="pt-1 border-t border-uq-border flex items-baseline justify-between">
+              <span class="text-base font-black text-uq-black tnum leading-none">
                 ${total}<span class="text-[10px] font-bold text-uq-muted ml-0.5">名</span>
               </span>
               <span class="text-[10px] font-black ${attending > 0 ? 'text-uq-red bg-red-50 border border-uq-red px-1.5 py-0.2' : 'text-uq-black bg-uq-gray px-1.5 py-0.2'}">
@@ -1658,32 +1657,31 @@
       applySummaryCollapsedState();
       lucide.createIcons();
     }
-
-    // --- メインテーブル描画 ---
+    // --- メインテーブル描画（端正な幾何学的グリッド） ---
     function renderTable() {
       const current = getCurrentData();
       const filter = document.getElementById('filterSelect').value;
       const search = document.getElementById('searchInput').value.trim().toLowerCase();
 
-      // 1. 締切行（1行目：ソリッドブラック）
+      // 1. 締切行（1行目：ソリッドブラック、高さ統一）
       const deadlineRow = document.getElementById('deadlineHeaderRow');
       deadlineRow.innerHTML = `
-        <th class="sticky-col-no py-2.5 px-1 text-[11px] font-black text-uq-muted border-r border-uq-charcoal text-center bg-uq-black">締切</th>
-        <th class="sticky-col-name py-2.5 px-3 text-[11px] font-black text-white border-r border-uq-charcoal text-left bg-uq-black uppercase tracking-wider">
-          DEADLINE / 支部内締切日
+        <th class="sticky-col-no py-2 px-1 text-[11px] font-black text-uq-muted border-r border-uq-charcoal text-center bg-uq-black">締切</th>
+        <th class="sticky-col-name py-2 px-3 text-[11px] font-black text-white border-r border-uq-charcoal text-left bg-uq-black uppercase tracking-wider">
+          支部内締切日
         </th>
         ${current.tournaments.map(t => `
-          <th class="py-1.5 px-1 min-w-[100px] border-r border-uq-charcoal text-center ${t.isCanceled ? 'opacity-50' : ''}">
+          <th class="py-1.5 px-1 min-w-[105px] border-r border-uq-charcoal text-center ${t.isCanceled ? 'opacity-50' : ''}">
             <div class="flex items-center justify-center">
               <input type="text" value="${escapeHtml(t.deadline || '')}" 
-                     placeholder="締切..."
+                     placeholder="締切日..."
                      onchange="updateTournamentField('${t.id}', 'deadline', this.value)"
                      class="th-inline-input w-20 text-center text-xs font-bold text-white placeholder:text-uq-muted py-1 ${t.isCanceled ? 'line-through' : ''}"
                      title="支部内締切日をクリックして直接入力 (例: 6/10)">
             </div>
           </th>
         `).join('')}
-        <th class="col-unpaid-total py-1.5 px-2 text-[11px] font-bold text-white border-r border-uq-charcoal text-center min-w-[90px]">未払集計</th>
+        <th class="col-unpaid-total py-1.5 px-2 text-[11px] font-bold text-white border-r border-uq-charcoal text-center w-[90px] min-w-[90px]">未払集計</th>
         <th class="py-1.5 px-1 text-[11px] font-bold text-uq-muted w-12 no-print text-center">
           <button onclick="addTournamentQuick()" class="inline-flex items-center justify-center px-1.5 py-0.5 bg-uq-red hover:bg-uq-darkred text-white text-[10px] font-black uppercase transition" title="大会を末尾に1つ追加">
             ＋大会
@@ -1691,15 +1689,15 @@
         </th>
       `;
 
-      // 2. 大会名・開催日・参加費行（2行目）
+      // 2. 大会名・開催日・参加費行（2行目：チャコール、高さ統一）
       const tourRow = document.getElementById('tournamentHeaderRow');
       tourRow.innerHTML = `
         <th class="sticky-col-no py-2.5 px-1 font-black text-uq-muted text-xs border-r border-uq-charcoal text-center bg-uq-charcoal">No.</th>
         <th class="sticky-col-name py-2.5 px-3 font-black text-white text-xs border-r border-uq-charcoal text-left bg-uq-charcoal uppercase tracking-wider">
-          NAME / 氏名
+          氏名
         </th>
         ${current.tournaments.map(t => `
-          <th id="th_t_${t.id}" class="py-2.5 px-1.5 min-w-[100px] border-r border-uq-charcoal text-center align-top ${t.isCanceled ? 'bg-black/60' : ''}">
+          <th id="th_t_${t.id}" class="py-2 px-1.5 min-w-[105px] border-r border-uq-charcoal text-center align-top ${t.isCanceled ? 'bg-black/60' : ''}">
             <!-- 中止切替 ＆ 削除 -->
             <div class="no-print flex items-center justify-between gap-1 mb-1 px-1">
               <button onclick="toggleTournamentCanceled('${t.id}')" 
@@ -1719,55 +1717,57 @@
                    title="大会名をクリックして変更可能">
             
             <!-- 大会開催日 -->
-            <div class="mt-1 flex items-center justify-center">
+            <div class="mt-0.5 flex items-center justify-center">
               <input type="text" value="${escapeHtml(t.date || '')}" 
                      placeholder="開催日..."
                      onchange="updateTournamentField('${t.id}', 'date', this.value)"
-                     class="th-inline-input w-20 text-center text-[11px] font-bold text-white/90 placeholder:text-uq-muted py-0.5 ${t.isCanceled ? 'line-through opacity-50' : ''}"
+                     class="th-inline-input w-20 text-center text-[11px] font-bold text-white/90 placeholder:text-uq-muted py-0.2 ${t.isCanceled ? 'line-through opacity-50' : ''}"
                      title="大会開催日をクリックして直接入力 (例: 6/21)">
             </div>
 
             <!-- 参加費 -->
-            <div class="no-print mt-1 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-uq-muted line-through' : 'text-white/70'}">
+            <div class="no-print mt-0.5 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-uq-muted line-through' : 'text-white/70'}">
               <span class="opacity-70 mr-0.5">¥</span>
               <input type="number" min="0" step="100" value="${t.fee || 0}"
                      onchange="updateTournamentField('${t.id}', 'fee', this.value)"
-                     class="th-inline-input w-16 text-center text-[10px] text-white py-0.5 font-mono font-bold"
+                     class="th-inline-input w-16 text-center text-[10px] text-white py-0.2 font-mono font-bold"
                      title="参加費（円）をクリックして直接入力">
             </div>
             ${t.fee ? `<div class="hidden print-title text-[10px] font-normal mt-0.5">¥${t.fee.toLocaleString()}</div>` : ''}
           </th>
         `).join('')}
-        <th class="col-unpaid-total py-2.5 px-2 font-black min-w-[90px] border-r border-uq-charcoal text-center text-xs text-white">未払計</th>
-        <th class="py-2.5 px-1 font-bold w-12 no-print border-uq-charcoal text-center text-xs text-uq-muted">操作</th>
+        <th class="col-unpaid-total py-2 px-2 font-black w-[90px] min-w-[90px] border-r border-uq-charcoal text-center text-xs text-white">未払計</th>
+        <th class="py-2 px-1 font-bold w-12 no-print border-uq-charcoal text-center text-xs text-uq-muted">操作</th>
       `;
 
       cleanDuplicateExamples();
 
-      // 3. 参考例行（固定1名：クリーンなグレー背景）
+      // 3. 参考例行（固定1名）
       let exampleRowsHtml = '';
       if (appStore.showExamples !== false) {
         exampleRowsHtml = FIXED_EXAMPLE_MEMBERS.map((exMember, idx) => `
-          <tr class="bg-uq-gray hover:bg-slate-100 transition border-b border-uq-border print-example-bg">
-            <td class="sticky-col-no py-2.5 px-1 text-uq-muted font-mono text-[11px] text-center border-r border-uq-border font-black bg-uq-gray">例</td>
-            <td class="sticky-col-name py-2.5 px-3 text-left font-black text-uq-black border-r border-uq-border bg-uq-gray">
+          <tr class="bg-uq-gray hover:bg-slate-100 transition border-b border-uq-border print-example-bg h-11">
+            <td class="sticky-col-no py-2 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border font-black bg-uq-gray">例</td>
+            <td class="sticky-col-name py-2 px-3 text-left font-black text-uq-black border-r border-uq-border bg-uq-gray">
               <div class="flex items-center gap-1.5">
-                <span class="inline-block px-1.5 py-0.2 bg-uq-black text-white text-[9px] font-black tracking-wider uppercase">EXAMPLE</span>
-                <span>${escapeHtml(exMember.name)}</span>
+                <span class="inline-block px-1.5 py-0.2 bg-uq-black text-white text-[9px] font-black tracking-wider uppercase leading-none">見本</span>
+                <span class="truncate">${escapeHtml(exMember.name)}</span>
               </div>
             </td>
             ${current.tournaments.map(t => {
               const status = exMember.records[t.id] || 'none';
               return `
-                <td class="py-2.5 px-1 text-center border-r border-uq-border ${t.isCanceled ? 'canceled-col' : ''}">
-                  ${getStatusBadge(status, t.isCanceled)}
+                <td class="py-2 px-1 text-center border-r border-uq-border align-middle ${t.isCanceled ? 'canceled-col' : ''}">
+                  <div class="flex items-center justify-center">
+                    ${getStatusBadge(status, t.isCanceled)}
+                  </div>
                 </td>
               `;
             }).join('')}
-            <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-uq-border">
+            <td class="col-unpaid-total py-2 px-2 text-center border-r border-uq-border align-middle">
               <span class="text-[11px] text-uq-muted font-bold">（見本）</span>
             </td>
-            <td class="py-2.5 px-1 text-center no-print">
+            <td class="py-2 px-1 text-center no-print align-middle">
               <span class="text-[10px] text-uq-muted font-bold uppercase tracking-wider" title="参考例のため固定表示です">FIXED</span>
             </td>
           </tr>
@@ -1833,34 +1833,36 @@
           const rowBg = isEven ? 'bg-[#FAFAFA]' : 'bg-white';
 
           return `
-            <tr class="${rowBg} hover:bg-red-50/20 transition-colors border-b border-uq-border group">
-              <td class="sticky-col-no py-2.5 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border ${rowBg} font-bold">${index + 1}</td>
-              <td class="sticky-col-name py-2.5 px-3 text-left font-black text-uq-black border-r border-uq-border ${rowBg}">
+            <tr class="${rowBg} hover:bg-red-50/20 transition-colors border-b border-uq-border group h-11">
+              <td class="sticky-col-no py-2 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border ${rowBg} font-bold align-middle">${index + 1}</td>
+              <td class="sticky-col-name py-2 px-3 text-left font-black text-uq-black border-r border-uq-border ${rowBg} align-middle">
                 <input type="text" value="${escapeHtml(member.name)}" 
                        onchange="updateMemberName('${member.id}', this.value)"
-                       class="w-full bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-1.5 py-0.5 text-sm font-black text-uq-black transition">
+                       class="w-full bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-1 py-0.5 text-sm font-black text-uq-black transition">
               </td>
               ${current.tournaments.map(t => {
                 const status = (member.records && member.records[t.id]) || 'none';
                 return `
-                  <td class="py-2 px-1 text-center status-cell border-r border-uq-border ${t.isCanceled ? 'canceled-col' : ''}"
+                  <td class="py-2 px-1 text-center status-cell border-r border-uq-border align-middle ${t.isCanceled ? 'canceled-col' : ''}"
                       onclick="${t.isCanceled ? '' : `cycleStatus('${member.id}', '${t.id}')`}"
                       oncontextmenu="${t.isCanceled ? '' : `openContextMenu(event, '${member.id}', '${t.id}')`}">
-                    ${getStatusBadge(status, t.isCanceled)}
+                    <div class="flex items-center justify-center">
+                      ${getStatusBadge(status, t.isCanceled)}
+                    </div>
                   </td>
                 `;
               }).join('')}
-              <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-uq-border">
+              <td class="col-unpaid-total py-2 px-2 text-center border-r border-uq-border align-middle">
                 ${unpaidCount > 0 ? `
-                  <span class="inline-flex items-center font-black text-xs text-white bg-uq-red px-2 py-0.5">
+                  <span class="inline-flex items-center justify-center font-black text-xs text-white bg-uq-red px-2 py-0.5">
                     <span class="tnum">${unpaidAmount > 0 ? `¥${unpaidAmount.toLocaleString()}` : `${unpaidCount}件`}</span>
                   </span>
                 ` : `
-                  <span class="text-[11px] text-uq-muted font-black uppercase">PAID</span>
+                  <span class="text-[11px] text-uq-muted font-bold">ー</span>
                 `}
               </td>
-              <td class="py-2 px-1 text-center no-print">
-                <button onclick="deleteMember('${member.id}')" class="p-1.5 text-uq-muted/50 hover:text-uq-red hover:bg-uq-gray transition" title="この人を削除">
+              <td class="py-2 px-1 text-center no-print align-middle">
+                <button onclick="deleteMember('${member.id}')" class="p-1 text-uq-muted/40 hover:text-uq-red transition" title="この人を削除">
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </td>
@@ -1877,68 +1879,6 @@
       renderStatsSummary();
       lucide.createIcons();
     }
-
-    function renderTableFooter() {
-      const current = getCurrentData();
-      const tfoot = document.getElementById('tableFoot');
-      let totalUnpaidOverall = 0;
-
-      const colsHtml = current.tournaments.map(t => {
-        if (t.isCanceled) {
-          let paid = 0;
-          current.members.forEach(m => {
-            if (m.records && m.records[t.id] === 'paid') paid++;
-          });
-          return `
-            <td class="py-3 px-1 text-center text-xs border-r border-uq-border bg-uq-gray">
-              <span class="text-uq-red font-black block text-xs">中止</span>
-              ${paid > 0 ? `<span class="text-[10px] text-uq-red font-black bg-white px-1 border border-uq-red">返金:${paid}名</span>` : '<span class="text-[10px] text-uq-muted">集金無</span>'}
-            </td>
-          `;
-        }
-
-        let paid = 0;
-        let attending = 0;
-
-        current.members.forEach(m => {
-          const st = m.records && m.records[t.id];
-          if (st === 'paid') paid++;
-          else if (st === 'attending') attending++;
-        });
-
-        const totalAttending = paid + attending;
-        const unpaidMoney = attending * (t.fee || 0);
-        totalUnpaidOverall += unpaidMoney;
-
-        return `
-          <td class="py-3 px-1 text-center text-xs border-r border-uq-border">
-            <div class="font-black text-uq-black tnum">計 ${totalAttending}名</div>
-            <div class="text-[10px] mt-0.5 space-x-1">
-              <span class="text-uq-black font-bold">済:${paid}</span>
-              ${attending > 0 ? `<span class="text-uq-red font-black">未:${attending}</span>` : ''}
-            </div>
-          </td>
-        `;
-      }).join('');
-
-      tfoot.innerHTML = `
-        <tr class="bg-uq-gray font-black">
-          <td class="sticky-col-no py-3 px-1 text-center border-r border-uq-border text-xs text-uq-muted bg-uq-gray">計</td>
-          <td class="sticky-col-name py-3 px-3 text-left border-r border-uq-border text-xs font-black text-uq-black bg-uq-gray">
-            TOTAL / 参加者合計: <span class="tnum text-uq-red font-black">${current.members.length}</span>名
-          </td>
-          ${colsHtml}
-          <td class="col-unpaid-total py-3 px-2 text-center border-r border-uq-border">
-            <div class="text-[10px] text-uq-muted uppercase tracking-wider">TOTAL UNPAID</div>
-            <div class="text-xs font-black ${totalUnpaidOverall > 0 ? 'text-uq-red' : 'text-uq-black'} tnum">
-              ${totalUnpaidOverall > 0 ? `¥${totalUnpaidOverall.toLocaleString()}` : '¥0'}
-            </div>
-          </td>
-          <td class="no-print"></td>
-        </tr>
-      `;
-    }
-
     // --- 大会追加・削除 ---
     const MAX_TOURNAMENTS = 50;
 
