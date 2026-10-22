@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="theme-color" content="#ED0006">
-  <title>支部内掲示板・お手伝い募集 | 龍翔会</title>
+  <title>支部内掲示板・お手伝い募集・アンケート | 龍翔会</title>
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -107,6 +107,22 @@
     .empty { padding: 28px 12px; text-align: center; font-size: 13px; font-weight: 700; color: #767676; background: #fff; border: 1px solid #E5E5E5; }
     #gate { display: none; max-width: 420px; margin: 40px auto; background: #fff; border: 2px solid #111; padding: 24px; text-align: center; }
     #gate p { font-size: 13px; font-weight: 700; line-height: 1.7; margin: 0 0 16px; }
+    .join-row { display: flex; gap: 6px; align-items: center; flex: 1; justify-content: flex-end; min-width: 0; flex-wrap: wrap; }
+    .join-row input[type=text] { height: 26px; width: 140px; max-width: 100%; border: 1px solid #CCC; padding: 0 8px; font: inherit; font-size: 13px; font-weight: 700; border-radius: 0; }
+    .join-row input[type=text]:focus { outline: none; border-color: #111; }
+
+    .opt { display: flex; align-items: center; gap: 8px; padding: 9px 10px; margin-top: 6px; border: 1px solid #CCC; background: #fff; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .opt:hover { background: #FAFAFA; }
+    .opt.on { border-color: #111; background: #F5F5F5; }
+    .opt input { margin: 0; width: 18px; height: 18px; accent-color: #ED0006; flex-shrink: 0; }
+    .res { margin-top: 8px; }
+    .res-top { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; font-weight: 700; word-break: break-word; }
+    .res-top b { font-weight: 900; white-space: nowrap; }
+    .res .bar-wrap { margin: 3px 0 0; height: 10px; }
+    .res.top .bar-fill { background: #ED0006; }
+    .res:not(.top) .bar-fill { background: #999; }
+    .anon { display: inline-block; font-size: 10px; font-weight: 900; padding: 1px 7px; background: #111; color: #fff; margin-left: 6px; vertical-align: middle; }
+    .check-row { display: flex; align-items: center; gap: 6px; margin-top: 10px; font-size: 12px; font-weight: 700; }
     .hidden { display: none !important; }
   </style>
 </head>
@@ -143,6 +159,7 @@
       <div class="tabs" role="tablist">
         <button class="tab active" id="tabBoard" role="tab" onclick="showTab('board')">掲示板</button>
         <button class="tab" id="tabHelp" role="tab" onclick="showTab('help')">お手伝い募集<span class="badge hidden" id="openBadge">0</span></button>
+        <button class="tab" id="tabPoll" role="tab" onclick="showTab('poll')">アンケート<span class="badge hidden" id="pollBadge">0</span></button>
       </div>
 
       <!-- ===== 掲示板 ===== -->
@@ -167,13 +184,12 @@
         </div>
 
         <div class="card form hidden" id="helpForm">
-          <h2>大会のお手伝いを募集する</h2>
-          <label class="f" for="hTournament">大会</label>
-          <select id="hTournament" onchange="onTournamentChange()"></select>
-          <input type="text" id="hTournamentOther" class="hidden" style="margin-top:6px" maxlength="60" placeholder="大会名を入力">
+          <h2>お手伝いを募集する</h2>
+          <label class="f" for="hTitle">タイトル</label>
+          <input type="text" id="hTitle" maxlength="60" placeholder="例）11/16 秋季大会の運営お手伝い">
           <div class="row2">
             <div>
-              <label class="f" for="hDate">日程</label>
+              <label class="f" for="hDate">日程（任意）</label>
               <input type="text" id="hDate" maxlength="40" placeholder="例）11/16(日)">
             </div>
             <div>
@@ -181,7 +197,7 @@
               <input type="number" id="hNeed" min="1" max="99" value="3" inputmode="numeric">
             </div>
           </div>
-          <label class="f" for="hRole">お手伝いの内容</label>
+          <label class="f" for="hRole">お手伝いの内容（任意）</label>
           <input type="text" id="hRole" maxlength="60" placeholder="例）受付・記録・的場係">
           <label class="f" for="hNote">集合時間・場所・備考（任意）</label>
           <textarea id="hNote" maxlength="500" placeholder="例）8:00 会場集合／昼食は各自"></textarea>
@@ -193,6 +209,31 @@
 
         <div id="helpList"></div>
       </section>
+
+      <!-- ===== アンケート（匿名） ===== -->
+      <section id="panePoll" class="hidden">
+        <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+          <button class="btn red" id="togglePollForm" onclick="togglePollForm()">＋ アンケートを作る</button>
+        </div>
+
+        <div class="card form hidden" id="pollForm">
+          <h2>アンケートを作る（匿名回答）</h2>
+          <label class="f" for="pTitle">質問・タイトル</label>
+          <input type="text" id="pTitle" maxlength="80" placeholder="例）忘年会の日程はどれがいいですか？">
+          <label class="f" for="pDesc">補足（任意）</label>
+          <textarea id="pDesc" maxlength="300" style="min-height:56px" placeholder="例）場所は後日お知らせします"></textarea>
+          <label class="f" for="pOptions">選択肢（1行に1つ・2〜8個）</label>
+          <textarea id="pOptions" maxlength="500" placeholder="12/6(土)&#10;12/13(土)&#10;12/20(土)"></textarea>
+          <label class="check-row"><input type="checkbox" id="pMulti"> 複数選べるようにする</label>
+          <div class="hint">誰がどれを選んだかは記録・表示されません。回答は1人1回で、送信後の変更はできません。</div>
+          <div class="actions">
+            <button class="btn" onclick="togglePollForm()">キャンセル</button>
+            <button class="btn red" id="pollBtn" onclick="submitPoll()">作成する</button>
+          </div>
+        </div>
+
+        <div id="pollList"></div>
+      </section>
     </div>
   </div>
 
@@ -200,8 +241,8 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
     import { getAuth, onAuthStateChanged }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, addDoc, updateDoc, deleteDoc,
-             query, orderBy, limit, onSnapshot, serverTimestamp, arrayUnion, arrayRemove }
+    import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc,
+             query, orderBy, limit, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -219,7 +260,7 @@
     const db = getFirestore(app);
     const POSTS = 'board_posts';
     const HELPS = 'helper_calls';
-    const STORAGE_KEY = 'kyudo_tournament_app_v3';
+    const POLLS = 'polls';
     const NAME_KEY = 'board_display_name';
 
     const $ = (id) => document.getElementById(id);
@@ -227,6 +268,11 @@
     let unsubs = [];
     let posts = [];
     let helps = [];
+    let polls = [];
+    const joinDrafts = {};   // 募集ID -> 入力途中の名前
+    const pollSel = {};      // アンケートID -> 選択中のインデックス配列
+    const peek = {};         // アンケートID -> 回答せず結果だけ見る
+    let helpDeferred = false;
 
     // ---------- ユーティリティ ----------
     function esc(str) {
@@ -252,7 +298,7 @@
     }
     function errText(e) {
       if (e && e.code === 'permission-denied') {
-        return '保存・読み込みが許可されていません。\nFirestoreのルールに board_posts と helper_calls の設定が必要です（管理者向け）。';
+        return '保存・読み込みが許可されていません。\nFirestoreのルールに board_posts / helper_calls / polls の設定が必要です（管理者向け）。';
       }
       return '処理に失敗しました。通信状況を確認してもう一度お試しください。';
     }
@@ -273,12 +319,12 @@
 
     // ---------- タブ ----------
     window.showTab = (name) => {
-      const board = name === 'board';
-      $('paneBoard').classList.toggle('hidden', !board);
-      $('paneHelp').classList.toggle('hidden', board);
-      $('tabBoard').classList.toggle('active', board);
-      $('tabHelp').classList.toggle('active', !board);
-      try { history.replaceState(null, '', board ? location.pathname : '#help'); } catch (e) { /* ignore */ }
+      ['board', 'help', 'poll'].forEach(t => {
+        const on = t === name;
+        $('pane' + t[0].toUpperCase() + t.slice(1)).classList.toggle('hidden', !on);
+        $('tab' + t[0].toUpperCase() + t.slice(1)).classList.toggle('active', on);
+      });
+      try { history.replaceState(null, '', name === 'board' ? location.pathname : '#' + name); } catch (e) { /* ignore */ }
     };
 
     // ---------- 掲示板 ----------
@@ -329,7 +375,18 @@
     // ---------- お手伝い募集 ----------
     function isOpen(h) { return !h.closed && (h.volunteers || []).length < h.need; }
 
+    function savedName() {
+      const v = $('displayName').value.trim();
+      if (v) return v;
+      try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; }
+    }
+    window.setJoinDraft = (id, v) => { joinDrafts[id] = v; };
+
     function renderHelps() {
+      // 名前を入力している最中は、他の人の更新で入力欄が作り直されないよう描画を後回しにする
+      const ae = document.activeElement;
+      if (ae && ae.tagName === 'INPUT' && $('helpList').contains(ae)) { helpDeferred = true; return; }
+      helpDeferred = false;
       const openCount = helps.filter(isOpen).length;
       const badge = $('openBadge');
       badge.textContent = openCount;
@@ -354,8 +411,8 @@
         return `<div class="card${h.closed ? ' closed-card' : ''}">
           <div class="h-top">
             <div style="min-width:0">
-              <div class="h-title">${esc(h.tournament)}</div>
-              <div class="h-meta">${h.date ? esc(h.date) + '　' : ''}${esc(h.role)}</div>
+              <div class="h-title">${esc(h.title || h.tournament)}</div>
+              ${(h.date || h.role) ? `<div class="h-meta">${h.date ? esc(h.date) + '　' : ''}${esc(h.role || '')}</div>` : ''}
             </div>
             <span class="tag ${state[0]}">${state[1]}</span>
           </div>
@@ -369,7 +426,12 @@
           <div class="actions" style="margin-top:4px">
             ${iJoined
               ? `<button class="btn sm" onclick="leaveHelp('${id}')">参加を取り消す</button>`
-              : `<button class="btn sm red" ${(h.closed || full) ? 'disabled' : ''} onclick="joinHelp('${id}')">手伝える</button>`}
+              : ((h.closed || full) ? '<button class="btn sm red" disabled>手伝える</button>'
+                : `<div class="join-row">
+                    <input type="text" maxlength="30" placeholder="あなたの名前" value="${esc(joinDrafts[h.id] !== undefined ? joinDrafts[h.id] : savedName())}"
+                      oninput="setJoinDraft('${id}', this.value)" onkeydown="if(event.key==='Enter'){joinHelp('${id}')}" aria-label="参加者の名前">
+                    <button class="btn sm red" onclick="joinHelp('${id}')">手伝える</button>
+                  </div>`)}
             ${mine ? `<button class="btn sm" onclick="toggleClosed('${id}', ${h.closed ? 'false' : 'true'})">${h.closed ? '募集を再開' : '募集を締め切る'}</button>
                       <button class="btn sm danger" onclick="deleteHelp('${id}')">削除</button>` : ''}
           </div>
@@ -378,13 +440,18 @@
     }
 
     window.joinHelp = async (id) => {
-      const name = needName(); if (!name) return;
       const h = helps.find(x => x.id === id); if (!h) return;
+      const name = (joinDrafts[id] !== undefined ? joinDrafts[id] : savedName()).trim();
+      if (!name) { alert('名前を入力してください。'); return; }
       if ((h.volunteers || []).some(v => v.uid === me.uid)) return;
       try {
         await updateDoc(doc(db, HELPS, id), { volunteers: arrayUnion({ uid: me.uid, name: name.slice(0, 30) }) });
+        try { localStorage.setItem(NAME_KEY, name.slice(0, 30)); } catch (e) { /* ignore */ }
+        delete joinDrafts[id];
         setStatus('');
       } catch (e) { console.error(e); setStatus(errText(e), true); }
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      renderHelps();
     };
 
     window.leaveHelp = async (id) => {
@@ -412,32 +479,21 @@
       $('toggleHelpForm').classList.toggle('hidden', !f.classList.contains('hidden'));
     };
 
-    window.onTournamentChange = () => {
-      const other = $('hTournament').value === '__other__';
-      $('hTournamentOther').classList.toggle('hidden', !other);
-      if (!other) {
-        const opt = $('hTournament').selectedOptions[0];
-        if (opt && opt.dataset.date && !$('hDate').value) $('hDate').value = opt.dataset.date;
-      }
-    };
-
     window.submitHelp = async () => {
       const name = needName(); if (!name) return;
-      const sel = $('hTournament').value;
-      const tournament = (sel === '__other__' ? $('hTournamentOther').value : sel).trim();
+      const title = $('hTitle').value.trim();
       const role = $('hRole').value.trim();
       const need = Math.max(1, Math.min(99, parseInt($('hNeed').value, 10) || 0));
-      if (!tournament) { alert('大会を選ぶか、大会名を入力してください。'); return; }
-      if (!role) { alert('お手伝いの内容を入力してください。'); return; }
+      if (!title) { alert('タイトルを入力してください。'); $('hTitle').focus(); return; }
       $('helpBtn').disabled = true;
       try {
         await addDoc(collection(db, HELPS), {
           uid: me.uid, name: name.slice(0, 30),
-          tournament: tournament.slice(0, 60), date: $('hDate').value.trim().slice(0, 40),
+          title: title.slice(0, 60), date: $('hDate').value.trim().slice(0, 40),
           role: role.slice(0, 60), need: need, note: $('hNote').value.trim().slice(0, 500),
           volunteers: [], closed: false, createdAt: serverTimestamp()
         });
-        ['hDate', 'hRole', 'hNote', 'hTournamentOther'].forEach(i => { $(i).value = ''; });
+        ['hTitle', 'hDate', 'hRole', 'hNote'].forEach(i => { $(i).value = ''; });
         $('hNeed').value = 3;
         window.toggleHelpForm();
         setStatus('');
@@ -445,25 +501,148 @@
       $('helpBtn').disabled = false;
     };
 
-    // 管理表に登録済みの大会を選択肢にする（読み込めなければ手入力のみ）
-    async function loadTournamentOptions() {
-      const sel = $('hTournament');
-      let opts = [];
-      try {
-        const snap = await getDoc(doc(db, 'apps', 'kyudoTournament'));
-        if (snap.exists() && typeof snap.data().data === 'string') {
-          const years = JSON.parse(snap.data().data);
-          let yk = null;
-          try { yk = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null').currentYear; } catch (e) { /* ignore */ }
-          if (!yk || !years[yk]) yk = Object.keys(years)[0];
-          opts = ((years[yk] && years[yk].tournaments) || []).filter(t => t && t.name && !t.isCanceled);
+    // ---------- アンケート（匿名） ----------
+    // 回答の中身（counts）と回答済みの人（voters）は別々に保存するので、
+    // 「誰がどれを選んだか」はデータ上も画面上もわからない。
+    function pollTotal(p) { return (p.voters || []).length; }
+    function pollNeedsMe(p) { return me && !p.closed && !(p.voters || []).includes(me.uid); }
+
+    window.togglePollSel = (id, i, multi) => {
+      let cur = pollSel[id] || [];
+      if (multi) cur = cur.includes(i) ? cur.filter(x => x !== i) : cur.concat(i);
+      else cur = [i];
+      pollSel[id] = cur;
+      renderPolls();
+    };
+    window.peekPoll = (id) => { peek[id] = true; renderPolls(); };
+    window.unpeekPoll = (id) => { delete peek[id]; renderPolls(); };
+
+    function renderPolls() {
+      const need = polls.filter(pollNeedsMe).length;
+      const badge = $('pollBadge');
+      badge.textContent = need;
+      badge.classList.toggle('hidden', need === 0);
+
+      const box = $('pollList');
+      if (!polls.length) {
+        box.innerHTML = '<div class="empty">まだアンケートがありません。</div>';
+        return;
+      }
+      const sorted = polls.slice().sort((a, b) => (pollNeedsMe(b) ? 1 : 0) - (pollNeedsMe(a) ? 1 : 0));
+      box.innerHTML = sorted.map(p => {
+        const id = esc(p.id);
+        const mine = me && p.uid === me.uid;
+        const voted = me && (p.voters || []).includes(me.uid);
+        const total = pollTotal(p);
+        const opts = p.options || [];
+        const showResult = voted || p.closed || peek[p.id];
+        const tag = p.closed ? '<span class="tag closed">締切</span>' : (voted ? '<span class="tag full">回答済み</span>' : '<span class="tag open">回答受付中</span>');
+
+        let body;
+        if (showResult) {
+          const counts = opts.map((_, i) => Number((p.counts || {})['c' + i]) || 0);
+          const max = Math.max(0, ...counts);
+          body = opts.map((o, i) => {
+            const pct = total ? Math.round(counts[i] / total * 100) : 0;
+            const top = max > 0 && counts[i] === max;
+            return `<div class="res${top ? ' top' : ''}">
+              <div class="res-top"><span>${esc(o)}</span><b>${counts[i]}票（${pct}%）</b></div>
+              <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
+            </div>`;
+          }).join('') + `<div class="count" style="margin-top:8px">回答 ${total}人${p.multi ? '（複数回答可）' : ''}</div>`;
+          if (!voted && !p.closed) body += `<div class="actions"><button class="btn sm" onclick="unpeekPoll('${id}')">回答する画面に戻る</button></div>`;
+        } else {
+          const sel = pollSel[p.id] || [];
+          body = opts.map((o, i) => `<label class="opt${sel.includes(i) ? ' on' : ''}">
+              <input type="${p.multi ? 'checkbox' : 'radio'}" name="poll_${id}" ${sel.includes(i) ? 'checked' : ''}
+                onchange="togglePollSel('${id}', ${i}, ${!!p.multi})">
+              <span>${esc(o)}</span></label>`).join('') +
+            `<div class="hint">${p.multi ? '複数選べます。' : ''}送信後の変更はできません。誰がどれを選んだかは記録されません。</div>
+             <div class="actions">
+               <button class="btn sm" onclick="peekPoll('${id}')">回答せず結果を見る</button>
+               <button class="btn sm red" onclick="votePoll('${id}')">匿名で回答する</button>
+             </div>`;
         }
-      } catch (e) { console.warn('tournament list unavailable', e); }
-      sel.innerHTML =
-        opts.map(t => `<option value="${esc(t.name)}" data-date="${esc(t.date || '')}">${esc(t.name)}${t.date ? '（' + esc(t.date) + '）' : ''}</option>`).join('') +
-        '<option value="__other__">その他（手入力）</option>';
-      window.onTournamentChange();
+
+        return `<div class="card${p.closed ? ' closed-card' : ''}">
+          <div class="h-top">
+            <div style="min-width:0">
+              <div class="h-title">${esc(p.title)}<span class="anon">匿名</span></div>
+              ${p.desc ? `<div class="post-body" style="margin-top:4px">${linkify(esc(p.desc))}</div>` : ''}
+            </div>
+            ${tag}
+          </div>
+          <div style="margin-top:6px">${body}</div>
+          <div class="post-head" style="margin-top:8px">
+            <span class="post-date">作成：${esc(p.name)}（${fmtDate(p.createdAt)}）</span>
+          </div>
+          ${mine ? `<div class="actions" style="margin-top:4px">
+            <button class="btn sm" onclick="togglePollClosed('${id}', ${p.closed ? 'false' : 'true'})">${p.closed ? '回答を再開' : '回答を締め切る'}</button>
+            <button class="btn sm danger" onclick="deletePoll('${id}')">削除</button></div>` : ''}
+        </div>`;
+      }).join('');
     }
+
+    window.votePoll = async (id) => {
+      const p = polls.find(x => x.id === id); if (!p) return;
+      if ((p.voters || []).includes(me.uid) || p.closed) return;
+      const sel = (pollSel[id] || []).filter(i => i >= 0 && i < (p.options || []).length);
+      if (!sel.length) { alert('選択肢を選んでください。'); return; }
+      if (!p.multi && sel.length !== 1) { alert('選択肢を1つ選んでください。'); return; }
+      const upd = { voters: arrayUnion(me.uid) };
+      sel.forEach(i => { upd['counts.c' + i] = increment(1); });
+      try {
+        await updateDoc(doc(db, POLLS, id), upd);
+        delete pollSel[id]; delete peek[id];
+        setStatus('');
+      } catch (e) { console.error(e); setStatus(errText(e), true); }
+    };
+
+    window.togglePollClosed = async (id, closed) => {
+      try { await updateDoc(doc(db, POLLS, id), { closed: !!closed }); }
+      catch (e) { console.error(e); setStatus(errText(e), true); }
+    };
+
+    window.deletePoll = async (id) => {
+      if (!confirm('このアンケートを削除しますか？（集計結果も消えます）')) return;
+      try { await deleteDoc(doc(db, POLLS, id)); }
+      catch (e) { console.error(e); setStatus(errText(e), true); }
+    };
+
+    window.togglePollForm = () => {
+      const f = $('pollForm');
+      f.classList.toggle('hidden');
+      $('togglePollForm').classList.toggle('hidden', !f.classList.contains('hidden'));
+    };
+
+    window.submitPoll = async () => {
+      const name = needName(); if (!name) return;
+      const title = $('pTitle').value.trim();
+      if (!title) { alert('質問・タイトルを入力してください。'); $('pTitle').focus(); return; }
+      const options = [];
+      $('pOptions').value.split('\n').map(x => x.trim()).filter(Boolean).forEach(x => {
+        const v = x.slice(0, 40);
+        if (!options.includes(v)) options.push(v);
+      });
+      if (options.length < 2) { alert('選択肢を2つ以上入力してください（1行に1つ）。'); return; }
+      if (options.length > 8) { alert('選択肢は8個までです。'); return; }
+      const counts = {};
+      options.forEach((_, i) => { counts['c' + i] = 0; });
+      $('pollBtn').disabled = true;
+      try {
+        await addDoc(collection(db, POLLS), {
+          uid: me.uid, name: name.slice(0, 30),
+          title: title.slice(0, 80), desc: $('pDesc').value.trim().slice(0, 300),
+          options: options, multi: $('pMulti').checked,
+          counts: counts, voters: [], closed: false, createdAt: serverTimestamp()
+        });
+        ['pTitle', 'pDesc', 'pOptions'].forEach(i => { $(i).value = ''; });
+        $('pMulti').checked = false;
+        window.togglePollForm();
+        setStatus('');
+      } catch (e) { console.error(e); setStatus(errText(e), true); }
+      $('pollBtn').disabled = false;
+    };
 
     // ---------- 起動 ----------
     function stopListening() { unsubs.forEach(u => u()); unsubs = []; }
@@ -489,7 +668,7 @@
       $('displayName').value = saved;
 
       if (location.hash === '#help') window.showTab('help');
-      loadTournamentOptions();
+      else if (location.hash === '#poll') window.showTab('poll');
 
       unsubs.push(onSnapshot(query(collection(db, POSTS), orderBy('createdAt', 'desc'), limit(200)),
         (snap) => { posts = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPosts(); },
@@ -498,6 +677,15 @@
       unsubs.push(onSnapshot(query(collection(db, HELPS), orderBy('createdAt', 'desc'), limit(100)),
         (snap) => { helps = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderHelps(); },
         (err) => { console.error(err); setStatus(errText(err), true); }));
+
+      unsubs.push(onSnapshot(query(collection(db, POLLS), orderBy('createdAt', 'desc'), limit(100)),
+        (snap) => { polls = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPolls(); },
+        (err) => { console.error(err); setStatus(errText(err), true); }));
+    });
+
+    // 名前入力が終わったら、後回しにしていた募集一覧の更新を反映する
+    $('helpList').addEventListener('focusout', () => {
+      if (helpDeferred) setTimeout(() => { if (helpDeferred) renderHelps(); }, 350);
     });
   </script>
 </body>
