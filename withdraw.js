@@ -70,7 +70,7 @@ function errText(code) {
 // 自分が作成したデータ・参加表明を削除（個々の失敗は無視して続行）
 async function cleanupMyData(db, uid) {
   const jobs = [];
-  for (const col of ['board_posts', 'helper_calls', 'polls']) {
+  for (const col of ['board_posts', 'helper_calls', 'polls', 'push_tokens']) {
     const snap = await getDocs(query(collection(db, col), where('uid', '==', uid)));
     snap.forEach(d => jobs.push(deleteDoc(d.ref)));
   }

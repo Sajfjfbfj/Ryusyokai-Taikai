@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="theme-color" content="#ED0006">
   <title>参加者一覧 | 龍翔会ポータル</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="application-name" content="龍翔会ポータル">
   <meta name="apple-mobile-web-app-title" content="龍翔会ポータル">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -291,6 +292,7 @@
         <div class="val" id="drawerNameLabel">未登録</div>
         <a class="sm-small" style="padding:6px 10px" href="index.html#setname">変更</a>
       </div>
+      <button id="pushToggleBtn" class="sm-logout" style="display:none;margin-bottom:8px;border-color:#E5E5E5;" onclick="cloudTogglePush()">🔕 通知：OFF（タップでオン）</button>
       <button class="sm-logout" onclick="cloudLogout()">LOGOUT / ログアウト</button>
       <button class="sm-logout" style="margin-top:8px;color:#ED0006;border-color:#F3C0C0;" onclick="cloudWithdraw()">退会（アカウント削除）</button>
     </div>
@@ -526,6 +528,22 @@
     $('searchInput').addEventListener('input', render);
     $('onlyAttending').addEventListener('change', render);
 
+    // 通知（端末の通知バー）：本体は push.js（必要になったときだけ読み込む）
+    window.cloudTogglePush = () => {
+      import('./push.js').then(m => m.togglePush()).catch(e => { console.error(e); alert('通知の設定画面を開けませんでした。'); });
+    };
+    window.notifyEvent = (payload, delayMs) => {
+      import('./push.js').then(m => m.sendNotify(payload, delayMs)).catch(() => {});
+    };
+    const initPushSoon = () => { import('./push.js').then(m => m.initPush()).catch(() => {}); };
+    // ログアウト前に、この端末の通知登録を解除する
+    async function dropPushOnThisDevice() {
+      try {
+        const m = await import('./push.js');
+        await Promise.race([m.unregisterThisDevice(), new Promise(r => setTimeout(r, 3000))]);
+      } catch (e) { /* ignore */ }
+    }
+
     window.cloudWithdraw = () => {
       import('./withdraw.js')
         .then(m => m.openWithdraw())
@@ -533,6 +551,7 @@
     };
     window.cloudLogout = async () => {
       if (!confirm('ログアウトしますか？')) return;
+      await dropPushOnThisDevice();
       try { await signOut(auth); } catch (e) { /* ignore */ }
       location.href = 'index.html';
     };
@@ -547,7 +566,7 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-      if (user) await pullMyName(user);
+      if (user) { await pullMyName(user); initPushSoon(); }
       try {
         const nm = (localStorage.getItem('ryusyokai_my_name') || (user && user.displayName) || '').trim();
         $('myNameLink').textContent = nm ? '👤 ' + nm : '名前を登録';

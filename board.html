@@ -6,6 +6,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="theme-color" content="#ED0006">
   <title>支部内掲示板・お手伝い募集・アンケート | 龍翔会ポータル</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="application-name" content="龍翔会ポータル">
   <meta name="apple-mobile-web-app-title" content="龍翔会ポータル">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -237,6 +238,7 @@
         <div class="val" id="drawerNameLabel">未登録</div>
         <a class="sm-small" style="padding:6px 10px" href="index.html#setname">変更</a>
       </div>
+      <button id="pushToggleBtn" class="sm-logout" style="display:none;margin-bottom:8px;border-color:#E5E5E5;" onclick="cloudTogglePush()">🔕 通知：OFF（タップでオン）</button>
       <button class="sm-logout" onclick="cloudLogout()">LOGOUT / ログアウト</button>
       <button class="sm-logout" style="margin-top:8px;color:#ED0006;border-color:#F3C0C0;" onclick="cloudWithdraw()">退会（アカウント削除）</button>
     </div>
@@ -409,6 +411,22 @@
     const POSTS = 'board_posts';
     const HELPS = 'helper_calls';
     const POLLS = 'polls';
+    // 通知（端末の通知バー）：本体は push.js（必要になったときだけ読み込む）
+    window.cloudTogglePush = () => {
+      import('./push.js').then(m => m.togglePush()).catch(e => { console.error(e); alert('通知の設定画面を開けませんでした。'); });
+    };
+    window.notifyEvent = (payload, delayMs) => {
+      import('./push.js').then(m => m.sendNotify(payload, delayMs)).catch(() => {});
+    };
+    const initPushSoon = () => { import('./push.js').then(m => m.initPush()).catch(() => {}); };
+    // ログアウト前に、この端末の通知登録を解除する
+    async function dropPushOnThisDevice() {
+      try {
+        const m = await import('./push.js');
+        await Promise.race([m.unregisterThisDevice(), new Promise(r => setTimeout(r, 3000))]);
+      } catch (e) { /* ignore */ }
+    }
+
     window.cloudWithdraw = () => {
       import('./withdraw.js')
         .then(m => m.openWithdraw())
@@ -416,6 +434,7 @@
     };
     window.cloudLogout = async () => {
       if (!confirm('ログアウトしますか？')) return;
+      await dropPushOnThisDevice();
       try { await signOut(auth); } catch (e) { /* ignore */ }
       location.href = 'index.html';
     };
@@ -522,11 +541,12 @@
       if (!body) { alert('内容を入力してください。'); return; }
       $('postBtn').disabled = true;
       try {
-        await addDoc(collection(db, POSTS), {
+        const newRef = await addDoc(collection(db, POSTS), {
           uid: me.uid, name: name.slice(0, 30),
           title: title.slice(0, 60), body: body.slice(0, 1000),
           createdAt: serverTimestamp()
         });
+        window.notifyEvent({ type: 'post', id: newRef.id });
         $('postBody').value = ''; $('postTitle').value = '';
         setStatus('');
       } catch (e) { console.error(e); setStatus(errText(e), true); }
@@ -676,13 +696,14 @@
       if (!title) { alert('タイトルを入力してください。'); $('hTitle').focus(); return; }
       $('helpBtn').disabled = true;
       try {
-        await addDoc(collection(db, HELPS), {
+        const newRef = await addDoc(collection(db, HELPS), {
           uid: me.uid, name: name.slice(0, 30),
           title: title.slice(0, 60), date: $('hDate').value.trim().slice(0, 40),
           role: role.slice(0, 60), need: need, note: $('hNote').value.trim().slice(0, 500),
           volunteers: [], closed: false, createdAt: serverTimestamp(),
           deadlineAt: $('hDeadline').value ? endOfDay($('hDeadline').value) : null
         });
+        window.notifyEvent({ type: 'help', id: newRef.id });
         ['hTitle', 'hDate', 'hRole', 'hNote', 'hDeadline'].forEach(i => { $(i).value = ''; });
         $('hNeed').value = 3;
         window.toggleHelpForm();
@@ -825,13 +846,14 @@
       options.forEach((_, i) => { counts['c' + i] = 0; });
       $('pollBtn').disabled = true;
       try {
-        await addDoc(collection(db, POLLS), {
+        const newRef = await addDoc(collection(db, POLLS), {
           uid: me.uid, name: name.slice(0, 30),
           title: title.slice(0, 80), desc: $('pDesc').value.trim().slice(0, 300),
           options: options, multi: $('pMulti').checked,
           counts: counts, voters: [], closed: false, createdAt: serverTimestamp(),
           deadlineAt: $('pDeadline').value ? endOfDay($('pDeadline').value) : null
         });
+        window.notifyEvent({ type: 'poll', id: newRef.id });
         ['pTitle', 'pDesc', 'pOptions', 'pDeadline'].forEach(i => { $(i).value = ''; });
         $('pMulti').checked = false;
         window.togglePollForm();
@@ -867,6 +889,7 @@
       $('loginUserLabel').textContent = user.email || '';
       setStatus('');
       await pullMyName(user);
+      initPushSoon();
 
       $('myNameView').textContent = myName() || '未登録';
       if (!myName()) setStatus('投稿・募集・参加には名前の登録が必要です。「変更」から登録してください。', true);

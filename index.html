@@ -7,6 +7,7 @@
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <title>龍翔会ポータル | 大会参加・集金管理</title>
+  <link rel="manifest" href="/manifest.webmanifest">
   <meta name="application-name" content="龍翔会ポータル">
   <meta name="apple-mobile-web-app-title" content="龍翔会ポータル">
   <!-- ファビコン -->
@@ -811,6 +812,10 @@
           <div id="drawerNameLabel" class="text-sm font-black text-uq-black truncate flex-1">未登録</div>
           <button onclick="closeSideMenu(); openNameModal();" class="shrink-0 px-2.5 h-7 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-[11px] font-black">変更</button>
         </div>
+        <button id="pushToggleBtn" onclick="cloudTogglePush()" style="display:none"
+                class="w-full mb-2 py-2 bg-white hover:bg-uq-gray text-uq-black border border-uq-border text-xs font-black tracking-wider transition">
+          🔕 通知：OFF（タップでオン）
+        </button>
         <button onclick="cloudLogout()"
                 class="w-full py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
           LOGOUT / ログアウト
@@ -1378,6 +1383,7 @@
       if (t) {
         t.isCanceled = !t.isCanceled;
         saveStore();
+        if (t.isCanceled && window.notifyEvent) window.notifyEvent({ type: 'cancel', year: appStore.currentYear, ids: [t.id] }, 3000);
         renderTable();
         renderStatsSummary();
       }
@@ -2082,8 +2088,11 @@
     function saveTournamentSettings() {
       syncDraftFromDom();
       const current = getCurrentData();
+      const wasCanceled = new Set(current.tournaments.filter(t => t.isCanceled).map(t => t.id));
+      const newlyCanceled = tournamentDraft.filter(t => t.isCanceled && !wasCanceled.has(t.id)).map(t => t.id);
       current.tournaments = tournamentDraft;
       saveStore();
+      if (newlyCanceled.length && window.notifyEvent) window.notifyEvent({ type: 'cancel', year: appStore.currentYear, ids: newlyCanceled }, 3000);
       closeTournamentSettingsModal();
       renderTable();
     }
@@ -2509,9 +2518,26 @@
 
     window.cloudLogout = async (skipConfirm) => {
       if (skipConfirm !== true && !confirm('ログアウトしますか？')) return;
+      await dropPushOnThisDevice();
       await signOut(auth);
       location.reload();
     };
+
+    // 通知（端末の通知バー）：本体は push.js（必要になったときだけ読み込む）
+    window.cloudTogglePush = () => {
+      import('./push.js').then(m => m.togglePush()).catch(e => { console.error(e); alert('通知の設定画面を開けませんでした。'); });
+    };
+    window.notifyEvent = (payload, delayMs) => {
+      import('./push.js').then(m => m.sendNotify(payload, delayMs)).catch(() => {});
+    };
+    const initPushSoon = () => { import('./push.js').then(m => m.initPush()).catch(() => {}); };
+    // ログアウト前に、この端末の通知登録を解除する
+    async function dropPushOnThisDevice() {
+      try {
+        const m = await import('./push.js');
+        await Promise.race([m.unregisterThisDevice(), new Promise(r => setTimeout(r, 3000))]);
+      } catch (e) { /* ignore */ }
+    }
 
     // 退会（アカウント削除）：本体は withdraw.js（必要になったときだけ読み込む）
     window.cloudWithdraw = () => {
@@ -2621,6 +2647,7 @@
       }
 
       await pullMyName(user);
+      initPushSoon();
       // 名前の登録は、表の描画でエラーが出ても必ず先に実行する
       try { window.ensureMyName(user); } catch (e) { console.error('ensureMyName failed', e); }
       try {
