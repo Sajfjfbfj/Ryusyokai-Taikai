@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="theme-color" content="#ED0006">
+  <title>参加者一覧 | 龍翔会</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; max-width: 100vw; overflow-x: hidden;
+      background: #F8F8F8; color: #111;
+      font-family: "Noto Sans JP", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-feature-settings: "palt", "tnum";
+      letter-spacing: -0.01em;
+    }
+    .wrap { max-width: 1720px; margin: 0 auto; padding: 12px 8px; }
+    @media (min-width: 640px) { .wrap { padding: 16px 24px; } }
+
+    /* ヘッダー */
+    header.bar {
+      background: #fff; border: 1px solid #E5E5E5; padding: 10px;
+      margin-bottom: 10px; min-width: 0; overflow: hidden;
+    }
+    .bar-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+    .brand { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+    .logo {
+      width: 32px; height: 32px; flex-shrink: 0; background: #ED0006; color: #fff;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-weight: 900; line-height: 1; font-size: 8px; letter-spacing: -0.05em;
+    }
+    .title-wrap { min-width: 0; }
+    .year-badge {
+      display: inline-block; font-size: 9px; font-weight: 900; color: #fff; background: #111;
+      padding: 1px 6px; letter-spacing: .05em;
+    }
+    h1 { margin: 2px 0 0; font-size: 14px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (min-width: 640px) {
+      header.bar { padding: 12px 16px; }
+      .logo { width: 40px; height: 40px; font-size: 10px; }
+      h1 { font-size: 18px; }
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px;
+      font-size: 12px; font-weight: 900; text-decoration: none; cursor: pointer; white-space: nowrap;
+      border: 1px solid #E5E5E5; background: #fff; color: #111; flex-shrink: 0;
+    }
+    .btn:hover { background: #F5F5F5; }
+    .btn.black { background: #111; color: #fff; border-color: #111; }
+    .btn.black:hover { background: #222; }
+
+    .controls { margin-top: 8px; padding-top: 8px; border-top: 1px solid #E5E5E5; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    .controls input[type=text], .controls select {
+      height: 30px; border: 1px solid #E5E5E5; background: #fff; padding: 0 8px;
+      font: inherit; font-size: 12px; font-weight: 700; min-width: 0;
+    }
+    .controls input[type=text] { flex: 1 1 140px; }
+    .controls select { flex: 0 1 auto; max-width: 100%; }
+    .controls input:focus, .controls select:focus { outline: none; border-color: #111; }
+    .check {
+      display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 8px;
+      font-size: 12px; font-weight: 700; background: #F5F5F5; border: 1px solid #E5E5E5;
+      cursor: pointer; user-select: none; white-space: nowrap;
+    }
+    .check input { accent-color: #ED0006; }
+
+    .status {
+      font-size: 11px; font-weight: 700; color: #767676; margin: 0 0 8px; min-height: 16px;
+    }
+    .status.err { color: #ED0006; }
+
+    /* 表 */
+    .panel { background: #fff; border: 2px solid #111; width: 100%; max-width: 100%; overflow: hidden; }
+    .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #ccc #f5f5f5; }
+    table { width: 100%; border-collapse: collapse; text-align: center; font-size: 13px; }
+    th, td { border-bottom: 1px solid #E5E5E5; border-right: 1px solid #E5E5E5; padding: 7px 4px; }
+    thead th { background: #222; color: #fff; border-color: #333; vertical-align: top; font-weight: 900; }
+    thead .t-name { font-size: 12px; line-height: 1.3; }
+    thead .t-date { font-size: 10px; font-weight: 500; opacity: .75; margin-top: 2px; }
+    thead .t-cancel { display: inline-block; margin-top: 3px; font-size: 9px; background: #ED0006; color: #fff; padding: 0 5px; }
+    tbody td.mark { font-size: 16px; font-weight: 900; color: #ED0006; }
+    tbody tr:nth-child(even) td { background: #FAFAFA; }
+    tbody tr:hover td { background: #FFF4F4; }
+    td.canceled, th.canceled { background: #F0F0F0 !important; }
+    thead th.canceled { background: #555 !important; }
+    tfoot td { background: #F5F5F5; font-weight: 900; border-top: 2px solid #111; }
+
+    .c-no, .c-name { position: sticky; z-index: 5; background: #fff; }
+    .c-no { left: 0; width: 34px; min-width: 34px; max-width: 34px; font-size: 11px; color: #767676; }
+    .c-name { left: 34px; width: 112px; min-width: 112px; max-width: 112px; text-align: left; padding-left: 8px; font-weight: 700; box-shadow: 1px 0 0 #111; }
+    thead .c-no, thead .c-name { background: #111; color: #fff; z-index: 8; }
+    tbody tr:nth-child(even) .c-no, tbody tr:nth-child(even) .c-name { background: #FAFAFA; }
+    tbody tr:hover .c-no, tbody tr:hover .c-name { background: #FFF4F4; }
+    tfoot .c-no, tfoot .c-name { background: #F5F5F5; }
+    .c-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    @media (min-width: 640px) {
+      .c-no { width: 44px; min-width: 44px; max-width: 44px; }
+      .c-name { left: 44px; width: 160px; min-width: 160px; max-width: 160px; }
+    }
+    .c-t { min-width: 82px; }
+    @media (min-width: 640px) { .c-t { min-width: 110px; } }
+    .c-total { min-width: 56px; background: #F5F5F5; font-weight: 900; }
+
+    .empty { padding: 32px 12px; font-size: 13px; font-weight: 700; color: #767676; }
+
+    /* ログイン案内 */
+    #gate { display: none; max-width: 420px; margin: 40px auto; background: #fff; border: 2px solid #111; padding: 24px; text-align: center; }
+    #gate p { font-size: 13px; font-weight: 700; line-height: 1.7; margin: 0 0 16px; }
+
+    .print-title { display: none; }
+    @page { size: A4 landscape; margin: 8mm; }
+    @media print {
+      body { background: #fff; }
+      .no-print { display: none !important; }
+      .wrap { padding: 0; max-width: none; }
+      .panel { border: 1px solid #000; }
+      .scroll { overflow: visible; }
+      table { font-size: 9pt; }
+      th, td { padding: 3px 2px; }
+      .c-no, .c-name { position: static; box-shadow: none; }
+      thead th, .c-total, tfoot td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .print-title { display: block; font-size: 12pt; font-weight: 900; margin-bottom: 6px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="bar no-print">
+      <div class="bar-top">
+        <div class="brand">
+          <div class="logo"><span>龍翔</span><span>会</span></div>
+          <div class="title-wrap">
+            <span class="year-badge" id="yearBadge">—</span>
+            <h1>参加者一覧</h1>
+          </div>
+        </div>
+        <a class="btn" href="index.html">← 管理表へ</a>
+      </div>
+
+      <div class="controls">
+        <select id="yearSelect" aria-label="年度"></select>
+        <input type="text" id="searchInput" placeholder="氏名を検索..." aria-label="氏名検索">
+        <label class="check"><input type="checkbox" id="onlyAttending" checked><span>参加者のみ</span></label>
+        <button class="btn black" type="button" onclick="window.print()">印刷</button>
+      </div>
+    </header>
+
+    <p class="status no-print" id="status">読み込み中…</p>
+
+    <div id="gate">
+      <p>この一覧を見るにはログインが必要です。<br>管理表のページでログインしてから、もう一度開いてください。</p>
+      <a class="btn black" href="index.html">管理表でログイン</a>
+    </div>
+
+    <div id="view" style="display:none">
+      <div class="print-title" id="printTitle"></div>
+      <div class="panel">
+        <div class="scroll">
+          <table id="tbl">
+            <thead></thead>
+            <tbody></tbody>
+            <tfoot></tfoot>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged }
+      from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, onSnapshot }
+      from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDo_CYLFEjFsSAeXpGzZ_h9hHno7YQacDI",
+      authDomain: "ryusyokai-27030.firebaseapp.com",
+      projectId: "ryusyokai-27030",
+      storageBucket: "ryusyokai-27030.firebasestorage.app",
+      messagingSenderId: "508882166129",
+      appId: "1:508882166129:web:e4a0d4604701c70a1016d0",
+      measurementId: "G-3V0KZKXY8S"
+    };
+
+    const STORAGE_KEY = 'kyudo_tournament_app_v3';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const dataRef = doc(db, 'apps', 'kyudoTournament');
+
+    const $ = (id) => document.getElementById(id);
+    let years = {};
+    let currentYear = null;
+    let unsubscribe = null;
+
+    // 管理表側で「現在表示中の年度」を覚えているので、同じ年度を初期表示にする
+    function preferredYear() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+        if (saved && typeof saved.currentYear === 'string') return saved.currentYear;
+      } catch (e) { /* ignore */ }
+      return null;
+    }
+
+    function esc(str) {
+      return String(str == null ? '' : str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // 参考例（龍翔 太郎 など）は集計から除外（管理表と同じ判定）
+    const EXAMPLE_BASE_NAMES = ['龍翔太郎', '弓道花子', '的中次郎'];
+    function isExampleName(name) {
+      if (!name) return false;
+      const raw = String(name).normalize('NFKC').replace(/\s+/g, '');
+      return EXAMPLE_BASE_NAMES.includes(raw.replace(/^[（(]例[）)]/, '')) || /^[（(]例[）)]/.test(raw);
+    }
+
+    function setStatus(text, isErr) {
+      const el = $('status');
+      el.textContent = text || '';
+      el.className = 'status no-print' + (isErr ? ' err' : '');
+    }
+
+    function applyYears(json) {
+      let parsed;
+      try { parsed = JSON.parse(json); } catch (e) { return false; }
+      if (!parsed || typeof parsed !== 'object') return false;
+      years = parsed;
+      const keys = Object.keys(years);
+      if (!keys.length) return false;
+      if (!currentYear || !years[currentYear]) {
+        const pref = preferredYear();
+        currentYear = (pref && years[pref]) ? pref : keys[0];
+      }
+      renderYearSelect();
+      render();
+      return true;
+    }
+
+    function renderYearSelect() {
+      const sel = $('yearSelect');
+      sel.innerHTML = Object.keys(years)
+        .map(k => `<option value="${esc(k)}"${k === currentYear ? ' selected' : ''}>${esc(k)}</option>`)
+        .join('');
+    }
+
+    function isAttending(m, t) {
+      const st = m.records && m.records[t.id];
+      return st === 'attending' || st === 'paid';
+    }
+
+    function render() {
+      const y = years[currentYear];
+      if (!y) return;
+      $('yearBadge').textContent = currentYear;
+      $('printTitle').textContent = `${currentYear} 参加者一覧`;
+
+      const tournaments = Array.isArray(y.tournaments) ? y.tournaments : [];
+      const allMembers = (Array.isArray(y.members) ? y.members : [])
+        .filter(m => m && m.name && !isExampleName(m.name));
+
+      const q = $('searchInput').value.trim().toLowerCase();
+      const only = $('onlyAttending').checked;
+
+      let members = allMembers.filter(m => !q || String(m.name).toLowerCase().includes(q));
+      if (only) {
+        members = members.filter(m => tournaments.some(t => !t.isCanceled && isAttending(m, t)));
+      }
+
+      const thead = $('tbl').querySelector('thead');
+      const tbody = $('tbl').querySelector('tbody');
+      const tfoot = $('tbl').querySelector('tfoot');
+
+      thead.innerHTML = `<tr>
+        <th class="c-no">No.</th>
+        <th class="c-name">氏名</th>
+        ${tournaments.map(t => `
+          <th class="c-t${t.isCanceled ? ' canceled' : ''}">
+            <div class="t-name">${esc(t.name)}</div>
+            ${t.date ? `<div class="t-date">${esc(t.date)}</div>` : ''}
+            ${t.isCanceled ? '<span class="t-cancel">中止</span>' : ''}
+          </th>`).join('')}
+        <th class="c-total">参加数</th>
+      </tr>`;
+
+      if (!members.length) {
+        tbody.innerHTML = `<tr><td colspan="${tournaments.length + 3}" class="empty">${
+          allMembers.length ? '該当する人がいません' : 'まだ氏名が登録されていません'
+        }</td></tr>`;
+      } else {
+        tbody.innerHTML = members.map((m, i) => {
+          let n = 0;
+          const cells = tournaments.map(t => {
+            if (t.isCanceled) return '<td class="canceled"></td>';
+            if (isAttending(m, t)) { n++; return '<td class="mark">○</td>'; }
+            return '<td></td>';
+          }).join('');
+          return `<tr><td class="c-no">${i + 1}</td><td class="c-name" title="${esc(m.name)}">${esc(m.name)}</td>${cells}<td class="c-total">${n}</td></tr>`;
+        }).join('');
+      }
+
+      // 合計行：各大会の参加人数（表示中の人ではなく全員分）
+      let grand = 0;
+      const foot = tournaments.map(t => {
+        if (t.isCanceled) return '<td class="canceled">中止</td>';
+        const c = allMembers.filter(m => isAttending(m, t)).length;
+        grand += c;
+        return `<td>${c}名</td>`;
+      }).join('');
+      tfoot.innerHTML = `<tr><td class="c-no"></td><td class="c-name">参加人数</td>${foot}<td class="c-total">${grand}</td></tr>`;
+
+      $('view').style.display = '';
+      $('gate').style.display = 'none';
+    }
+
+    $('yearSelect').addEventListener('change', (e) => { currentYear = e.target.value; render(); });
+    $('searchInput').addEventListener('input', render);
+    $('onlyAttending').addEventListener('change', render);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+      if (!user) {
+        $('view').style.display = 'none';
+        $('gate').style.display = 'block';
+        setStatus('');
+        return;
+      }
+
+      try {
+        const snap = await getDoc(dataRef);
+        if (snap.exists() && typeof snap.data().data === 'string' && applyYears(snap.data().data)) {
+          setStatus('☁ 最新のデータを表示中（自動で更新されます）');
+        } else {
+          setStatus('データがまだありません。管理表で登録してください。', true);
+          $('view').style.display = 'none';
+        }
+      } catch (e) {
+        console.error(e);
+        // 接続できない時はこの端末に残っている管理表データを表示
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+          if (saved && saved.years && applyYears(JSON.stringify(saved.years))) {
+            setStatus('接続エラーのため、この端末のデータを表示しています', true);
+            return;
+          }
+        } catch (e2) { /* ignore */ }
+        setStatus('データを読み込めませんでした。ネットワークを確認してください。', true);
+        return;
+      }
+
+      unsubscribe = onSnapshot(dataRef, (snap) => {
+        const d = snap.data();
+        if (d && typeof d.data === 'string') applyYears(d.data);
+      }, (err) => {
+        console.error(err);
+        setStatus('同期エラー（表示は更新されない可能性があります）', true);
+      });
+    });
+  </script>
+</body>
+</html>
