@@ -117,18 +117,69 @@
     #gate p { font-size: 13px; font-weight: 700; line-height: 1.7; margin: 0 0 16px; }
 
     .print-title { display: none; }
-    @page { size: A4 landscape; margin: 8mm; }
+
+    /* ========================================================
+       印刷時（管理表と同じ：A4縦・全列が1ページ幅に必ず収まる）
+       ======================================================== */
+    @page { size: A4 portrait; margin: 6mm 4mm 6mm 4mm; }
     @media print {
-      body { background: #fff; }
       .no-print { display: none !important; }
-      .wrap { padding: 0; max-width: none; }
-      .panel { border: 1px solid #000; }
-      .scroll { overflow: visible; }
-      table { font-size: 9pt; }
-      th, td { padding: 3px 2px; }
-      .c-no, .c-name { position: static; box-shadow: none; }
-      thead th, .c-total, tfoot td { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-      .print-title { display: block; font-size: 12pt; font-weight: 900; margin-bottom: 6px; }
+      *, *::before, *::after { box-shadow: none !important; text-shadow: none !important; }
+      html, body {
+        background: #fff !important; color: #000 !important;
+        width: 100% !important; max-width: 100% !important;
+        margin: 0 !important; padding: 0 !important; overflow: visible !important;
+        font-size: 8pt !important;
+        -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      }
+      .wrap { width: 100% !important; max-width: 100% !important; margin: 0 !important; padding: 0 !important; }
+      .panel, .scroll {
+        width: 100% !important; max-width: 100% !important;
+        overflow: visible !important; border: none !important; background: transparent !important;
+      }
+
+      .print-title { display: block !important; margin-bottom: 4px; }
+      .print-title h1 { margin: 0 0 2px; font-size: 13pt; font-weight: 900; text-align: center; letter-spacing: .04em; white-space: normal; overflow: visible; }
+      .print-title .sub { display: flex; justify-content: space-between; font-size: 7.5pt; font-weight: 700; border-bottom: 2px solid #000; padding: 0 2px 2px; }
+
+      table {
+        width: 100% !important; max-width: 100% !important;
+        table-layout: fixed !important; border-collapse: collapse !important;
+        font-size: 7.5pt !important; line-height: 1.15 !important;
+      }
+      thead { display: table-header-group; }      /* 複数ページでも見出しを繰り返す */
+      tfoot { display: table-row-group; }
+      tr { page-break-inside: avoid; break-inside: avoid; }
+
+      th, td {
+        border: 1px solid #111 !important;
+        padding: 2.5px 1px !important;
+        color: #000 !important; background: transparent !important;
+        min-width: 0 !important; max-width: none !important;
+        font-size: 7.5pt !important;
+        word-break: break-all; overflow: hidden;
+        position: static !important; box-shadow: none !important; left: auto !important;
+      }
+      .c-no   { width: 22px !important; padding: 2px 0 !important; font-size: 7pt !important; }
+      .c-name { width: 70px !important; text-align: left !important; padding: 2px 3px !important;
+                white-space: normal !important; text-overflow: clip !important; }
+      .c-total { width: 30px !important; font-size: 7pt !important; background: #F0F0F0 !important; }
+      .c-t { width: auto !important; }
+
+      thead th { background: #E5E5E5 !important; color: #000 !important; font-size: 7pt !important; }
+      thead .t-name { font-size: 7pt !important; }
+      thead .t-date { font-size: 6pt !important; opacity: 1 !important; }
+      thead .t-cancel { background: #fff !important; color: #000 !important; border: 1px solid #000; font-size: 6pt !important; }
+      thead th.canceled, td.canceled { background: #E0E0E0 !important; }
+      tbody td.mark { font-size: 9pt !important; color: #000 !important; }
+      tfoot td { background: #F0F0F0 !important; border-top: 2px solid #000 !important; font-size: 7pt !important; }
+
+      /* 大会数が多い時は文字を少し小さくして必ず1ページ幅に収める */
+      body[data-scale="sm"] th, body[data-scale="sm"] td { font-size: 6.8pt !important; padding: 2px 0.5px !important; }
+      body[data-scale="sm"] .c-name { width: 58px !important; }
+      body[data-scale="xs"] th, body[data-scale="xs"] td { font-size: 6.2pt !important; padding: 1.5px 0.5px !important; }
+      body[data-scale="xs"] .c-name { width: 54px !important; }
+      body[data-scale="sm"] thead .t-name, body[data-scale="xs"] thead .t-name { font-size: 6.2pt !important; }
     }
   </style>
 </head>
@@ -162,7 +213,10 @@
     </div>
 
     <div id="view" style="display:none">
-      <div class="print-title" id="printTitle"></div>
+      <div class="print-title">
+        <h1 id="printTitle"></h1>
+        <div class="sub"><span>RYUSYOKAI KYUDO / 弓道部・弓道連盟支部</span><span>印刷日: <span id="printDate"></span></span></div>
+      </div>
       <div class="panel">
         <div class="scroll">
           <table id="tbl">
@@ -264,7 +318,9 @@
       const y = years[currentYear];
       if (!y) return;
       $('yearBadge').textContent = currentYear;
-      $('printTitle').textContent = `${currentYear} 参加者一覧`;
+      $('printTitle').textContent = `${currentYear} 大会参加者一覧`;
+      const now = new Date();
+      $('printDate').textContent = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
 
       const tournaments = Array.isArray(y.tournaments) ? y.tournaments : [];
       const allMembers = (Array.isArray(y.members) ? y.members : [])
@@ -277,6 +333,9 @@
       if (only) {
         members = members.filter(m => tournaments.some(t => !t.isCanceled && isAttending(m, t)));
       }
+
+      const nT = tournaments.length;
+      document.body.dataset.scale = nT >= 11 ? 'xs' : (nT >= 9 ? 'sm' : 'md');
 
       const thead = $('tbl').querySelector('thead');
       const tbody = $('tbl').querySelector('tbody');
