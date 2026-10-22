@@ -19,6 +19,7 @@ function errText(code) {
     case 'auth/popup-blocked': return 'ポップアップがブロックされました。許可してもう一度お試しください。';
     case 'auth/popup-closed-by-user':
     case 'auth/cancelled-popup-request': return 'Googleでの本人確認が完了しませんでした。もう一度お試しください。';
+    case 'auth/operation-not-supported-in-this-environment': return 'このブラウザではGoogleでの本人確認を使えません。Chrome・Safariなど通常のブラウザで開いてください。';
     case 'auth/user-mismatch': return '別のGoogleアカウントが選択されました。ログイン中のアカウントを選んでください。';
     case 'auth/requires-recent-login': return '本人確認の有効期限が切れました。もう一度お試しください。';
     default: return '退会できませんでした（' + (code || 'unknown') + '）。';
@@ -75,9 +76,10 @@ export function openWithdraw(opts = {}) {
           <li>参加表（名簿）の記録・集金データ（全員共有のデータです。名簿から外したい場合は、先に管理表で削除してください）</li>
           <li>アンケートの匿名の回答（誰の回答か分からない形で保存されています）</li>
         </ul>
-        ${hasPassword ? `<label style="${labelCss}">PASSWORD / 本人確認のためパスワードを入力
-          <input id="wdPassword" type="password" autocomplete="current-password" style="${inputCss}"></label>` :
-          (hasGoogle ? `<p style="margin:14px 0 0;font-size:12px;color:#767676;">「退会する」を押すと、本人確認のためGoogleのログイン画面が開きます。</p>` : '')}
+        ${hasPassword ? `<div id="wdPwBlock"><label style="${labelCss}">PASSWORD / 本人確認のためパスワードを入力
+          <input id="wdPassword" type="password" autocomplete="current-password" style="${inputCss}"></label></div>` : ''}
+        ${hasGoogle ? `<p id="wdGoogleNote" style="margin:14px 0 0;font-size:12px;color:#767676;">「退会する」を押すと、本人確認のためGoogleのログイン画面が開きます。ログイン中のGoogleアカウント（${esc(user.email || '')}）を選んでください。</p>` : ''}
+        ${hasPassword && hasGoogle ? `<button id="wdSwitch" type="button" style="margin-top:8px;background:none;border:none;padding:0;font:inherit;font-size:12px;font-weight:700;color:#111;text-decoration:underline;cursor:pointer;"></button>` : ''}
         <label style="${labelCss}">確認のため「${CONFIRM_WORD}」と入力
           <input id="wdConfirm" type="text" autocomplete="off" style="${inputCss}"></label>
         <div id="wdError" style="color:${RED};font-weight:700;font-size:12px;min-height:18px;margin-top:10px;"></div>
@@ -93,10 +95,18 @@ export function openWithdraw(opts = {}) {
   const goBtn = $('wdGo'), cancelBtn = $('wdCancel'), errEl = $('wdError');
   const confirmEl = $('wdConfirm'), pwEl = $('wdPassword');
   let busy = false;
+  let method = hasPassword ? 'password' : 'google';
+  const pwBlock = $('wdPwBlock'), gNote = $('wdGoogleNote'), swBtn = $('wdSwitch');
+  const applyMethod = () => {
+    if (pwBlock) pwBlock.style.display = method === 'password' ? '' : 'none';
+    if (gNote) gNote.style.display = method === 'google' ? '' : 'none';
+    if (swBtn) swBtn.textContent = method === 'password' ? 'Googleアカウントで本人確認する' : 'パスワードで本人確認する';
+  };
+  if (swBtn) swBtn.addEventListener('click', () => { method = method === 'password' ? 'google' : 'password'; errEl.textContent = ''; applyMethod(); refresh(); });
 
   const close = () => { if (!busy) ov.remove(); };
   const refresh = () => {
-    const ok = confirmEl.value.trim() === CONFIRM_WORD && (!pwEl || pwEl.value.length > 0);
+    const ok = confirmEl.value.trim() === CONFIRM_WORD && (method !== 'password' || (pwEl && pwEl.value.length > 0));
     goBtn.disabled = !ok || busy;
     goBtn.style.opacity = (ok && !busy) ? '1' : '.4';
   };
@@ -116,7 +126,7 @@ export function openWithdraw(opts = {}) {
     goBtn.textContent = '処理中…';
     try {
       // 1) 本人確認（データを消す前に済ませる）
-      if (hasPassword) {
+      if (method === 'password') {
         await reauthenticateWithCredential(user, EmailAuthProvider.credential(user.email, pwEl.value));
       } else {
         const provider = new GoogleAuthProvider();
@@ -141,7 +151,8 @@ export function openWithdraw(opts = {}) {
     }
   });
 
-  setTimeout(() => (pwEl || confirmEl).focus(), 50);
+  applyMethod(); refresh();
+  setTimeout(() => (method === 'password' && pwEl ? pwEl : confirmEl).focus(), 50);
 }
 
 function esc(s) {
