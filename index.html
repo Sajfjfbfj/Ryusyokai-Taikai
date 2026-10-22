@@ -6,12 +6,12 @@
   <!-- 検索エンジンに表示させない -->
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-  <title>弓道大会 参加・集金管理</title>
+  <title>弓道大会 参加・集金管理 | RYUSYOKAI KYUDO</title>
 
-  <!-- Google Fonts: 視認性に優れたモダンフォントと等幅数字 -->
+  <!-- Google Fonts: UNIQLO風の力強いモダン・グロテスクサンセリフと美しい和文ゴシック -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
@@ -26,25 +26,17 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"Plus Jakarta Sans"', '"Noto Sans JP"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans JP"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
           },
           colors: {
-            brand: {
-              50: '#ecfdf5',
-              100: '#d1fae5',
-              200: '#a7f3d0',
-              300: '#6ee7b7',
-              400: '#34d399',
-              500: '#10b981',
-              600: '#059669',
-              700: '#047857',
-              800: '#065f46',
-              900: '#064e3b',
-              950: '#022c22',
-            },
-            slate: {
-              850: '#151f32',
-              925: '#0b1324',
+            uq: {
+              red: '#ED0006',
+              darkred: '#D60005',
+              black: '#111111',
+              charcoal: '#222222',
+              gray: '#F5F5F5',
+              border: '#E5E5E5',
+              muted: '#767676'
             }
           }
         }
@@ -53,54 +45,45 @@
   </script>
 
   <style>
-    /* 基本設定 */
+    /* ========================================================
+       UNIQLO UI スタイリング規約（機能美・明快・幾何学・ボールド）
+       ======================================================== */
     :root {
       color-scheme: light;
     }
     body {
       font-feature-settings: "palt", "tnum";
-      letter-spacing: 0.015em;
-      background-color: #f6f8fa;
-      background-image: 
-        radial-gradient(at 0% 0%, rgba(5, 150, 105, 0.08) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(15, 23, 42, 0.05) 0px, transparent 50%),
-        radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.04) 0px, transparent 50%);
-      background-attachment: fixed;
+      letter-spacing: -0.01em;
+      background-color: #F8F8F8;
+      color: #111111;
     }
 
-    /* 数字の桁揃え */
+    /* 等幅数字 */
     .tnum {
       font-variant-numeric: tabular-nums;
       font-feature-settings: "tnum";
     }
 
-    /* スムーズスクロール */
-    html {
-      scroll-behavior: smooth;
-    }
-
-    /* カスタムスクロールバー */
+    /* UNIQLOスタイルのスクロールバー */
     .table-scroll {
       scrollbar-width: thin;
-      scrollbar-color: #cbd5e1 #f1f5f9;
+      scrollbar-color: #CCCCCC #F5F5F5;
     }
     .table-scroll::-webkit-scrollbar {
-      height: 8px;
-      width: 8px;
+      height: 6px;
+      width: 6px;
     }
     .table-scroll::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
+      background: #F5F5F5;
     }
     .table-scroll::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
+      background: #CCCCCC;
     }
     .table-scroll::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #999999;
     }
 
-    /* 固定列（Sticky Columns）の洗練された境界演出 */
+    /* 固定列（Sticky Columns）のシャープな境界線 */
     .sticky-col-no {
       position: sticky;
       left: 0;
@@ -119,11 +102,11 @@
       content: "";
       position: absolute;
       top: 0;
-      right: -5px;
+      right: 0;
       bottom: 0;
-      width: 5px;
+      width: 1px;
+      background: #111111;
       pointer-events: none;
-      background: linear-gradient(to right, rgba(15, 23, 42, 0.08), transparent);
     }
 
     thead .sticky-col-no,
@@ -135,25 +118,19 @@
       z-index: 20;
     }
 
-    /* 中止大会列の斜線パターン（視認性抜群） */
+    /* 中止大会列のパターン（シャープなグレーアウト） */
     .canceled-col {
-      background-color: rgba(248, 250, 252, 0.85);
-      background-image: repeating-linear-gradient(
-        -45deg,
-        rgba(226, 232, 240, 0.4),
-        rgba(226, 232, 240, 0.4) 6px,
-        transparent 6px,
-        transparent 12px
-      );
+      background-color: #F0F0F0;
+      opacity: 0.85;
     }
 
-    /* ステータスバッジのアニメーション＆インタラクション */
+    /* ステータスバッジのUNIQLOボールドタグスタイル */
     .status-badge {
-      transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: all 0.1s ease;
       user-select: none;
     }
     .status-cell:hover .status-badge {
-      transform: scale(1.08);
+      transform: scale(1.05);
     }
     .status-cell:active .status-badge {
       transform: scale(0.95);
@@ -161,44 +138,20 @@
 
     /* テーブルヘッダーのインライン編集入力欄 */
     .th-inline-input {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
-      transition: all 0.2s ease;
+      background: transparent;
+      border: 1px solid transparent;
+      transition: all 0.15s ease;
     }
     .th-inline-input:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.35);
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
     }
     .th-inline-input:focus {
-      background: #ffffff;
-      color: #0f172a !important;
-      border-color: #10b981;
-      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      background: #FFFFFF;
+      color: #111111 !important;
+      border-color: #ED0006;
+      box-shadow: 0 0 0 2px rgba(237, 0, 6, 0.2);
       outline: none;
-    }
-
-    /* モーダル表示アニメーション */
-    .modal-backdrop {
-      animation: fadeIn 0.2s ease-out forwards;
-    }
-    .modal-content {
-      animation: modalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes modalSlideUp {
-      from {
-        opacity: 0;
-        transform: translateY(16px) scale(0.98);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
     }
 
     /* ========================================================
@@ -218,7 +171,7 @@
         text-shadow: none !important;
       }
       html, body {
-        background: #ffffff !important;
+        background: #FFFFFF !important;
         color: #000000 !important;
         padding: 0 !important;
         margin: 0 !important;
@@ -242,7 +195,7 @@
       }
       .print-title h1 {
         font-size: 13pt !important;
-        font-weight: bold !important;
+        font-weight: 900 !important;
         margin: 0 0 2px 0 !important;
       }
       .print-title div {
@@ -251,7 +204,6 @@
 
       /* テーブルを囲むdivのoverflow/widthを完全に開放 */
       .bg-white,
-      .rounded-2xl,
       .overflow-hidden,
       .table-scroll,
       .overflow-x-auto {
@@ -292,7 +244,7 @@
       /* 全セル共通 */
       #mainTable th,
       #mainTable td {
-        border: 1px solid #1e293b !important;
+        border: 1px solid #111111 !important;
         padding: 2.5px 1px !important;
         text-align: center !important;
         color: #000000 !important;
@@ -338,8 +290,8 @@
       }
 
       /* 各大会列（画面用min-w-[100px]の完全解除） */
-      #mainTable th:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(:nth-last-child(2)),
-      #mainTable td:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(:nth-last-child(2)) {
+      #mainTable th:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(.col-unpaid-total),
+      #mainTable td:not(.sticky-col-no):not(.sticky-col-name):not(:last-child):not(.col-unpaid-total) {
         min-width: 0 !important;
         width: auto !important;
         padding: 2px 1px !important;
@@ -348,20 +300,20 @@
       /* ヘッダー行の背景色（印刷用の淡いトーン） */
       #deadlineHeaderRow,
       #deadlineHeaderRow th {
-        background-color: #f1f5f9 !important;
+        background-color: #F0F0F0 !important;
         color: #000000 !important;
         font-weight: bold !important;
         font-size: 7pt !important;
       }
       #tournamentHeaderRow,
       #tournamentHeaderRow th {
-        background-color: #e2e8f0 !important;
+        background-color: #E5E5E5 !important;
         color: #000000 !important;
         font-weight: bold !important;
         font-size: 7pt !important;
       }
 
-      /* インライン入力欄を完全にプレーンテキスト化（枠・影・背景を排除） */
+      /* インライン入力欄を完全にプレーンテキスト化 */
       #mainTable input {
         border: none !important;
         background: transparent !important;
@@ -382,13 +334,13 @@
         font-size: 7.5pt !important;
       }
 
-      /* 参考例行（薄いグレー背景） */
+      /* 参考例行 */
       .print-example-bg,
       .print-example-bg td {
-        background-color: #f8fafc !important;
+        background-color: #F9F9F9 !important;
       }
 
-      /* ステータスバッジ（○済、○、×、ー）の印刷最適化 */
+      /* ステータスバッジの印刷最適化 */
       .status-badge {
         display: inline-block !important;
         background: transparent !important;
@@ -405,11 +357,8 @@
       .status-badge span {
         color: #000000 !important;
       }
-      .status-badge .rounded-full {
-        display: none !important;
-      }
 
-      /* 未払い表示のピルバッジをプレーン文字化 */
+      /* 未払い表示の文字化 */
       #mainTable td span {
         background: transparent !important;
         border: none !important;
@@ -421,14 +370,14 @@
 
       /* 中止大会列 */
       .canceled-col {
-        background-color: #f1f5f9 !important;
+        background-color: #F0F0F0 !important;
       }
 
       /* フッター合計行 */
       #tableFoot,
       #tableFoot tr,
       #tableFoot td {
-        background-color: #f1f5f9 !important;
+        background-color: #F0F0F0 !important;
         font-size: 7pt !important;
         font-weight: bold !important;
         color: #000000 !important;
@@ -442,191 +391,189 @@
     }
   </style>
 </head>
-<body class="text-slate-800 min-h-screen font-sans antialiased">
+<body class="min-h-screen font-sans antialiased bg-[#F8F8F8]">
 
   <!-- ================= ログイン画面（Firebase認証） ================= -->
-  <div id="loginOverlay" class="no-print fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="modal-content w-full max-w-md bg-white rounded-2xl shadow-2xl border border-slate-200/80 overflow-hidden">
-      <!-- ログインヘッダー -->
-      <div class="bg-gradient-to-br from-slate-900 via-slate-850 to-brand-950 p-6 text-white text-center relative">
-        <div class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-brand-600/20 border border-brand-500/30 text-2xl shadow-inner mb-3">
-          🎯
+  <div id="loginOverlay" class="no-print fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-white border-2 border-black p-8 shadow-2xl">
+      <!-- UNIQLO風 赤のスクエアロゴ -->
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-xs tracking-tighter">
+          <span>龍弓</span>
+          <span>会道</span>
         </div>
-        <h1 class="text-lg font-bold tracking-tight">弓道大会 参加・集金管理</h1>
-        <p class="text-xs text-brand-300/80 mt-1">龍翔会 クラウド同期ポータル</p>
+        <div>
+          <div class="text-[11px] font-black tracking-widest text-uq-red uppercase">RYUSYOKAI PORTAL</div>
+          <h1 class="text-base font-black text-uq-black">弓道大会 参加・集金管理</h1>
+        </div>
       </div>
 
-      <div class="p-6">
-        <p id="loginLoading" class="text-sm text-slate-500 py-8 text-center flex items-center justify-center gap-2">
-          <svg class="animate-spin h-5 w-5 text-brand-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+      <p id="loginLoading" class="text-xs text-uq-muted py-8 text-center font-bold tracking-widest">
+        LOADING...
+      </p>
+
+      <form id="loginForm" class="hidden space-y-4" onsubmit="return cloudLogin(event)">
+        <div>
+          <label class="block text-[11px] font-bold text-uq-black mb-1 uppercase tracking-wider" for="loginEmail">EMAIL / メールアドレス</label>
+          <input type="email" id="loginEmail" autocomplete="username" required
+                 placeholder="name@example.com"
+                 class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-medium">
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-uq-black mb-1 uppercase tracking-wider" for="loginPassword">PASSWORD / パスワード</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required
+                 placeholder="••••••••"
+                 class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-medium">
+        </div>
+        <div id="regConfirmWrap" class="hidden">
+          <label class="block text-[11px] font-bold text-uq-black mb-1 uppercase tracking-wider" for="loginPassword2">PASSWORD CONFIRM / パスワード（確認）</label>
+          <input type="password" id="loginPassword2" autocomplete="new-password"
+                 placeholder="••••••••"
+                 class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-medium">
+          <p class="text-[11px] text-uq-muted mt-1">6文字以上で設定してください。</p>
+        </div>
+
+        <p id="loginError" class="text-xs text-uq-red font-bold min-h-[1.25rem]"></p>
+
+        <button type="submit" id="loginSubmit" class="w-full py-3 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-widest uppercase transition">
+          LOGIN / ログイン
+        </button>
+
+        <button type="button" id="modeToggle" onclick="toggleAuthMode()" class="w-full text-xs text-uq-black hover:text-uq-red font-bold transition py-1 text-center">
+          はじめての方は新規登録
+        </button>
+      </form>
+
+      <div id="googleBlock" class="hidden mt-4 pt-4 border-t border-uq-border">
+        <button type="button" id="googleBtn" onclick="cloudLoginGoogle()"
+                class="w-full flex items-center justify-center gap-2 py-2.5 bg-white hover:bg-uq-gray text-uq-black text-xs font-bold border border-black transition">
+          <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
           </svg>
-          認証状態を確認中…
-        </p>
-
-        <form id="loginForm" class="hidden space-y-4" onsubmit="return cloudLogin(event)">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1" for="loginEmail">メールアドレス</label>
-            <input type="email" id="loginEmail" autocomplete="username" required
-                   placeholder="example@kyudo.jp"
-                   class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1" for="loginPassword">パスワード</label>
-            <input type="password" id="loginPassword" autocomplete="current-password" required
-                   placeholder="••••••••"
-                   class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
-          </div>
-          <div id="regConfirmWrap" class="hidden">
-            <label class="block text-xs font-semibold text-slate-700 mb-1" for="loginPassword2">パスワード（確認）</label>
-            <input type="password" id="loginPassword2" autocomplete="new-password"
-                   placeholder="••••••••"
-                   class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition">
-            <p class="text-[11px] text-slate-400 mt-1">6文字以上で設定してください。</p>
-          </div>
-
-          <p id="loginError" class="text-xs text-rose-600 font-medium min-h-[1.25rem]"></p>
-
-          <button type="submit" id="loginSubmit" class="w-full py-2.5 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white text-sm font-bold rounded-xl shadow-md shadow-brand-700/20 active:scale-[0.99] transition">
-            ログイン
-          </button>
-
-          <button type="button" id="modeToggle" onclick="toggleAuthMode()" class="w-full text-xs text-slate-500 hover:text-brand-700 font-medium transition py-1">
-            はじめての方は新規登録
-          </button>
-        </form>
-
-        <div id="googleBlock" class="hidden mt-4 pt-4 border-t border-slate-100">
-          <button type="button" id="googleBtn" onclick="cloudLoginGoogle()"
-                  class="w-full flex items-center justify-center gap-2.5 py-2.5 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold rounded-xl border border-slate-200 shadow-sm active:scale-[0.99] transition">
-            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-            </svg>
-            Googleでログイン
-          </button>
-        </div>
-
-        <p id="loginFatal" class="hidden text-xs text-rose-600 font-medium leading-relaxed mt-3 p-2 bg-rose-50 rounded-lg border border-rose-200"></p>
+          Googleでログイン
+        </button>
       </div>
+
+      <p id="loginFatal" class="hidden text-xs text-uq-red font-bold leading-relaxed mt-3 p-2 bg-red-50 border border-uq-red"></p>
     </div>
   </div>
 
   <!-- ================= メインアプリケーション ================= -->
-  <div class="max-w-[1720px] mx-auto px-3 sm:px-6 lg:px-8 py-5 print-container">
+  <div class="max-w-[1720px] mx-auto px-3 sm:px-6 py-4 print-container">
 
-    <!-- 操作・設定ヘッダー（印刷非表示） -->
-    <header class="no-print bg-white/90 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/80 p-4 sm:p-5 mb-5 transition-all">
-      <!-- 1段目：ブランド＆クラウドステータス -->
-      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+    <!-- UNIQLO風 操作・設定ヘッダー（印刷非表示） -->
+    <header class="no-print bg-white border border-uq-border p-4 sm:p-5 mb-4 shadow-xs">
+      <!-- 1段目：ブランドロゴ（赤のスクエアロゴ）＆ 同期ステータス -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-uq-border">
         <div class="flex items-center gap-3">
-          <!-- 和風エンブレム -->
-          <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-brand-800 to-brand-600 text-white flex items-center justify-center shadow-md shadow-brand-800/20 text-xl font-bold">
-            🎯
+          <!-- UNIQLOオマージュ：赤のスクエアロゴバッジ -->
+          <div class="w-12 h-12 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-xs tracking-tighter shrink-0 select-none shadow-sm">
+            <span>龍弓</span>
+            <span>会道</span>
           </div>
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-brand-700 bg-brand-50 px-2 py-0.5 rounded-full border border-brand-200/60">龍翔会 弓道管理ポータル</span>
+              <span class="text-[10px] font-black uppercase tracking-widest text-uq-red">RYUSYOKAI KYUDO SYSTEM</span>
             </div>
-            <!-- アプリタイトル（インライン直接編集可能） -->
+            <!-- アプリタイトル（インライン編集） -->
             <input type="text" id="appTitle" value="大会参加・参加費管理表"
-                   class="text-lg sm:text-xl font-extrabold text-slate-900 bg-transparent border-b border-transparent hover:border-slate-300 focus:border-brand-600 focus:bg-white focus:outline-none rounded px-1 transition"
-                   title="クリックして表タイトルを変更できます">
+                   class="text-lg sm:text-2xl font-black text-uq-black bg-transparent border-b-2 border-transparent hover:border-uq-black focus:border-uq-red focus:bg-white focus:outline-none px-1 tracking-tight"
+                   title="クリックして表タイトルを変更可能">
           </div>
         </div>
 
         <!-- 右上：クラウド同期・ユーザー・ログアウト -->
-        <div class="flex flex-wrap items-center gap-2.5 text-xs">
-          <span id="syncStatus" class="font-medium px-2.5 py-1 rounded-full border text-slate-500 bg-slate-50 border-slate-200 flex items-center gap-1.5 transition">
-            <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+        <div class="flex flex-wrap items-center gap-2 text-xs">
+          <span id="syncStatus" class="font-bold px-2.5 py-1 border border-uq-border text-uq-muted bg-white flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+            <span class="w-2 h-2 bg-uq-muted"></span>
             ☁ 準備中…
           </span>
-          <span id="loginUserLabel" class="text-slate-500 font-mono hidden sm:inline px-2"></span>
-          <button onclick="cloudLogout()" class="px-2.5 py-1 text-slate-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 rounded-lg transition font-medium">
-            ログアウト
+          <span id="loginUserLabel" class="text-uq-muted font-mono hidden sm:inline px-2"></span>
+          <button onclick="cloudLogout()" class="px-3 py-1 text-uq-black hover:bg-uq-black hover:text-white border border-uq-black font-bold transition text-xs uppercase tracking-wider">
+            LOGOUT / ログアウト
           </button>
         </div>
       </div>
 
-      <!-- 2段目：年度切替 ＆ 主要アクションボタン -->
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-4">
-        <!-- 年度セレクター & 年度操作 -->
+      <!-- 2段目：年度切替 ＆ 主要アクションボタン（モジュラーUI） -->
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 pt-4">
+        <!-- 年度セレクター & 操作 -->
         <div class="flex flex-wrap items-center gap-2">
-          <div class="flex items-center bg-slate-100/90 p-1 rounded-xl border border-slate-200 shadow-inner">
-            <i data-lucide="calendar" class="w-4 h-4 text-slate-500 ml-2 mr-1"></i>
+          <div class="flex items-center bg-uq-gray border border-uq-border p-1">
+            <span class="text-xs font-black text-uq-black px-2 uppercase tracking-wider">YEAR</span>
             <select id="yearSelect" onchange="switchYear(this.value)"
-                    class="bg-transparent text-sm font-bold text-slate-900 focus:outline-none pr-3 py-1 cursor-pointer">
+                    class="bg-transparent text-sm font-black text-uq-black focus:outline-none pr-3 py-1 cursor-pointer">
               <!-- JSで動的生成 -->
             </select>
             <button onclick="openNewYearModal()"
-                    class="flex items-center gap-1 text-xs bg-white hover:bg-slate-50 text-brand-800 font-bold px-2.5 py-1 rounded-lg border border-slate-200 shadow-sm transition"
-                    title="新しい年度（令和9年度など）を追加">
+                    class="flex items-center gap-1 text-xs bg-white hover:bg-uq-black hover:text-white text-uq-black font-bold px-2.5 py-1 border border-uq-border transition"
+                    title="新しい年度を追加">
               <i data-lucide="plus" class="w-3.5 h-3.5"></i>
               <span>新年度</span>
             </button>
           </div>
 
           <button onclick="openYearManageModal()"
-                  class="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition border border-transparent hover:border-slate-200"
+                  class="p-2 text-uq-muted hover:text-uq-black hover:bg-uq-gray border border-transparent hover:border-uq-border transition"
                   title="年度名の変更・削除">
             <i data-lucide="settings-2" class="w-4 h-4"></i>
           </button>
         </div>
 
-        <!-- 主要ボタンツールバー -->
+        <!-- 主要ボタンツールバー（UNIQLOボールドボタンスタイル） -->
         <div class="flex flex-wrap items-center gap-2">
-          <!-- 氏名追加（最重要ボタン） -->
+          <!-- 氏名追加（鮮烈なUNIQLOレッドボタン） -->
           <button onclick="openAddMemberModal()"
-                  class="flex items-center gap-1.5 px-3.5 py-2 bg-gradient-to-r from-brand-700 to-brand-600 hover:from-brand-800 hover:to-brand-700 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-700/20 active:scale-[0.98] transition">
+                  class="flex items-center gap-1.5 px-4 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase shadow-xs transition active:translate-y-px">
             <i data-lucide="user-plus" class="w-4 h-4"></i>
-            <span>氏名追加</span>
+            <span>＋ 氏名追加</span>
           </button>
 
           <!-- 大会・日程編集 -->
           <button onclick="openTournamentSettingsModal()"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl shadow-sm active:scale-[0.98] transition">
-            <i data-lucide="sliders" class="w-4 h-4 text-slate-500"></i>
+                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition">
+            <i data-lucide="sliders" class="w-4 h-4"></i>
             <span>大会・日程編集</span>
           </button>
 
           <!-- 印刷（A4） -->
           <button onclick="printSheet()"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl shadow-sm active:scale-[0.98] transition">
-            <i data-lucide="printer" class="w-4 h-4 text-slate-500"></i>
+                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition">
+            <i data-lucide="printer" class="w-4 h-4"></i>
             <span>印刷 (A4)</span>
           </button>
 
           <!-- CSV出力 -->
           <button onclick="exportCSV()"
-                  class="flex items-center gap-1.5 px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-xs font-semibold rounded-xl shadow-sm active:scale-[0.98] transition"
+                  class="flex items-center gap-1.5 px-3.5 py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-bold tracking-wider transition"
                   title="Excel用CSVファイルをダウンロード">
-            <i data-lucide="download" class="w-4 h-4 text-slate-500"></i>
+            <i data-lucide="download" class="w-4 h-4"></i>
             <span>CSV出力</span>
           </button>
 
           <!-- バックアップ・復元メニュー -->
           <div class="relative inline-block text-left">
             <button onclick="toggleDataMenu(event)"
-                    class="p-2 bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 rounded-xl shadow-sm transition"
+                    class="p-2 bg-white hover:bg-uq-gray text-uq-black border border-uq-border transition"
                     title="データ保存・バックアップ">
               <i data-lucide="database" class="w-4 h-4"></i>
             </button>
-            <div id="dataMenuDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-200 py-1.5 z-50 text-xs">
-              <button onclick="exportJSON()" class="w-full text-left px-3 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2">
-                <i data-lucide="file-down" class="w-4 h-4 text-slate-400"></i>
+            <div id="dataMenuDropdown" class="hidden absolute right-0 mt-1 w-48 bg-white border border-uq-black py-1 z-50 text-xs shadow-xl">
+              <button onclick="exportJSON()" class="w-full text-left px-3 py-2 hover:bg-uq-gray text-uq-black font-bold flex items-center gap-2">
+                <i data-lucide="file-down" class="w-4 h-4 text-uq-muted"></i>
                 全年度バックアップ保存
               </button>
-              <label class="w-full text-left px-3 py-2 hover:bg-slate-50 text-slate-700 flex items-center gap-2 cursor-pointer">
-                <i data-lucide="file-up" class="w-4 h-4 text-slate-400"></i>
+              <label class="w-full text-left px-3 py-2 hover:bg-uq-gray text-uq-black font-bold flex items-center gap-2 cursor-pointer">
+                <i data-lucide="file-up" class="w-4 h-4 text-uq-muted"></i>
                 バックアップから復元
                 <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
               </label>
-              <hr class="my-1 border-slate-100">
-              <button onclick="resetDataPrompt()" class="w-full text-left px-3 py-2 hover:bg-rose-50 text-rose-600 flex items-center gap-2 font-medium">
-                <i data-lucide="rotate-ccw" class="w-4 h-4 text-rose-500"></i>
+              <hr class="my-1 border-uq-border">
+              <button onclick="resetDataPrompt()" class="w-full text-left px-3 py-2 hover:bg-red-50 text-uq-red font-black flex items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-4 h-4 text-uq-red"></i>
                 初期状態にリセット
               </button>
             </div>
@@ -635,57 +582,57 @@
       </div>
 
       <!-- 3段目：検索・フィルター・参考例表示・凡例（コントロールバー） -->
-      <div class="mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
+      <div class="mt-4 pt-3 border-t border-uq-border flex flex-wrap items-center justify-between gap-3">
         <!-- 検索とフィルター -->
-        <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
           <!-- 氏名検索 -->
           <div class="relative flex-1 max-w-xs">
-            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-            <input type="text" id="searchInput" oninput="filterTable()" placeholder="氏名を検索..."
-                   class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition">
+            <i data-lucide="search" class="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-uq-muted"></i>
+            <input type="text" id="searchInput" oninput="filterTable()" placeholder="SEARCH / 氏名検索..."
+                   class="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold uppercase tracking-wider">
           </div>
 
           <!-- 絞り込みフィルター -->
           <select id="filterSelect" onchange="filterTable()"
-                  class="text-xs bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5 font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
-            <option value="all">全員表示</option>
-            <option value="has_unpaid">⚠️ 未払いがある人のみ</option>
+                  class="text-xs bg-white border border-uq-border px-3 py-1.5 font-bold text-uq-black focus:outline-none focus:border-uq-black">
+            <option value="all">全員表示 (ALL)</option>
+            <option value="has_unpaid">⚠️ 未払いがある人のみ (UNPAID ONLY)</option>
             <option value="attending_any">いずれかに参加予定の人</option>
           </select>
 
           <!-- 参考例表示切り替え -->
-          <label class="flex items-center gap-2 text-xs text-amber-900 bg-amber-50/90 hover:bg-amber-100/90 px-3 py-1.5 rounded-xl border border-amber-200/80 cursor-pointer select-none transition">
+          <label class="flex items-center gap-2 text-xs text-uq-black bg-uq-gray hover:bg-white px-3 py-1.5 border border-uq-border cursor-pointer select-none transition">
             <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
-                   class="rounded text-amber-600 focus:ring-amber-500 cursor-pointer">
+                   class="accent-uq-red cursor-pointer">
             <span class="font-bold">参考例（1名）を表示</span>
           </label>
         </div>
 
-        <!-- 凡例（美しく整理） -->
-        <div class="flex flex-wrap items-center gap-2 text-[11px] text-slate-600 bg-slate-50/80 px-3 py-1.5 rounded-xl border border-slate-200">
-          <span class="font-bold text-slate-500">凡例:</span>
-          <span class="inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-300">○済 (支払済)</span>
-          <span class="inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-300">○ (未払い)</span>
-          <span class="inline-flex items-center gap-1 font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">× (不参加)</span>
-          <span class="inline-flex items-center gap-1 text-slate-400 bg-white px-2 py-0.5 rounded-full border border-slate-200">ー (未定)</span>
-          <span class="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-full border border-rose-300">中止</span>
+        <!-- 凡例（UNIQLOサイズタグ風） -->
+        <div class="flex flex-wrap items-center gap-2 text-[11px] text-uq-black bg-white px-3 py-1.5 border border-uq-border">
+          <span class="font-black text-uq-muted uppercase tracking-wider">STATUS:</span>
+          <span class="inline-flex items-center font-black text-white bg-uq-black px-2 py-0.5 text-[10px]">○済 (支払済)</span>
+          <span class="inline-flex items-center font-black text-white bg-uq-red px-2 py-0.5 text-[10px]">○ (未払い)</span>
+          <span class="inline-flex items-center font-bold text-uq-muted bg-uq-gray px-2 py-0.5 border border-uq-border text-[10px]">× (不参加)</span>
+          <span class="inline-flex items-center text-uq-muted bg-white px-2 py-0.5 border border-uq-border text-[10px]">ー (未定)</span>
+          <span class="inline-flex items-center font-black text-uq-red bg-red-50 border border-uq-red px-2 py-0.5 text-[10px]">中止</span>
         </div>
       </div>
     </header>
 
     <!-- 印刷用タイトルヘッダー（印刷時のみ表示） -->
     <div class="hidden print-title mb-4">
-      <h1 id="printFullTitle" class="text-xl font-bold text-center tracking-wide text-slate-900">令和8年度 大会参加申し込み表</h1>
-      <div class="flex justify-between items-center text-xs mt-1 px-1 border-b border-black pb-1">
-        <span class="font-medium">弓道部 / 弓道連盟支部</span>
+      <h1 id="printFullTitle" class="text-xl font-black text-center tracking-wide text-black">令和8年度 大会参加申し込み表</h1>
+      <div class="flex justify-between items-center text-xs mt-1 px-1 border-b-2 border-black pb-1 font-bold">
+        <span>RYUSYOKAI KYUDO / 弓道部・弓道連盟支部</span>
         <span>印刷日: <span id="printDate"></span></span>
       </div>
     </div>
 
-    <!-- 統合統計サマリーウィジェット（印刷非表示） -->
-    <div class="no-print mb-5 bg-white/95 backdrop-blur-md rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden transition-all" id="summaryWidget">
-      <!-- 1. 全体重要KPIバー（常時1行に集約表示） -->
-      <div class="p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-100 bg-gradient-to-r from-slate-50/70 via-white to-slate-50/70">
+    <!-- ================= 統合統計サマリーウィジェット（UNIQLO風） ================= -->
+    <div class="no-print mb-4 bg-white border border-uq-border overflow-hidden" id="summaryWidget">
+      <!-- 1. 全体重要KPIバー（プライスタグ風のボールドレイアウト） -->
+      <div class="p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-uq-border bg-white">
         <!-- 左側：全体KPI -->
         <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs" id="overallKpiBar">
           <!-- JSで動的生成 -->
@@ -693,17 +640,16 @@
 
         <!-- 右側：カードスクロール操作 ＆ 折りたたみボタン -->
         <div class="flex items-center gap-1.5 ml-auto shrink-0">
-          <div id="cardScrollControls" class="flex items-center gap-0.5">
-            <button onclick="scrollStatsCards(-220)" class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="前の大会へ">
+          <div id="cardScrollControls" class="flex items-center gap-1">
+            <button onclick="scrollStatsCards(-220)" class="p-1 text-uq-black hover:bg-uq-gray border border-uq-border transition" title="前の大会へ">
               <i data-lucide="chevron-left" class="w-4 h-4"></i>
             </button>
-            <button onclick="scrollStatsCards(220)" class="p-1 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition" title="次の大会へ">
+            <button onclick="scrollStatsCards(220)" class="p-1 text-uq-black hover:bg-uq-gray border border-uq-border transition" title="次の大会へ">
               <i data-lucide="chevron-right" class="w-4 h-4"></i>
             </button>
           </div>
-          <div class="h-3.5 w-[1px] bg-slate-200 mx-1"></div>
           <button onclick="toggleSummaryDetails()" id="summaryToggleBtn"
-                  class="flex items-center gap-1 px-2.5 py-1 text-xs font-bold text-slate-600 hover:text-brand-800 hover:bg-brand-50/80 rounded-xl border border-slate-200 transition"
+                  class="flex items-center gap-1 px-2.5 py-1 text-xs font-black text-uq-black hover:bg-uq-gray border border-uq-border transition uppercase tracking-wider"
                   title="大会別カードの表示・非表示を切り替え">
             <span id="summaryToggleText">大会別カード</span>
             <i data-lucide="chevron-down" id="summaryToggleIcon" class="w-3.5 h-3.5 transition-transform duration-200"></i>
@@ -711,32 +657,32 @@
         </div>
       </div>
 
-      <!-- 2. 大会別カード（横1行のスライダーデッキ：折りたたみ可能） -->
-      <div id="tournamentStatsDetailWrap" class="p-2.5 sm:p-3 bg-slate-50/40 transition-all">
+      <!-- 2. 大会別カード（横1行のスライダーデッキ：UNIQLOモジュラーボックス） -->
+      <div id="tournamentStatsDetailWrap" class="p-3 bg-uq-gray transition-all">
         <div class="flex items-stretch gap-2.5 overflow-x-auto pb-1 table-scroll scroll-smooth" id="tournamentStatsSummary">
           <!-- JSで動的生成 -->
         </div>
       </div>
     </div>
 
-    <!-- メインテーブルパネル -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/90 overflow-hidden transition-all">
+    <!-- ================= メインテーブルパネル ================= -->
+    <div class="bg-white border-2 border-black overflow-hidden shadow-sm">
       <div class="table-scroll overflow-x-auto">
         <table class="w-full border-collapse text-sm text-center" id="mainTable">
           <thead>
-            <!-- 1行目：支部内締切日行 -->
-            <tr class="bg-slate-925 text-amber-300 border-b border-slate-800 print-header-bg" id="deadlineHeaderRow">
+            <!-- 1行目：支部内締切日行（ピュアブラック） -->
+            <tr class="bg-uq-black text-white border-b border-uq-charcoal print-header-bg" id="deadlineHeaderRow">
               <!-- JSで生成 -->
             </tr>
             <!-- 2行目：大会名・開催日・参加費行 -->
-            <tr class="bg-slate-850 text-white border-b border-slate-700 print-header-bg" id="tournamentHeaderRow">
+            <tr class="bg-uq-charcoal text-white border-b-2 border-black print-header-bg" id="tournamentHeaderRow">
               <!-- JSで生成 -->
             </tr>
           </thead>
-          <tbody id="tableBody" class="divide-y divide-slate-100">
+          <tbody id="tableBody" class="divide-y divide-uq-border">
             <!-- 参考例行 ＆ 参加者行がJSで挿入される -->
           </tbody>
-          <tfoot id="tableFoot" class="bg-slate-50/95 font-medium text-slate-700 border-t-2 border-slate-200">
+          <tfoot id="tableFoot" class="bg-uq-gray font-bold text-uq-black border-t-2 border-black">
             <!-- 合計行がJSで挿入される -->
           </tfoot>
         </table>
@@ -744,182 +690,181 @@
     </div>
 
     <!-- 印刷時の下部注釈（元の用紙を忠実に再現） -->
-    <div class="hidden print-title mt-4 text-xs text-slate-800 border-t border-slate-400 pt-2 px-1">
-      <p class="font-medium text-center">参加予定の方は「○」をつけてください。また、参加費支払い済みの方は「○済」の記入をお願いします。</p>
+    <div class="hidden print-title mt-4 text-xs text-black border-t-2 border-black pt-2 px-1">
+      <p class="font-bold text-center">参加予定の方は「○」をつけてください。また、参加費支払い済みの方は「○済」の記入をお願いします。</p>
     </div>
 
     <!-- 操作ヘルプフッター -->
-    <footer class="no-print mt-5 p-4 rounded-xl bg-white/70 border border-slate-200/70 text-xs text-slate-500 flex flex-col md:flex-row items-center justify-between gap-3">
+    <footer class="no-print mt-4 p-3 bg-white border border-uq-border text-xs text-uq-muted flex flex-col md:flex-row items-center justify-between gap-2">
       <div class="flex items-center gap-2">
-        <span class="p-1 rounded-md bg-brand-50 text-brand-700"><i data-lucide="info" class="w-4 h-4"></i></span>
-        <span>
-          <strong>操作ヒント:</strong> 表のセルをクリックすると状態が切り替わります（右クリックで一発選択）。見出しの<strong>締切日</strong>や<strong>開催日</strong>、<strong>参加者氏名</strong>は直接クリックして入力できます。
+        <span class="w-2 h-2 bg-uq-red shrink-0"></span>
+        <span class="font-medium text-uq-black">
+          見出しの<strong>締切日</strong>・<strong>開催日</strong>、<strong>参加者氏名</strong>はセルを直接クリックして入力できます。セルクリックで状態切替（右クリックで選択）。
         </span>
       </div>
-      <div class="text-[11px] text-slate-400">
-        全端末リアルタイム自動同期（参考例は集計から自動除外）
+      <div class="text-[11px] text-uq-muted font-bold tracking-wider uppercase">
+        REALTIME CLOUD SYNCED
       </div>
     </footer>
   </div>
 
-  <!-- ================= モーダル群 ================= -->
+  <!-- ================= モーダル群（UNIQLO風スクエアボックス） ================= -->
 
   <!-- 新規年度追加モーダル -->
-  <div id="newYearModal" class="modal-backdrop fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-content bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="folder-plus" class="w-5 h-5 text-brand-600"></i>
-          新しい年度の追加
+  <div id="newYearModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border-2 border-black max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b-2 border-black">
+        <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
+          <span class="w-3 h-3 bg-uq-red inline-block"></span>
+          NEW YEAR / 新しい年度の追加
         </h3>
-        <button onclick="closeNewYearModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition">
+        <button onclick="closeNewYearModal()" class="text-uq-black hover:text-uq-red p-1 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">年度名</label>
+          <label class="block text-xs font-bold text-uq-black mb-1 uppercase tracking-wider">年度名 (YEAR NAME)</label>
           <input type="text" id="newYearNameInput" placeholder="例: 令和9年度, 2027年度"
-                 class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-bold transition">
+                 class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-black">
         </div>
 
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2.5">
-          <div class="text-xs font-bold text-slate-700">データの引き継ぎ設定</div>
-          <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
-            <input type="checkbox" id="copyMembersCheckbox" checked class="rounded text-brand-600 focus:ring-brand-500">
+        <div class="bg-uq-gray p-4 border border-uq-border space-y-2.5">
+          <div class="text-xs font-black text-uq-black uppercase tracking-wider">データ引き継ぎ設定</div>
+          <label class="flex items-center gap-2.5 text-xs text-uq-black font-medium cursor-pointer">
+            <input type="checkbox" id="copyMembersCheckbox" checked class="accent-uq-red">
             <span>現在のメンバー名簿を引き継ぐ (出欠・支払いはクリア)</span>
           </label>
-          <label class="flex items-center gap-2.5 text-xs text-slate-700 cursor-pointer">
-            <input type="checkbox" id="copyTournamentsCheckbox" checked class="rounded text-brand-600 focus:ring-brand-500">
+          <label class="flex items-center gap-2.5 text-xs text-uq-black font-medium cursor-pointer">
+            <input type="checkbox" id="copyTournamentsCheckbox" checked class="accent-uq-red">
             <span>現在の大会一覧（大会名・参加費）を引き継ぐ</span>
           </label>
         </div>
       </div>
 
-      <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-slate-100">
-        <button onclick="closeNewYearModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">キャンセル</button>
-        <button onclick="createNewYear()" class="px-4 py-2 text-sm bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md shadow-brand-700/20 transition">新年度を作成</button>
+      <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-uq-border">
+        <button onclick="closeNewYearModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
+        <button onclick="createNewYear()" class="px-5 py-2 text-xs font-black bg-uq-red hover:bg-uq-darkred text-white uppercase tracking-wider transition">新年度を作成</button>
       </div>
     </div>
   </div>
 
   <!-- 年度管理（名称変更・削除）モーダル -->
-  <div id="yearManageModal" class="modal-backdrop fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-content bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="settings-2" class="w-5 h-5 text-slate-600"></i>
-          年度の管理・編集
+  <div id="yearManageModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border-2 border-black max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b-2 border-black">
+        <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
+          <span class="w-3 h-3 bg-uq-red inline-block"></span>
+          EDIT YEAR / 年度の管理・編集
         </h3>
-        <button onclick="closeYearManageModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition">
+        <button onclick="closeYearManageModal()" class="text-uq-black hover:text-uq-red p-1 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-4">
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">現在の年度名</label>
+          <label class="block text-xs font-bold text-uq-black mb-1 uppercase tracking-wider">現在の年度名</label>
           <input type="text" id="renameYearInput"
-                 class="w-full px-3.5 py-2 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-bold transition">
+                 class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-black">
         </div>
-        <p class="text-xs text-slate-500">年度の名前（例: 「令和8年度」）を変更できます。</p>
+        <p class="text-xs text-uq-muted">年度の名前（例: 「令和8年度」）を変更できます。</p>
       </div>
 
-      <div class="mt-6 flex justify-between items-center pt-3 border-t border-slate-100">
-        <button onclick="deleteCurrentYear()" class="px-3 py-1.5 text-xs text-rose-600 hover:bg-rose-50 rounded-xl transition font-bold flex items-center gap-1 border border-rose-200">
-          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+      <div class="mt-6 flex justify-between items-center pt-3 border-t border-uq-border">
+        <button onclick="deleteCurrentYear()" class="px-3 py-1.5 text-xs text-uq-red hover:bg-red-50 border border-uq-red font-bold transition">
           この年度を削除
         </button>
         <div class="flex gap-2">
-          <button onclick="closeYearManageModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">キャンセル</button>
-          <button onclick="renameCurrentYear()" class="px-4 py-2 text-sm bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md shadow-brand-700/20 transition">保存</button>
+          <button onclick="closeYearManageModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
+          <button onclick="renameCurrentYear()" class="px-5 py-2 text-xs font-black bg-uq-black hover:bg-uq-charcoal text-white uppercase tracking-wider transition">保存</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 氏名追加モーダル -->
-  <div id="addMemberModal" class="modal-backdrop fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-content bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
-      <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
-        <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-          <i data-lucide="user-plus" class="w-5 h-5 text-brand-600"></i>
-          参加者の氏名追加
+  <div id="addMemberModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border-2 border-black max-w-md w-full p-6 shadow-2xl">
+      <div class="flex items-center justify-between mb-4 pb-3 border-b-2 border-black">
+        <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
+          <span class="w-3 h-3 bg-uq-red inline-block"></span>
+          ADD MEMBERS / 参加者の氏名追加
         </h3>
-        <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition">
+        <button onclick="closeAddMemberModal()" class="text-uq-black hover:text-uq-red p-1 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
       <div class="space-y-3">
-        <p class="text-xs text-slate-500">
-          1行に1名ずつ入力してください。複数人をまとめて改行で貼り付けることも可能です。
+        <p class="text-xs text-uq-muted font-medium">
+          1行に1名ずつ入力してください。名簿から複数人を改行で一括貼り付けできます。
         </p>
         <textarea id="newMemberNames" rows="6"
                   placeholder="山田 太郎&#10;佐藤 花子&#10;鈴木 一郎"
-                  class="w-full px-3.5 py-2.5 text-sm bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 font-medium transition leading-relaxed"></textarea>
+                  class="w-full px-3 py-2 text-sm bg-white border border-black focus:outline-none focus:ring-2 focus:ring-uq-red font-bold leading-relaxed"></textarea>
       </div>
 
-      <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-slate-100">
-        <button onclick="closeAddMemberModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-xl transition font-medium">キャンセル</button>
-        <button onclick="saveNewMembers()" class="px-4 py-2 text-sm bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md shadow-brand-700/20 transition">登録する</button>
+      <div class="mt-6 flex justify-end gap-2.5 pt-3 border-t border-uq-border">
+        <button onclick="closeAddMemberModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
+        <button onclick="saveNewMembers()" class="px-5 py-2 text-xs font-black bg-uq-red hover:bg-uq-darkred text-white uppercase tracking-wider transition">登録する</button>
       </div>
     </div>
   </div>
 
   <!-- 大会・日程編集モーダル -->
-  <div id="tournamentModal" class="modal-backdrop fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-    <div class="modal-content bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
-      <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+  <div id="tournamentModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white border-2 border-black max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div class="p-4 border-b-2 border-black flex items-center justify-between bg-white">
         <div>
-          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
-            <i data-lucide="sliders" class="w-5 h-5 text-brand-600"></i>
-            大会・日程・参加費の編集
+          <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
+            <span class="w-3 h-3 bg-uq-red inline-block"></span>
+            EDIT TOURNAMENTS / 大会・日程編集
           </h3>
-          <p class="text-xs text-slate-500 mt-0.5">対象年度: <span id="modalCurrentYearDisplay" class="font-bold text-slate-700"></span></p>
+          <p class="text-xs text-uq-muted mt-0.5">TARGET YEAR: <span id="modalCurrentYearDisplay" class="font-black text-uq-black"></span></p>
         </div>
-        <button onclick="closeTournamentSettingsModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg transition">
+        <button onclick="closeTournamentSettingsModal()" class="text-uq-black hover:text-uq-red p-1.5 transition">
           <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="p-5 overflow-y-auto space-y-3 flex-1" id="tournamentEditorList">
+      <div class="p-4 overflow-y-auto space-y-3 flex-1 bg-uq-gray" id="tournamentEditorList">
         <!-- JSで動的生成 -->
       </div>
 
-      <div class="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-        <button onclick="addTournamentInModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-brand-800 bg-brand-50 hover:bg-brand-100 border border-brand-200 rounded-xl transition">
+      <div class="p-4 bg-white border-t-2 border-black flex items-center justify-between">
+        <button onclick="addTournamentInModal()" class="flex items-center gap-1.5 px-3 py-1.5 text-xs font-black text-uq-black bg-white hover:bg-uq-black hover:text-white border border-black transition uppercase tracking-wider">
           <i data-lucide="plus" class="w-4 h-4"></i>
           大会を追加
         </button>
         <div class="flex gap-2">
-          <button onclick="closeTournamentSettingsModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-200 rounded-xl transition font-medium">キャンセル</button>
-          <button onclick="saveTournamentSettings()" class="px-5 py-2 text-sm bg-brand-700 hover:bg-brand-800 text-white font-bold rounded-xl shadow-md shadow-brand-700/20 transition">保存して適用</button>
+          <button onclick="closeTournamentSettingsModal()" class="px-4 py-2 text-xs font-bold text-uq-black hover:bg-uq-gray border border-uq-border transition">キャンセル</button>
+          <button onclick="saveTournamentSettings()" class="px-5 py-2 text-xs font-black bg-uq-red hover:bg-uq-darkred text-white uppercase tracking-wider transition">保存して適用</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- セル右クリック・コンテキストメニュー -->
-  <div id="statusMenu" class="hidden fixed z-50 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 w-48 text-xs font-medium modal-content">
-    <div class="px-3 py-1.5 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 mb-1">
-      参加・支払い状態を変更
+  <div id="statusMenu" class="hidden fixed z-50 bg-white border-2 border-black py-2 w-48 text-xs font-bold shadow-2xl">
+    <div class="px-3 py-1.5 text-[10px] font-black text-uq-muted uppercase tracking-widest border-b border-uq-border mb-1">
+      SELECT STATUS
     </div>
-    <button onclick="applyCellStatus('paid')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-emerald-50 text-emerald-800 font-bold transition">
-      <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px] shadow-sm">○済</span>
+    <button onclick="applyCellStatus('paid')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-uq-gray text-uq-black font-black transition">
+      <span class="w-5 h-5 bg-uq-black text-white flex items-center justify-center font-black text-[10px]">○済</span>
       参加 (支払済)
     </button>
-    <button onclick="applyCellStatus('attending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-blue-50 text-blue-800 font-bold transition">
-      <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 border border-blue-300 flex items-center justify-center font-bold text-[10px]">○</span>
+    <button onclick="applyCellStatus('attending')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-red-50 text-uq-red font-black transition">
+      <span class="w-5 h-5 bg-uq-red text-white flex items-center justify-center font-black text-[10px]">○</span>
       参加 (未払い)
     </button>
-    <button onclick="applyCellStatus('absent')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-100 text-slate-600 font-medium transition">
-      <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-400 border border-slate-200 flex items-center justify-center font-bold text-[10px]">×</span>
+    <button onclick="applyCellStatus('absent')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-uq-gray text-uq-muted font-bold transition">
+      <span class="w-5 h-5 bg-uq-gray text-uq-muted border border-uq-border flex items-center justify-center font-bold text-[10px]">×</span>
       不参加
     </button>
-    <button onclick="applyCellStatus('none')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-slate-100 text-slate-400 transition">
-      <span class="w-5 h-5 rounded-full bg-slate-50 text-slate-300 flex items-center justify-center text-[10px]">ー</span>
+    <button onclick="applyCellStatus('none')" class="w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-uq-gray text-uq-muted transition font-medium">
+      <span class="w-5 h-5 bg-white text-uq-border border border-uq-border flex items-center justify-center text-[10px]">ー</span>
       未定・クリア
     </button>
   </div>
@@ -1064,7 +1009,6 @@
       appStore.showExamples = appStore.showExamples !== false;
     }
 
-    // --- ローカルストレージ連携 ---
     const EXAMPLE_BASE_NAMES = ['龍翔太郎', '弓道花子', '的中次郎'];
     function isExampleName(name) {
       if (!name) return false;
@@ -1258,7 +1202,6 @@
       }
     }
 
-    // サマリーカードをクリックして大会列へスクロール
     function scrollToTournament(id) {
       const el = document.getElementById('th_t_' + id);
       if (el) {
@@ -1397,319 +1340,34 @@
       return STATUS_CYCLE[idx + 1];
     }
 
+    // UNIQLO風ボールドバッジ
     function getStatusBadge(status, isCanceled) {
       if (isCanceled) {
         if (status === 'paid') {
-          return `<span class="status-badge inline-flex items-center justify-center font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded-full px-2 py-0.5 text-xs shadow-sm" title="大会中止 (支払い済/返金要)">○済</span>`;
+          return `<span class="status-badge inline-flex items-center justify-center font-black text-white bg-uq-red px-2 py-0.5 text-[11px] shadow-xs" title="大会中止 (支払い済/返金要)">○済</span>`;
         }
-        return `<span class="text-slate-300 text-xs font-mono">ー</span>`;
+        return `<span class="text-uq-muted text-xs font-mono">ー</span>`;
       }
 
       switch (status) {
         case 'paid':
-          return `<span class="status-badge inline-flex items-center justify-center gap-1 font-bold text-emerald-800 bg-emerald-100/90 border border-emerald-300 rounded-full px-2.5 py-0.5 text-xs shadow-xs hover:bg-emerald-200 transition" title="参加 (支払済)">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                    <span>○済</span>
+          return `<span class="status-badge inline-flex items-center justify-center font-black text-white bg-uq-black hover:bg-uq-charcoal px-2.5 py-0.5 text-xs tracking-wider" title="参加 (支払済)">
+                    ○済
                   </span>`;
         case 'attending':
-          return `<span class="status-badge inline-flex items-center justify-center gap-1 font-bold text-blue-700 bg-blue-100/90 border border-blue-300 rounded-full px-2.5 py-0.5 text-xs shadow-xs hover:bg-blue-200 transition" title="参加 (未払い)">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                    <span>○</span>
+          return `<span class="status-badge inline-flex items-center justify-center font-black text-white bg-uq-red hover:bg-uq-darkred px-2.5 py-0.5 text-xs tracking-wider animate-pulse" title="参加 (未払い)">
+                    ○
                   </span>`;
         case 'absent':
-          return `<span class="status-badge inline-flex items-center justify-center font-bold text-slate-400 bg-slate-100 border border-slate-200 rounded-full px-2 py-0.5 text-xs hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition" title="不参加">
+          return `<span class="status-badge inline-flex items-center justify-center font-bold text-uq-muted bg-uq-gray hover:bg-uq-black hover:text-white border border-uq-border px-2 py-0.5 text-xs transition-colors" title="不参加">
                     ×
                   </span>`;
         case 'none':
         default:
-          return `<span class="status-badge inline-flex items-center justify-center text-slate-300 hover:text-slate-600 w-6 h-6 rounded-full hover:bg-slate-100 text-xs transition" title="未定 (クリックして参加設定)">
+          return `<span class="status-badge inline-flex items-center justify-center text-uq-muted/50 hover:text-uq-black w-6 h-6 hover:bg-uq-gray text-xs font-bold transition" title="未定 (クリックして参加設定)">
                     ー
                   </span>`;
       }
-    }
-
-    // --- メインテーブル描画 ---
-    function renderTable() {
-      const current = getCurrentData();
-      const filter = document.getElementById('filterSelect').value;
-      const search = document.getElementById('searchInput').value.trim().toLowerCase();
-
-      // 1. 締切行（1行目）
-      const deadlineRow = document.getElementById('deadlineHeaderRow');
-      deadlineRow.innerHTML = `
-        <th class="sticky-col-no py-2 px-1 text-[11px] font-bold text-slate-400 border-r border-slate-800 text-center bg-slate-925">締切</th>
-        <th class="sticky-col-name py-2 px-3 text-[11px] font-bold text-amber-300 border-r border-slate-800 text-left bg-slate-925 tracking-wide">
-          支部内締切日
-        </th>
-        ${current.tournaments.map(t => `
-          <th class="py-1.5 px-1 min-w-[100px] border-r border-slate-800 text-center ${t.isCanceled ? 'opacity-60' : ''}">
-            <div class="flex items-center justify-center">
-              <input type="text" value="${escapeHtml(t.deadline || '')}" 
-                     placeholder="締切..."
-                     onchange="updateTournamentField('${t.id}', 'deadline', this.value)"
-                     class="th-inline-input w-20 text-center text-xs font-bold text-amber-300 placeholder:text-slate-500 py-1 ${t.isCanceled ? 'line-through' : ''}"
-                     title="支部内締切日をクリックして直接入力 (例: 6/10)">
-            </div>
-          </th>
-        `).join('')}
-        <th class="col-unpaid-total py-1.5 px-2 text-[11px] font-medium text-slate-400 border-r border-slate-800 text-center min-w-[90px]">未払集計</th>
-        <th class="py-1.5 px-1 text-[11px] font-medium text-slate-400 w-12 no-print text-center">
-          <button onclick="addTournamentQuick()" class="inline-flex items-center justify-center p-1 bg-brand-700/80 hover:bg-brand-600 text-white rounded-md text-[10px] font-bold transition" title="大会を末尾に1つ追加">
-            ＋大会
-          </button>
-        </th>
-      `;
-
-      // 2. 大会名・開催日・参加費行（2行目）
-      const tourRow = document.getElementById('tournamentHeaderRow');
-      tourRow.innerHTML = `
-        <th class="sticky-col-no py-2.5 px-1 font-bold text-slate-300 text-xs border-r border-slate-700 text-center bg-slate-850">No.</th>
-        <th class="sticky-col-name py-2.5 px-3 font-bold text-white text-xs border-r border-slate-700 text-left bg-slate-850 tracking-wide">
-          氏名
-        </th>
-        ${current.tournaments.map(t => `
-          <th id="th_t_${t.id}" class="py-2.5 px-1.5 min-w-[100px] border-r border-slate-700 text-center align-top ${t.isCanceled ? 'bg-slate-900/90' : ''}">
-            <!-- 中止切替 ＆ 削除 -->
-            <div class="no-print flex items-center justify-between gap-1 mb-1 px-1">
-              <button onclick="toggleTournamentCanceled('${t.id}')" 
-                      class="text-[10px] font-bold px-1.5 py-0.5 rounded transition ${t.isCanceled ? 'bg-rose-500 hover:bg-rose-600 text-white shadow-xs' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}"
-                      title="${t.isCanceled ? '通常開催に戻す' : '悪天候等で大会が中止になった場合にクリック'}">
-                ${t.isCanceled ? '⚠️ 中止中' : '中止切替'}
-              </button>
-              <button onclick="deleteTournament('${t.id}')" class="text-slate-400 hover:text-rose-400 p-0.5 rounded transition" title="この大会を削除">
-                <i data-lucide="x" class="w-3 h-3"></i>
-              </button>
-            </div>
-
-            <!-- 大会名（インライン編集） -->
-            <input type="text" value="${escapeHtml(t.name)}" 
-                   onchange="updateTournamentField('${t.id}', 'name', this.value)"
-                   class="th-inline-input w-full text-center text-xs md:text-sm font-bold ${t.isCanceled ? 'line-through text-slate-400' : 'text-white'} px-1 py-0.5"
-                   title="大会名をクリックして変更可能">
-            
-            <!-- 大会開催日 -->
-            <div class="mt-1 flex items-center justify-center">
-              <input type="text" value="${escapeHtml(t.date || '')}" 
-                     placeholder="開催日..."
-                     onchange="updateTournamentField('${t.id}', 'date', this.value)"
-                     class="th-inline-input w-20 text-center text-[11px] font-semibold text-brand-300 placeholder:text-slate-500 py-0.5 ${t.isCanceled ? 'line-through opacity-50' : ''}"
-                     title="大会開催日をクリックして直接入力 (例: 6/21)">
-            </div>
-
-            <!-- 参加費（画面では直接編集、印刷では文字で表示） -->
-            <div class="no-print mt-1 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-slate-500 line-through' : 'text-slate-300'}">
-              <span class="opacity-70 mr-0.5">¥</span>
-              <input type="number" min="0" step="100" value="${t.fee || 0}"
-                     onchange="updateTournamentField('${t.id}', 'fee', this.value)"
-                     class="th-inline-input w-16 text-center text-[10px] text-slate-200 py-0.5 font-mono"
-                     title="参加費（円）をクリックして直接入力">
-            </div>
-            ${t.fee ? `<div class="hidden print-title text-[10px] font-normal mt-0.5">¥${t.fee.toLocaleString()}</div>` : ''}
-          </th>
-        `).join('')}
-        <th class="col-unpaid-total py-2.5 px-2 font-bold min-w-[90px] border-r border-slate-700 text-center text-xs text-white">未払計</th>
-        <th class="py-2.5 px-1 font-semibold w-12 no-print border-slate-700 text-center text-xs text-slate-300">操作</th>
-      `;
-
-      cleanDuplicateExamples();
-
-      // 3. 参考例行のHTML生成（固定3名：和風の上品なハイライト）
-      let exampleRowsHtml = '';
-      if (appStore.showExamples !== false) {
-        exampleRowsHtml = FIXED_EXAMPLE_MEMBERS.map((exMember, idx) => `
-          <tr class="bg-amber-50/60 hover:bg-amber-100/60 transition border-b border-amber-200/70 print-example-bg">
-            <td class="sticky-col-no py-2.5 px-1 text-amber-800 font-mono text-[11px] text-center border-r border-amber-200 font-bold bg-amber-50">例</td>
-            <td class="sticky-col-name py-2.5 px-3 text-left font-bold text-amber-950 border-r border-amber-200 bg-amber-50">
-              <div class="flex items-center gap-1.5">
-                <span class="inline-block px-1.5 py-0.5 bg-amber-200/80 text-amber-900 text-[10px] font-bold rounded-md">参考例</span>
-                <span>${escapeHtml(exMember.name)}</span>
-              </div>
-            </td>
-            ${current.tournaments.map(t => {
-              const status = exMember.records[t.id] || 'none';
-              return `
-                <td class="py-2.5 px-1 text-center border-r border-slate-100 ${t.isCanceled ? 'canceled-col' : ''}">
-                  ${getStatusBadge(status, t.isCanceled)}
-                </td>
-              `;
-            }).join('')}
-            <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-slate-100">
-              <span class="text-[11px] text-amber-700/70 font-medium">（例示）</span>
-            </td>
-            <td class="py-2.5 px-1 text-center no-print">
-              <span class="text-[10px] text-slate-400 font-medium" title="参考例のため固定表示です">固定</span>
-            </td>
-          </tr>
-        `).join('');
-      }
-
-      // 4. 実登録者のフィルタリング
-      const filteredMembers = current.members.filter(m => {
-        if (search && !m.name.toLowerCase().includes(search)) return false;
-
-        if (filter === 'has_unpaid') {
-          const hasUnpaid = current.tournaments.some(t => !t.isCanceled && (m.records && m.records[t.id] === 'attending'));
-          if (!hasUnpaid) return false;
-        } else if (filter === 'attending_any') {
-          const isAttending = current.tournaments.some(t => {
-            if (t.isCanceled) return false;
-            const st = m.records && m.records[t.id];
-            return st === 'attending' || st === 'paid';
-          });
-          if (!isAttending) return false;
-        }
-
-        return true;
-      });
-
-      // 5. 実登録者行のHTML生成
-      let actualRowsHtml = '';
-      if (filteredMembers.length === 0 && current.members.length === 0) {
-        actualRowsHtml = `
-          <tr>
-            <td colspan="${current.tournaments.length + 4}" class="py-12 text-center text-slate-400 bg-slate-50/50">
-              <div class="flex flex-col items-center justify-center gap-2">
-                <i data-lucide="users" class="w-8 h-8 text-slate-300"></i>
-                <p class="text-sm font-medium">まだこの年度（${escapeHtml(appStore.currentYear)}）の参加者が登録されていません。</p>
-                <button onclick="openAddMemberModal()" class="mt-1 px-4 py-1.5 bg-brand-700 text-white rounded-xl text-xs font-bold shadow-sm hover:bg-brand-800 transition">
-                  ＋ 参加者の氏名を追加する
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      } else if (filteredMembers.length === 0) {
-        actualRowsHtml = `
-          <tr>
-            <td colspan="${current.tournaments.length + 4}" class="py-10 text-center text-slate-400">
-              検索・絞り込み条件に一致する参加者がいません。
-            </td>
-          </tr>
-        `;
-      } else {
-        actualRowsHtml = filteredMembers.map((member, index) => {
-          let unpaidCount = 0;
-          let unpaidAmount = 0;
-
-          current.tournaments.forEach(t => {
-            if (!t.isCanceled && member.records && member.records[t.id] === 'attending') {
-              unpaidCount++;
-              unpaidAmount += (t.fee || 0);
-            }
-          });
-
-          const isEven = index % 2 === 1;
-          const rowBg = isEven ? 'bg-slate-50/50' : 'bg-white';
-
-          return `
-            <tr class="${rowBg} hover:bg-emerald-50/40 transition-colors border-b border-slate-100 group">
-              <td class="sticky-col-no py-2.5 px-1 text-slate-400 font-mono text-xs text-center border-r border-slate-100 ${rowBg} group-hover:bg-emerald-50/40 transition-colors">${index + 1}</td>
-              <td class="sticky-col-name py-2.5 px-3 text-left font-bold text-slate-900 border-r border-slate-100 ${rowBg} group-hover:bg-emerald-50/40 transition-colors">
-                <input type="text" value="${escapeHtml(member.name)}" 
-                       onchange="updateMemberName('${member.id}', this.value)"
-                       class="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-brand-600 focus:bg-white focus:outline-none rounded px-1.5 py-0.5 text-sm font-bold text-slate-900 transition">
-              </td>
-              ${current.tournaments.map(t => {
-                const status = (member.records && member.records[t.id]) || 'none';
-                return `
-                  <td class="py-2 px-1 text-center status-cell border-r border-slate-100 ${t.isCanceled ? 'canceled-col' : ''}"
-                      onclick="${t.isCanceled ? '' : `cycleStatus('${member.id}', '${t.id}')`}"
-                      oncontextmenu="${t.isCanceled ? '' : `openContextMenu(event, '${member.id}', '${t.id}')`}">
-                    ${getStatusBadge(status, t.isCanceled)}
-                  </td>
-                `;
-              }).join('')}
-              <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-slate-100">
-                ${unpaidCount > 0 ? `
-                  <span class="inline-flex items-center gap-1 font-bold text-xs text-amber-800 bg-amber-100/80 px-2 py-0.5 rounded-full border border-amber-300 shadow-xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    <span class="tnum">${unpaidAmount > 0 ? `¥${unpaidAmount.toLocaleString()}` : `${unpaidCount}件`}</span>
-                  </span>
-                ` : `
-                  <span class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">
-                    <i data-lucide="check" class="w-3 h-3"></i>
-                    済
-                  </span>
-                `}
-              </td>
-              <td class="py-2 px-1 text-center no-print">
-                <button onclick="deleteMember('${member.id}')" class="p-1.5 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition" title="この人を削除">
-                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
-                </button>
-              </td>
-            </tr>
-          `;
-        }).join('');
-      }
-
-      const tbody = document.getElementById('tableBody');
-      tbody.innerHTML = exampleRowsHtml + actualRowsHtml;
-
-      // 6. フッター合計描画
-      renderTableFooter();
-      renderStatsSummary();
-      lucide.createIcons();
-    }
-
-    function renderTableFooter() {
-      const current = getCurrentData();
-      const tfoot = document.getElementById('tableFoot');
-      let totalUnpaidOverall = 0;
-
-      const colsHtml = current.tournaments.map(t => {
-        if (t.isCanceled) {
-          let paid = 0;
-          current.members.forEach(m => {
-            if (m.records && m.records[t.id] === 'paid') paid++;
-          });
-          return `
-            <td class="py-3 px-1 text-center text-xs border-r border-slate-200 bg-rose-50/50">
-              <span class="text-rose-700 font-bold block text-xs">中止</span>
-              ${paid > 0 ? `<span class="text-[10px] text-amber-800 font-bold bg-amber-100 px-1.5 py-0.2 rounded">返金要: ${paid}名</span>` : '<span class="text-[10px] text-slate-400">集金無</span>'}
-            </td>
-          `;
-        }
-
-        let paid = 0;
-        let attending = 0;
-
-        current.members.forEach(m => {
-          const st = m.records && m.records[t.id];
-          if (st === 'paid') paid++;
-          else if (st === 'attending') attending++;
-        });
-
-        const totalAttending = paid + attending;
-        const unpaidMoney = attending * (t.fee || 0);
-        totalUnpaidOverall += unpaidMoney;
-
-        return `
-          <td class="py-3 px-1 text-center text-xs border-r border-slate-200">
-            <div class="font-extrabold text-slate-900 tnum">計 ${totalAttending}名</div>
-            <div class="text-[10px] mt-0.5 space-x-1">
-              <span class="text-emerald-700 font-semibold">済:${paid}</span>
-              ${attending > 0 ? `<span class="text-amber-700 font-bold">未:${attending}</span>` : ''}
-            </div>
-          </td>
-        `;
-      }).join('');
-
-      tfoot.innerHTML = `
-        <tr class="bg-slate-100/90 font-bold">
-          <td class="sticky-col-no py-3 px-1 text-center border-r border-slate-200 text-xs text-slate-500 bg-slate-100">計</td>
-          <td class="sticky-col-name py-3 px-3 text-left border-r border-slate-200 text-xs font-bold text-slate-800 bg-slate-100">
-            参加者合計: <span class="tnum text-brand-800 font-extrabold">${current.members.length}</span>名
-          </td>
-          ${colsHtml}
-          <td class="col-unpaid-total py-3 px-2 text-center border-r border-slate-200">
-            <div class="text-[11px] text-slate-500">全体未払額</div>
-            <div class="text-xs font-extrabold ${totalUnpaidOverall > 0 ? 'text-amber-700' : 'text-emerald-700'} tnum">
-              ${totalUnpaidOverall > 0 ? `¥${totalUnpaidOverall.toLocaleString()}` : '¥0'}
-            </div>
-          </td>
-          <td class="no-print"></td>
-        </tr>
-      `;
     }
 
     // --- 統計サマリーのスクロール ＆ 開閉トグル ---
@@ -1754,7 +1412,7 @@
       }
     }
 
-    // --- 統合統計サマリー描画 ---
+    // --- 統合統計サマリー描画（UNIQLOボールドKPI） ---
     function renderStatsSummary() {
       const current = getCurrentData();
       const kpiBar = document.getElementById('overallKpiBar');
@@ -1788,51 +1446,45 @@
         }
       });
 
-      // 全体KPIバーのHTML
+      // UNIQLO風 全体KPIバーのHTML
       kpiBar.innerHTML = `
-        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
-          <i data-lucide="users" class="w-3.5 h-3.5 text-brand-600"></i>
-          <span>登録者:</span>
-          <span class="font-extrabold text-slate-900 tnum">${memberCount}</span>名
+        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px]">MEMBERS:</span>
+          <span class="font-black text-uq-black tnum text-sm">${memberCount}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
-          <i data-lucide="target" class="w-3.5 h-3.5 text-blue-600"></i>
-          <span>延べ参加:</span>
-          <span class="font-extrabold text-slate-900 tnum">${totalAttendingOverall}</span>名
+        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px]">ENTRIES:</span>
+          <span class="font-black text-uq-black tnum text-sm">${totalAttendingOverall}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-bold text-slate-800 bg-white px-2.5 py-1 rounded-xl border border-slate-200/80 shadow-xs">
-          <i data-lucide="trophy" class="w-3.5 h-3.5 text-amber-500"></i>
-          <span>大会数:</span>
-          <span class="font-extrabold text-slate-900 tnum">${current.tournaments.length}</span>件
-          ${canceledCount > 0 ? `<span class="text-[10px] text-rose-600 font-semibold">(中止${canceledCount})</span>` : ''}
+        <div class="flex items-center gap-1.5 font-black text-uq-black bg-white px-3 py-1 border border-uq-border text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[10px]">EVENTS:</span>
+          <span class="font-black text-uq-black tnum text-sm">${current.tournaments.length}</span>件
+          ${canceledCount > 0 ? `<span class="text-[10px] text-uq-red font-bold">(中止${canceledCount})</span>` : ''}
         </div>
 
         ${totalUnpaidCountOverall > 0 ? `
-          <div class="flex items-center gap-1.5 font-bold text-amber-900 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-300 shadow-xs animate-pulse">
-            <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-            <span>未払総額:</span>
-            <span class="font-extrabold text-amber-800 tnum">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
-            <span class="text-[10px] text-amber-700">(${totalUnpaidCountOverall}件)</span>
+          <div class="flex items-center gap-2 font-black text-white bg-uq-red px-3 py-1 text-xs uppercase tracking-wider shadow-sm">
+            <span>UNPAID / 未払総額:</span>
+            <span class="font-black text-white tnum text-sm">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
+            <span class="text-[10px] bg-black/20 px-1 py-0.2">${totalUnpaidCountOverall}件</span>
           </div>
         ` : `
-          <div class="flex items-center gap-1.5 font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-xl border border-emerald-300 shadow-xs">
-            <i data-lucide="check-circle-2" class="w-3.5 h-3.5 text-emerald-600"></i>
-            <span>全額集金完了 ✨</span>
+          <div class="flex items-center gap-1.5 font-black text-white bg-uq-black px-3 py-1 text-xs uppercase tracking-wider">
+            <span>ALL PAID / 全員集金完了 ✨</span>
           </div>
         `}
 
         ${totalRefundCountOverall > 0 ? `
-          <div class="flex items-center gap-1.5 font-bold text-rose-800 bg-rose-50 px-2.5 py-1 rounded-xl border border-rose-300 shadow-xs">
-            <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-rose-600"></i>
-            <span>返金要:</span>
-            <span class="font-extrabold text-rose-700 tnum">${totalRefundCountOverall}</span>名
+          <div class="flex items-center gap-1.5 font-black text-uq-red bg-red-50 border border-uq-red px-3 py-1 text-xs uppercase tracking-wider">
+            <span>REFUND / 返金要:</span>
+            <span class="font-black text-uq-red tnum text-sm">${totalRefundCountOverall}</span>名
           </div>
         ` : ''}
       `;
 
-      // 2. 大会別カード（横1行のスライダーデッキ）
+      // 2. 大会別カード（UNIQLO風 モジュラープライスタグ）
       container.innerHTML = current.tournaments.map((t, idx) => {
         if (t.isCanceled) {
           let paid = 0;
@@ -1841,22 +1493,22 @@
           });
           return `
             <div onclick="scrollToTournament('${t.id}')"
-                 class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-rose-50/20 p-2.5 rounded-xl border border-rose-200 shadow-xs hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between">
+                 class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-red-50 p-3 border border-uq-red shadow-xs transition cursor-pointer group flex flex-col justify-between">
               <div>
-                <div class="flex items-center justify-between gap-1 mb-0.5">
-                  <span class="text-[10px] font-mono text-slate-400 font-bold">#${idx + 1}</span>
-                  <span class="text-[9px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.2 rounded">中止</span>
+                <div class="flex items-center justify-between gap-1 mb-1">
+                  <span class="text-[10px] font-mono text-uq-muted font-black">#${idx + 1}</span>
+                  <span class="text-[9px] font-black text-white bg-uq-red px-1.5 py-0.2 uppercase tracking-wider">CANCELED</span>
                 </div>
-                <div class="text-xs font-bold text-slate-700 truncate group-hover:text-rose-700 transition" title="${escapeHtml(t.name)}">
+                <div class="text-xs font-black text-uq-black truncate group-hover:text-uq-red transition" title="${escapeHtml(t.name)}">
                   ${escapeHtml(t.name)}
                 </div>
-                <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+                <div class="text-[10px] text-uq-muted mt-0.5 truncate font-medium">
                   ${t.date ? escapeHtml(t.date) : '日程未定'}
                 </div>
               </div>
-              <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
-                <span class="text-[10px] font-bold text-rose-600">中止</span>
-                ${paid > 0 ? `<span class="text-[10px] font-bold text-amber-700 bg-amber-100 px-1 rounded">返金:${paid}</span>` : '<span class="text-[9px] text-slate-400">集金無</span>'}
+              <div class="mt-2 pt-2 border-t border-uq-border flex items-center justify-between">
+                <span class="text-[10px] font-black text-uq-red">中止</span>
+                ${paid > 0 ? `<span class="text-[10px] font-black text-uq-red bg-red-50 px-1 border border-uq-red">返金:${paid}</span>` : '<span class="text-[9px] text-uq-muted">集金無</span>'}
               </div>
             </div>
           `;
@@ -1874,24 +1526,24 @@
 
         return `
           <div onclick="scrollToTournament('${t.id}')"
-               class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:bg-slate-50/80 p-2.5 rounded-xl border border-slate-200/90 shadow-xs hover:shadow-md hover:border-brand-500/50 transition-all cursor-pointer group flex flex-col justify-between">
+               class="min-w-[145px] max-w-[160px] shrink-0 bg-white hover:border-black p-3 border border-uq-border shadow-xs transition cursor-pointer group flex flex-col justify-between">
             <div>
-              <div class="flex items-center justify-between gap-1 mb-0.5">
-                <span class="text-[10px] font-mono text-slate-400 font-bold">#${idx + 1}</span>
-                <span class="text-[10px] font-mono text-slate-400">¥${(t.fee || 0).toLocaleString()}</span>
+              <div class="flex items-center justify-between gap-1 mb-1">
+                <span class="text-[10px] font-mono text-uq-muted font-black">#${idx + 1}</span>
+                <span class="text-[10px] font-mono font-bold text-uq-black">¥${(t.fee || 0).toLocaleString()}</span>
               </div>
-              <div class="text-xs font-bold text-slate-800 truncate group-hover:text-brand-700 transition" title="${escapeHtml(t.name)}">
+              <div class="text-xs font-black text-uq-black truncate group-hover:text-uq-red transition" title="${escapeHtml(t.name)}">
                 ${escapeHtml(t.name)}
               </div>
-              <div class="text-[10px] text-slate-400 mt-0.5 truncate">
+              <div class="text-[10px] text-uq-muted mt-0.5 truncate font-medium">
                 ${t.date ? escapeHtml(t.date) : (t.deadline ? `締:${escapeHtml(t.deadline)}` : '未定')}
               </div>
             </div>
-            <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-baseline justify-between">
-              <span class="text-base font-extrabold text-slate-900 tnum leading-none">
-                ${total}<span class="text-[10px] font-normal text-slate-500 ml-0.5">名</span>
+            <div class="mt-2 pt-2 border-t border-uq-border flex items-baseline justify-between">
+              <span class="text-lg font-black text-uq-black tnum leading-none">
+                ${total}<span class="text-[10px] font-bold text-uq-muted ml-0.5">名</span>
               </span>
-              <span class="text-[10px] font-bold ${attending > 0 ? 'text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-full border border-amber-200' : 'text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200'}">
+              <span class="text-[10px] font-black ${attending > 0 ? 'text-uq-red bg-red-50 border border-uq-red px-1.5 py-0.2' : 'text-uq-black bg-uq-gray px-1.5 py-0.2'}">
                 ${attending > 0 ? `未:${attending}` : '済 ✨'}
               </span>
             </div>
@@ -1901,6 +1553,286 @@
 
       applySummaryCollapsedState();
       lucide.createIcons();
+    }
+
+    // --- メインテーブル描画 ---
+    function renderTable() {
+      const current = getCurrentData();
+      const filter = document.getElementById('filterSelect').value;
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+      // 1. 締切行（1行目：ソリッドブラック）
+      const deadlineRow = document.getElementById('deadlineHeaderRow');
+      deadlineRow.innerHTML = `
+        <th class="sticky-col-no py-2.5 px-1 text-[11px] font-black text-uq-muted border-r border-uq-charcoal text-center bg-uq-black">締切</th>
+        <th class="sticky-col-name py-2.5 px-3 text-[11px] font-black text-white border-r border-uq-charcoal text-left bg-uq-black uppercase tracking-wider">
+          DEADLINE / 支部内締切日
+        </th>
+        ${current.tournaments.map(t => `
+          <th class="py-1.5 px-1 min-w-[100px] border-r border-uq-charcoal text-center ${t.isCanceled ? 'opacity-50' : ''}">
+            <div class="flex items-center justify-center">
+              <input type="text" value="${escapeHtml(t.deadline || '')}" 
+                     placeholder="締切..."
+                     onchange="updateTournamentField('${t.id}', 'deadline', this.value)"
+                     class="th-inline-input w-20 text-center text-xs font-bold text-white placeholder:text-uq-muted py-1 ${t.isCanceled ? 'line-through' : ''}"
+                     title="支部内締切日をクリックして直接入力 (例: 6/10)">
+            </div>
+          </th>
+        `).join('')}
+        <th class="col-unpaid-total py-1.5 px-2 text-[11px] font-bold text-white border-r border-uq-charcoal text-center min-w-[90px]">未払集計</th>
+        <th class="py-1.5 px-1 text-[11px] font-bold text-uq-muted w-12 no-print text-center">
+          <button onclick="addTournamentQuick()" class="inline-flex items-center justify-center px-1.5 py-0.5 bg-uq-red hover:bg-uq-darkred text-white text-[10px] font-black uppercase transition" title="大会を末尾に1つ追加">
+            ＋大会
+          </button>
+        </th>
+      `;
+
+      // 2. 大会名・開催日・参加費行（2行目）
+      const tourRow = document.getElementById('tournamentHeaderRow');
+      tourRow.innerHTML = `
+        <th class="sticky-col-no py-2.5 px-1 font-black text-uq-muted text-xs border-r border-uq-charcoal text-center bg-uq-charcoal">No.</th>
+        <th class="sticky-col-name py-2.5 px-3 font-black text-white text-xs border-r border-uq-charcoal text-left bg-uq-charcoal uppercase tracking-wider">
+          NAME / 氏名
+        </th>
+        ${current.tournaments.map(t => `
+          <th id="th_t_${t.id}" class="py-2.5 px-1.5 min-w-[100px] border-r border-uq-charcoal text-center align-top ${t.isCanceled ? 'bg-black/60' : ''}">
+            <!-- 中止切替 ＆ 削除 -->
+            <div class="no-print flex items-center justify-between gap-1 mb-1 px-1">
+              <button onclick="toggleTournamentCanceled('${t.id}')" 
+                      class="text-[9px] font-black px-1.5 py-0.5 uppercase tracking-wider transition ${t.isCanceled ? 'bg-uq-red text-white' : 'bg-uq-black hover:bg-white hover:text-black text-white border border-white/20'}"
+                      title="${t.isCanceled ? '通常開催に戻す' : '大会が中止になった場合にクリック'}">
+                ${t.isCanceled ? '⚠️ 中止' : '中止切替'}
+              </button>
+              <button onclick="deleteTournament('${t.id}')" class="text-white/40 hover:text-uq-red p-0.5 transition" title="この大会を削除">
+                <i data-lucide="x" class="w-3 h-3"></i>
+              </button>
+            </div>
+
+            <!-- 大会名（インライン編集） -->
+            <input type="text" value="${escapeHtml(t.name)}" 
+                   onchange="updateTournamentField('${t.id}', 'name', this.value)"
+                   class="th-inline-input w-full text-center text-xs md:text-sm font-black ${t.isCanceled ? 'line-through text-uq-muted' : 'text-white'} px-1 py-0.5"
+                   title="大会名をクリックして変更可能">
+            
+            <!-- 大会開催日 -->
+            <div class="mt-1 flex items-center justify-center">
+              <input type="text" value="${escapeHtml(t.date || '')}" 
+                     placeholder="開催日..."
+                     onchange="updateTournamentField('${t.id}', 'date', this.value)"
+                     class="th-inline-input w-20 text-center text-[11px] font-bold text-white/90 placeholder:text-uq-muted py-0.5 ${t.isCanceled ? 'line-through opacity-50' : ''}"
+                     title="大会開催日をクリックして直接入力 (例: 6/21)">
+            </div>
+
+            <!-- 参加費 -->
+            <div class="no-print mt-1 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-uq-muted line-through' : 'text-white/70'}">
+              <span class="opacity-70 mr-0.5">¥</span>
+              <input type="number" min="0" step="100" value="${t.fee || 0}"
+                     onchange="updateTournamentField('${t.id}', 'fee', this.value)"
+                     class="th-inline-input w-16 text-center text-[10px] text-white py-0.5 font-mono font-bold"
+                     title="参加費（円）をクリックして直接入力">
+            </div>
+            ${t.fee ? `<div class="hidden print-title text-[10px] font-normal mt-0.5">¥${t.fee.toLocaleString()}</div>` : ''}
+          </th>
+        `).join('')}
+        <th class="col-unpaid-total py-2.5 px-2 font-black min-w-[90px] border-r border-uq-charcoal text-center text-xs text-white">未払計</th>
+        <th class="py-2.5 px-1 font-bold w-12 no-print border-uq-charcoal text-center text-xs text-uq-muted">操作</th>
+      `;
+
+      cleanDuplicateExamples();
+
+      // 3. 参考例行（固定1名：クリーンなグレー背景）
+      let exampleRowsHtml = '';
+      if (appStore.showExamples !== false) {
+        exampleRowsHtml = FIXED_EXAMPLE_MEMBERS.map((exMember, idx) => `
+          <tr class="bg-uq-gray hover:bg-slate-100 transition border-b border-uq-border print-example-bg">
+            <td class="sticky-col-no py-2.5 px-1 text-uq-muted font-mono text-[11px] text-center border-r border-uq-border font-black bg-uq-gray">例</td>
+            <td class="sticky-col-name py-2.5 px-3 text-left font-black text-uq-black border-r border-uq-border bg-uq-gray">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-block px-1.5 py-0.2 bg-uq-black text-white text-[9px] font-black tracking-wider uppercase">EXAMPLE</span>
+                <span>${escapeHtml(exMember.name)}</span>
+              </div>
+            </td>
+            ${current.tournaments.map(t => {
+              const status = exMember.records[t.id] || 'none';
+              return `
+                <td class="py-2.5 px-1 text-center border-r border-uq-border ${t.isCanceled ? 'canceled-col' : ''}">
+                  ${getStatusBadge(status, t.isCanceled)}
+                </td>
+              `;
+            }).join('')}
+            <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-uq-border">
+              <span class="text-[11px] text-uq-muted font-bold">（見本）</span>
+            </td>
+            <td class="py-2.5 px-1 text-center no-print">
+              <span class="text-[10px] text-uq-muted font-bold uppercase tracking-wider" title="参考例のため固定表示です">FIXED</span>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // 4. 実登録者のフィルタリング
+      const filteredMembers = current.members.filter(m => {
+        if (search && !m.name.toLowerCase().includes(search)) return false;
+
+        if (filter === 'has_unpaid') {
+          const hasUnpaid = current.tournaments.some(t => !t.isCanceled && (m.records && m.records[t.id] === 'attending'));
+          if (!hasUnpaid) return false;
+        } else if (filter === 'attending_any') {
+          const isAttending = current.tournaments.some(t => {
+            if (t.isCanceled) return false;
+            const st = m.records && m.records[t.id];
+            return st === 'attending' || st === 'paid';
+          });
+          if (!isAttending) return false;
+        }
+
+        return true;
+      });
+
+      // 5. 実登録者行のHTML生成
+      let actualRowsHtml = '';
+      if (filteredMembers.length === 0 && current.members.length === 0) {
+        actualRowsHtml = `
+          <tr>
+            <td colspan="${current.tournaments.length + 4}" class="py-12 text-center text-uq-muted bg-white">
+              <div class="flex flex-col items-center justify-center gap-2">
+                <i data-lucide="users" class="w-8 h-8 text-uq-border"></i>
+                <p class="text-sm font-bold text-uq-black">まだこの年度（${escapeHtml(appStore.currentYear)}）の参加者が登録されていません。</p>
+                <button onclick="openAddMemberModal()" class="mt-2 px-5 py-2 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider transition">
+                  ＋ 参加者の氏名を追加
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      } else if (filteredMembers.length === 0) {
+        actualRowsHtml = `
+          <tr>
+            <td colspan="${current.tournaments.length + 4}" class="py-10 text-center text-uq-muted font-bold">
+              検索条件に一致する参加者がいません。
+            </td>
+          </tr>
+        `;
+      } else {
+        actualRowsHtml = filteredMembers.map((member, index) => {
+          let unpaidCount = 0;
+          let unpaidAmount = 0;
+
+          current.tournaments.forEach(t => {
+            if (!t.isCanceled && member.records && member.records[t.id] === 'attending') {
+              unpaidCount++;
+              unpaidAmount += (t.fee || 0);
+            }
+          });
+
+          const isEven = index % 2 === 1;
+          const rowBg = isEven ? 'bg-[#FAFAFA]' : 'bg-white';
+
+          return `
+            <tr class="${rowBg} hover:bg-red-50/20 transition-colors border-b border-uq-border group">
+              <td class="sticky-col-no py-2.5 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border ${rowBg} font-bold">${index + 1}</td>
+              <td class="sticky-col-name py-2.5 px-3 text-left font-black text-uq-black border-r border-uq-border ${rowBg}">
+                <input type="text" value="${escapeHtml(member.name)}" 
+                       onchange="updateMemberName('${member.id}', this.value)"
+                       class="w-full bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-1.5 py-0.5 text-sm font-black text-uq-black transition">
+              </td>
+              ${current.tournaments.map(t => {
+                const status = (member.records && member.records[t.id]) || 'none';
+                return `
+                  <td class="py-2 px-1 text-center status-cell border-r border-uq-border ${t.isCanceled ? 'canceled-col' : ''}"
+                      onclick="${t.isCanceled ? '' : `cycleStatus('${member.id}', '${t.id}')`}"
+                      oncontextmenu="${t.isCanceled ? '' : `openContextMenu(event, '${member.id}', '${t.id}')`}">
+                    ${getStatusBadge(status, t.isCanceled)}
+                  </td>
+                `;
+              }).join('')}
+              <td class="col-unpaid-total py-2.5 px-2 text-center border-r border-uq-border">
+                ${unpaidCount > 0 ? `
+                  <span class="inline-flex items-center font-black text-xs text-white bg-uq-red px-2 py-0.5">
+                    <span class="tnum">${unpaidAmount > 0 ? `¥${unpaidAmount.toLocaleString()}` : `${unpaidCount}件`}</span>
+                  </span>
+                ` : `
+                  <span class="text-[11px] text-uq-muted font-black uppercase">PAID</span>
+                `}
+              </td>
+              <td class="py-2 px-1 text-center no-print">
+                <button onclick="deleteMember('${member.id}')" class="p-1.5 text-uq-muted/50 hover:text-uq-red hover:bg-uq-gray transition" title="この人を削除">
+                  <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = exampleRowsHtml + actualRowsHtml;
+
+      // 6. フッター合計描画
+      renderTableFooter();
+      renderStatsSummary();
+      lucide.createIcons();
+    }
+
+    function renderTableFooter() {
+      const current = getCurrentData();
+      const tfoot = document.getElementById('tableFoot');
+      let totalUnpaidOverall = 0;
+
+      const colsHtml = current.tournaments.map(t => {
+        if (t.isCanceled) {
+          let paid = 0;
+          current.members.forEach(m => {
+            if (m.records && m.records[t.id] === 'paid') paid++;
+          });
+          return `
+            <td class="py-3 px-1 text-center text-xs border-r border-uq-border bg-uq-gray">
+              <span class="text-uq-red font-black block text-xs">中止</span>
+              ${paid > 0 ? `<span class="text-[10px] text-uq-red font-black bg-white px-1 border border-uq-red">返金:${paid}名</span>` : '<span class="text-[10px] text-uq-muted">集金無</span>'}
+            </td>
+          `;
+        }
+
+        let paid = 0;
+        let attending = 0;
+
+        current.members.forEach(m => {
+          const st = m.records && m.records[t.id];
+          if (st === 'paid') paid++;
+          else if (st === 'attending') attending++;
+        });
+
+        const totalAttending = paid + attending;
+        const unpaidMoney = attending * (t.fee || 0);
+        totalUnpaidOverall += unpaidMoney;
+
+        return `
+          <td class="py-3 px-1 text-center text-xs border-r border-uq-border">
+            <div class="font-black text-uq-black tnum">計 ${totalAttending}名</div>
+            <div class="text-[10px] mt-0.5 space-x-1">
+              <span class="text-uq-black font-bold">済:${paid}</span>
+              ${attending > 0 ? `<span class="text-uq-red font-black">未:${attending}</span>` : ''}
+            </div>
+          </td>
+        `;
+      }).join('');
+
+      tfoot.innerHTML = `
+        <tr class="bg-uq-gray font-black">
+          <td class="sticky-col-no py-3 px-1 text-center border-r border-uq-border text-xs text-uq-muted bg-uq-gray">計</td>
+          <td class="sticky-col-name py-3 px-3 text-left border-r border-uq-border text-xs font-black text-uq-black bg-uq-gray">
+            TOTAL / 参加者合計: <span class="tnum text-uq-red font-black">${current.members.length}</span>名
+          </td>
+          ${colsHtml}
+          <td class="col-unpaid-total py-3 px-2 text-center border-r border-uq-border">
+            <div class="text-[10px] text-uq-muted uppercase tracking-wider">TOTAL UNPAID</div>
+            <div class="text-xs font-black ${totalUnpaidOverall > 0 ? 'text-uq-red' : 'text-uq-black'} tnum">
+              ${totalUnpaidOverall > 0 ? `¥${totalUnpaidOverall.toLocaleString()}` : '¥0'}
+            </div>
+          </td>
+          <td class="no-print"></td>
+        </tr>
+      `;
     }
 
     // --- 大会追加・削除 ---
@@ -2094,39 +2026,39 @@
     function renderTournamentEditor() {
       const container = document.getElementById('tournamentEditorList');
       container.innerHTML = tournamentDraft.map((t, index) => `
-        <div class="bg-slate-50 p-3.5 rounded-xl border ${t.isCanceled ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200'} space-y-2.5 transition" data-idx="${index}">
+        <div class="bg-white p-3.5 border ${t.isCanceled ? 'border-uq-red bg-red-50/30' : 'border-uq-border'} space-y-2.5 transition" data-idx="${index}">
           <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400 font-mono w-5 font-bold">${index + 1}</span>
+            <span class="text-xs text-uq-muted font-mono w-5 font-black">${index + 1}</span>
             <input type="text" value="${escapeHtml(t.name)}" 
-                   class="t-edit-name flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-xl focus:border-brand-600 focus:outline-none bg-white font-bold" 
+                   class="t-edit-name flex-1 px-3 py-1.5 text-sm border border-black focus:border-uq-red focus:outline-none bg-white font-black" 
                    placeholder="大会名">
             
-            <label class="flex items-center gap-1.5 text-xs font-bold ${t.isCanceled ? 'text-rose-700 bg-rose-100 border-rose-300' : 'text-slate-600 bg-white border-slate-200'} cursor-pointer px-2.5 py-1.5 rounded-xl border transition">
-              <input type="checkbox" ${t.isCanceled ? 'checked' : ''} class="t-edit-canceled rounded text-rose-600 focus:ring-rose-500">
+            <label class="flex items-center gap-1.5 text-xs font-black ${t.isCanceled ? 'text-white bg-uq-red' : 'text-uq-black bg-white border border-black'} cursor-pointer px-2.5 py-1.5 border transition">
+              <input type="checkbox" ${t.isCanceled ? 'checked' : ''} class="t-edit-canceled accent-uq-red">
               <span>中止</span>
             </label>
 
-            <button onclick="removeTournamentRow(${index})" class="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg transition" title="大会を削除">
+            <button onclick="removeTournamentRow(${index})" class="p-1.5 text-uq-muted hover:text-uq-red transition" title="大会を削除">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 pl-7">
             <div>
-              <label class="block text-[11px] font-bold text-amber-700 mb-0.5">支部内締切日</label>
+              <label class="block text-[11px] font-black text-uq-black mb-0.5 uppercase tracking-wider">支部内締切日</label>
               <input type="text" value="${escapeHtml(t.deadline || '')}" 
-                     class="t-edit-deadline w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-xl focus:border-brand-600 focus:outline-none bg-white" 
+                     class="t-edit-deadline w-full px-2.5 py-1.5 text-xs border border-uq-border focus:border-black focus:outline-none bg-white font-bold" 
                      placeholder="例: 6/10">
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-brand-700 mb-0.5">大会開催日</label>
+              <label class="block text-[11px] font-black text-uq-black mb-0.5 uppercase tracking-wider">大会開催日</label>
               <input type="text" value="${escapeHtml(t.date || '')}" 
-                     class="t-edit-date w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-xl focus:border-brand-600 focus:outline-none bg-white" 
+                     class="t-edit-date w-full px-2.5 py-1.5 text-xs border border-uq-border focus:border-black focus:outline-none bg-white font-bold" 
                      placeholder="例: 6/21">
             </div>
             <div>
-              <label class="block text-[11px] font-bold text-slate-700 mb-0.5">参加費（円）</label>
+              <label class="block text-[11px] font-black text-uq-black mb-0.5 uppercase tracking-wider">参加費（円）</label>
               <input type="number" min="0" step="100" value="${t.fee || 0}" 
-                     class="t-edit-fee w-full px-2.5 py-1.5 text-xs border border-slate-300 rounded-xl focus:border-brand-600 focus:outline-none bg-white font-mono" 
+                     class="t-edit-fee w-full px-2.5 py-1.5 text-xs border border-uq-border focus:border-black focus:outline-none bg-white font-mono font-bold" 
                      placeholder="例: 1000">
             </div>
           </div>
@@ -2178,7 +2110,6 @@
 
     // --- 印刷・CSV・バックアップ ---
     function printSheet() {
-      // 印刷直前にテーブルの全列がA4縦に美しく収まるよう最適化
       const current = getCurrentData();
       const numTournaments = (current.tournaments || []).length;
       let styleTag = document.getElementById('dynamicPrintScaleStyle');
@@ -2188,7 +2119,6 @@
         document.head.appendChild(styleTag);
       }
 
-      // 大会数に応じたフォントサイズ・パディングの微細自動調整
       if (numTournaments >= 11) {
         styleTag.textContent = '@media print { #mainTable th, #mainTable td, #mainTable input { font-size: 6.2pt !important; padding: 1.5px 0.5px !important; } #mainTable th.sticky-col-name, #mainTable td.sticky-col-name { width: 54px !important; min-width: 52px !important; } }';
       } else if (numTournaments >= 9) {
@@ -2320,7 +2250,6 @@
         .replace(/'/g, '&#039;');
     }
 
-    // 起動時の確認
     window.addEventListener('DOMContentLoaded', () => {
       if (location.protocol === 'file:') {
         const f = document.getElementById('loginFatal');
@@ -2374,11 +2303,11 @@
       const el = $('syncStatus');
       if (!el) return;
       el.textContent = text;
-      el.className = 'font-semibold px-2.5 py-1 rounded-full border flex items-center gap-1.5 transition text-xs ' + ({
-        ok: 'text-emerald-700 bg-emerald-50 border-emerald-300',
-        busy: 'text-blue-700 bg-blue-50 border-blue-300 animate-pulse',
-        err: 'text-rose-700 bg-rose-50 border-rose-300'
-      }[tone] || 'text-slate-500 bg-slate-50 border-slate-200');
+      el.className = 'font-black px-2.5 py-1 border text-xs tracking-wider uppercase transition flex items-center gap-1.5 ' + ({
+        ok: 'text-uq-black bg-white border-uq-black',
+        busy: 'text-uq-red bg-red-50 border-uq-red animate-pulse',
+        err: 'text-white bg-uq-red border-uq-red'
+      }[tone] || 'text-uq-muted bg-white border-uq-border');
     }
 
     function showLogin(message) {
@@ -2388,7 +2317,7 @@
       $('googleBlock').classList.remove('hidden');
       $('loginError').textContent = message || '';
       $('loginSubmit').disabled = false;
-      $('loginSubmit').textContent = authMode === 'register' ? '新規登録' : 'ログイン';
+      $('loginSubmit').textContent = authMode === 'register' ? 'REGISTER / 新規登録' : 'LOGIN / ログイン';
       $('googleBtn').disabled = false;
     }
 
@@ -2407,7 +2336,7 @@
       $('loginPassword2').required = reg;
       $('loginPassword').autocomplete = reg ? 'new-password' : 'current-password';
       $('modeToggle').textContent = reg ? 'ログインに戻る' : 'はじめての方は新規登録';
-      $('loginSubmit').textContent = reg ? '新規登録' : 'ログイン';
+      $('loginSubmit').textContent = reg ? 'REGISTER / 新規登録' : 'LOGIN / ログイン';
       $('loginError').textContent = '';
     };
 
@@ -2441,7 +2370,7 @@
         showLogin('パスワードが一致しません。');
         return false;
       }
-      $('loginSubmit').textContent = authMode === 'register' ? '登録中…' : 'ログイン中…';
+      $('loginSubmit').textContent = authMode === 'register' ? 'REGISTERING...' : 'LOGGING IN...';
       try {
         if (authMode === 'register') {
           await createUserWithEmailAndPassword(auth, email, pw);
