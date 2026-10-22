@@ -6,7 +6,9 @@
   <!-- 検索エンジンに表示させない -->
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
   <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
-  <title>弓道大会 参加・集金管理 | RYUSYOKAI KYUDO</title>
+  <title>龍翔会ポータル | 大会参加・集金管理</title>
+  <meta name="application-name" content="龍翔会ポータル">
+  <meta name="apple-mobile-web-app-title" content="龍翔会ポータル">
   <!-- ファビコン -->
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -496,7 +498,7 @@
         </div>
         <div>
           <div class="text-[11px] font-black tracking-widest text-uq-red uppercase">RYUSYOKAI PORTAL</div>
-          <h1 class="text-base font-black text-uq-black">弓道大会 参加・集金管理</h1>
+          <h1 class="text-base font-black text-uq-black">龍翔会ポータル</h1>
         </div>
       </div>
 
@@ -569,7 +571,7 @@
           <div class="min-w-0 flex-1">
             <div class="flex items-center gap-1.5">
               <span id="headerCurrentYearBadge" class="text-[9px] sm:text-[10px] font-black text-white bg-uq-black px-1.5 py-0.2 tracking-wider uppercase shrink-0">令和8年度</span>
-              <span class="text-[9px] font-black uppercase tracking-widest text-uq-red hidden sm:inline">KYUDO PORTAL</span>
+              <span class="text-[9px] font-black uppercase tracking-widest text-uq-red hidden sm:inline">RYUSYOKAI PORTAL</span>
             </div>
             <input type="text" id="appTitle" value="大会参加・参加費管理表"
                    class="w-full min-w-0 sm:w-auto text-xs sm:text-lg font-black text-uq-black bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-0.5 tracking-tight truncate"
@@ -1671,8 +1673,8 @@
                       title="${t.isCanceled ? '通常開催に戻す' : '大会が中止になった場合にクリック'}">
                 ${t.isCanceled ? '⚠️ 中止' : '中止切替'}
               </button>
-              <button onclick="deleteTournament('${t.id}')" class="text-white/40 hover:text-uq-red p-0.5 transition" title="この大会を削除">
-                <i data-lucide="x" class="w-3 h-3"></i>
+              <button onclick="deleteTournament('${t.id}')" class="text-uq-red hover:bg-uq-red hover:text-white p-0.5 transition" title="この大会を削除">
+                <i data-lucide="x" class="w-3.5 h-3.5" style="stroke-width:3"></i>
               </button>
             </div>
 
@@ -1828,7 +1830,7 @@
                 `}
               </td>
               <td class="py-2 px-1 text-center no-print align-middle">
-                <button onclick="deleteMember('${member.id}')" class="p-1 text-uq-muted/40 hover:text-uq-red transition" title="この人を削除">
+                <button onclick="deleteMember('${member.id}')" class="p-1 text-uq-red hover:bg-red-50 transition" title="この人を削除">
                   <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                 </button>
               </td>
@@ -2020,7 +2022,7 @@
               <span>中止</span>
             </label>
 
-            <button onclick="removeTournamentRow(${index})" class="p-1.5 text-uq-muted hover:text-uq-red transition" title="大会を削除">
+            <button onclick="removeTournamentRow(${index})" class="p-1.5 text-uq-red hover:bg-red-50 transition" title="大会を削除">
               <i data-lucide="trash-2" class="w-4 h-4"></i>
             </button>
           </div>
