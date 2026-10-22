@@ -18,16 +18,23 @@ service cloud.firestore {
                     && resource.data.uid == request.auth.uid;
     }
 
-    // お手伝い募集：ログイン済みなら誰でも募集作成OK
+    // お手伝い募集：ログイン済みなら誰でも募集作成OK（締切日を過ぎたら参加表明は不可）
     //  ・参加表明（volunteers の追加/取消）は誰でもOK
     //  ・締切・削除は募集した本人のみ
     match /helper_calls/{id} {
+      // 締切日（deadlineAt）を過ぎたら、新しい参加表明はできない（取り消しはOK）
+      function notExpired() {
+        return !('deadlineAt' in resource.data) || resource.data.deadlineAt == null
+               || request.time < resource.data.deadlineAt;
+      }
       allow read: if request.auth != null;
       allow create: if request.auth != null
                     && request.resource.data.uid == request.auth.uid;
       allow update: if request.auth != null
                     && (resource.data.uid == request.auth.uid
-                        || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['volunteers']));
+                        || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['volunteers'])
+                            && (notExpired()
+                                || request.resource.data.volunteers.size() <= resource.data.volunteers.size())));
       allow delete: if request.auth != null
                     && resource.data.uid == request.auth.uid;
     }
@@ -37,6 +44,11 @@ service cloud.firestore {
     //  ・counts と voters は別々に保存するので、誰がどれを選んだかは残らない
     //  ・締切・削除は作成した本人のみ
     match /polls/{id} {
+      // 締切日（deadlineAt）を過ぎたら回答できない
+      function notExpired() {
+        return !('deadlineAt' in resource.data) || resource.data.deadlineAt == null
+               || request.time < resource.data.deadlineAt;
+      }
       allow read: if request.auth != null;
       allow create: if request.auth != null
                     && request.resource.data.uid == request.auth.uid
@@ -44,6 +56,7 @@ service cloud.firestore {
       allow update: if request.auth != null
                     && (resource.data.uid == request.auth.uid
                         || (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['counts', 'voters'])
+                            && notExpired()
                             && !(request.auth.uid in resource.data.voters)
                             && request.resource.data.voters.size() == resource.data.voters.size() + 1
                             && request.auth.uid in request.resource.data.voters

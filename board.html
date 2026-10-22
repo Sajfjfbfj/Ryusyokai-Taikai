@@ -70,10 +70,13 @@
     .card.form { border: 2px solid #111; }
     .card h2 { margin: 0 0 8px; font-size: 13px; font-weight: 900; }
     label.f { display: block; font-size: 11px; font-weight: 900; margin: 8px 0 3px; color: #111; }
-    .card input[type=text], .card input[type=number], .card select, .card textarea {
+    .card input[type=text], .card input[type=number], .card input[type=date], .card select, .card textarea {
       width: 100%; border: 1px solid #CCC; background: #fff; padding: 7px 8px; font: inherit; font-size: 14px; border-radius: 0;
     }
     .card textarea { min-height: 84px; resize: vertical; line-height: 1.6; }
+    .card input[type=date] { max-width: 200px; }
+    .dl-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .dl-row input[type=date] { height: 26px; padding: 0 6px; border: 1px solid #CCC; font: inherit; font-size: 12px; border-radius: 0; background: #fff; }
     .card input:focus, .card select:focus, .card textarea:focus { outline: none; border-color: #111; }
     .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     @media (max-width: 480px) { .row2 { grid-template-columns: 1fr; } }
@@ -335,6 +338,9 @@
           </div>
           <label class="f" for="hRole">お手伝いの内容（任意）</label>
           <input type="text" id="hRole" maxlength="60" placeholder="例）受付・記録・的場係">
+          <label class="f" for="hDeadline">申し込み締切日（任意）</label>
+          <input type="date" id="hDeadline">
+          <div class="hint">締切日の23:59を過ぎると、自動で募集が締め切られます。</div>
           <label class="f" for="hNote">集合時間・場所・備考（任意）</label>
           <textarea id="hNote" maxlength="500" placeholder="例）8:00 会場集合／昼食は各自"></textarea>
           <div class="actions">
@@ -360,6 +366,9 @@
           <textarea id="pDesc" maxlength="300" style="min-height:56px" placeholder="例）場所は後日お知らせします"></textarea>
           <label class="f" for="pOptions">選択肢（1行に1つ・2〜8個）</label>
           <textarea id="pOptions" maxlength="500" placeholder="12/6(土)&#10;12/13(土)&#10;12/20(土)"></textarea>
+          <label class="f" for="pDeadline">回答締切日（任意）</label>
+          <input type="date" id="pDeadline">
+          <div class="hint">締切日の23:59を過ぎると、自動で回答が締め切られます（結果は見られます）。</div>
           <label class="check-row"><input type="checkbox" id="pMulti"> 複数選べるようにする</label>
           <div class="hint">誰がどれを選んだかは記録・表示されません。回答は1人1回で、送信後の変更はできません。</div>
           <div class="actions">
@@ -378,7 +387,7 @@
     import { getAuth, onAuthStateChanged, signOut }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
     import { getFirestore, doc, collection, addDoc, updateDoc, deleteDoc,
-             query, orderBy, limit, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment }
+             query, orderBy, limit, onSnapshot, serverTimestamp, arrayUnion, arrayRemove, increment, Timestamp }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -523,7 +532,30 @@
     };
 
     // ---------- お手伝い募集 ----------
-    function isOpen(h) { return !h.closed && (h.volunteers || []).length < h.need; }
+    // ---------- 締切日（過ぎたら自動で締切） ----------
+    function dlDate(x) { const t = x && x.deadlineAt; return (t && typeof t.toDate === 'function') ? t.toDate() : null; }
+    function isExpired(x) { const d = dlDate(x); return !!d && Date.now() > d.getTime(); }
+    function endOfDay(v) { const [y, m, d] = v.split('-').map(Number); return Timestamp.fromDate(new Date(y, m - 1, d, 23, 59, 59, 999)); }
+    function dateVal(d) { if (!d) return ''; const p = (n) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; }
+    function fmtDeadline(d) { return `${d.getMonth() + 1}/${d.getDate()}(${'日月火水木金土'[d.getDay()]})`; }
+    function deadlineLine(x) {
+      const d = dlDate(x); if (!d) return '';
+      return `<div class="h-meta">締切：${fmtDeadline(d)}${isExpired(x) ? '（受付終了）' : 'まで'}</div>`;
+    }
+    function deadlineEditor(kind, id, x) {
+      return `<div class="dl-row"><span class="hint" style="margin:0">締切日</span>
+        <input type="date" id="dl_${kind}_${id}" value="${dateVal(dlDate(x))}">
+        <button class="btn sm" onclick="setDeadline('${kind}', '${id}')">変更</button></div>`;
+    }
+    window.setDeadline = async (kind, id) => {
+      const v = $('dl_' + kind + '_' + id).value;
+      try {
+        await updateDoc(doc(db, kind === 'help' ? HELPS : POLLS, id), { deadlineAt: v ? endOfDay(v) : null });
+        setStatus('');
+      } catch (e) { console.error(e); setStatus(errText(e), true); }
+    };
+
+    function isOpen(h) { return !h.closed && !isExpired(h) && (h.volunteers || []).length < h.need; }
 
     function savedName() { return myName(); }
     window.setJoinDraft = (id, v) => { joinDrafts[id] = v; };
@@ -551,14 +583,16 @@
         const iJoined = me && vols.some(v => v.uid === me.uid);
         const mine = me && h.uid === me.uid;
         const full = n >= h.need;
-        const state = h.closed ? ['closed', '締切'] : (full ? ['full', '充足'] : ['open', '募集中']);
+        const expired = isExpired(h);
+        const state = h.closed ? ['closed', '締切'] : (expired ? ['closed', '期限切れ'] : (full ? ['full', '充足'] : ['open', '募集中']));
         const pct = Math.min(100, Math.round(n / Math.max(1, h.need) * 100));
         const id = esc(h.id);
-        return `<div class="card${h.closed ? ' closed-card' : ''}">
+        return `<div class="card${(h.closed || expired) ? ' closed-card' : ''}">
           <div class="h-top">
             <div style="min-width:0">
               <div class="h-title">${esc(h.title || h.tournament)}</div>
               ${(h.date || h.role) ? `<div class="h-meta">${h.date ? esc(h.date) + '　' : ''}${esc(h.role || '')}</div>` : ''}
+              ${deadlineLine(h)}
             </div>
             <span class="tag ${state[0]}">${state[1]}</span>
           </div>
@@ -572,7 +606,7 @@
           <div class="actions" style="margin-top:4px">
             ${iJoined
               ? `<button class="btn sm" onclick="leaveHelp('${id}')">参加を取り消す</button>`
-              : ((h.closed || full) ? '<button class="btn sm red" disabled>手伝える</button>'
+              : ((h.closed || expired || full) ? '<button class="btn sm red" disabled>手伝える</button>'
                 : `<div class="join-row">
                     <input type="text" maxlength="30" placeholder="あなたの名前" value="${esc(joinDrafts[h.id] !== undefined ? joinDrafts[h.id] : savedName())}"
                       oninput="setJoinDraft('${id}', this.value)" onkeydown="if(event.key==='Enter'){joinHelp('${id}')}" aria-label="参加者の名前">
@@ -581,6 +615,7 @@
             ${mine ? `<button class="btn sm" onclick="toggleClosed('${id}', ${h.closed ? 'false' : 'true'})">${h.closed ? '募集を再開' : '募集を締め切る'}</button>
                       <button class="btn sm danger" onclick="deleteHelp('${id}')">削除</button>` : ''}
           </div>
+          ${mine ? `<div style="margin-top:6px">${deadlineEditor('help', id, h)}</div>` : ''}
         </div>`;
       }).join('');
     }
@@ -590,6 +625,7 @@
       const name = (joinDrafts[id] !== undefined ? joinDrafts[id] : savedName()).trim();
       if (!name) { alert('名前を入力してください。'); return; }
       if ((h.volunteers || []).some(v => v.uid === me.uid)) return;
+      if (h.closed || isExpired(h)) { alert('この募集は締め切られています。'); return; }
       try {
         await updateDoc(doc(db, HELPS, id), { volunteers: arrayUnion({ uid: me.uid, name: name.slice(0, 30) }) });
         delete joinDrafts[id];
@@ -636,9 +672,10 @@
           uid: me.uid, name: name.slice(0, 30),
           title: title.slice(0, 60), date: $('hDate').value.trim().slice(0, 40),
           role: role.slice(0, 60), need: need, note: $('hNote').value.trim().slice(0, 500),
-          volunteers: [], closed: false, createdAt: serverTimestamp()
+          volunteers: [], closed: false, createdAt: serverTimestamp(),
+          deadlineAt: $('hDeadline').value ? endOfDay($('hDeadline').value) : null
         });
-        ['hTitle', 'hDate', 'hRole', 'hNote'].forEach(i => { $(i).value = ''; });
+        ['hTitle', 'hDate', 'hRole', 'hNote', 'hDeadline'].forEach(i => { $(i).value = ''; });
         $('hNeed').value = 3;
         window.toggleHelpForm();
         setStatus('');
@@ -650,7 +687,7 @@
     // 回答の中身（counts）と回答済みの人（voters）は別々に保存するので、
     // 「誰がどれを選んだか」はデータ上も画面上もわからない。
     function pollTotal(p) { return (p.voters || []).length; }
-    function pollNeedsMe(p) { return me && !p.closed && !(p.voters || []).includes(me.uid); }
+    function pollNeedsMe(p) { return me && !p.closed && !isExpired(p) && !(p.voters || []).includes(me.uid); }
 
     window.togglePollSel = (id, i, multi) => {
       let cur = pollSel[id] || [];
@@ -680,8 +717,10 @@
         const voted = me && (p.voters || []).includes(me.uid);
         const total = pollTotal(p);
         const opts = p.options || [];
-        const showResult = voted || p.closed || peek[p.id];
-        const tag = p.closed ? '<span class="tag closed">締切</span>' : (voted ? '<span class="tag full">回答済み</span>' : '<span class="tag open">回答受付中</span>');
+        const expired = isExpired(p);
+        const done = p.closed || expired;
+        const showResult = voted || done || peek[p.id];
+        const tag = p.closed ? '<span class="tag closed">締切</span>' : (expired ? '<span class="tag closed">期限切れ</span>' : (voted ? '<span class="tag full">回答済み</span>' : '<span class="tag open">回答受付中</span>'));
 
         let body;
         if (showResult) {
@@ -695,7 +734,7 @@
               <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%"></div></div>
             </div>`;
           }).join('') + `<div class="count" style="margin-top:8px">回答 ${total}人${p.multi ? '（複数回答可）' : ''}</div>`;
-          if (!voted && !p.closed) body += `<div class="actions"><button class="btn sm" onclick="unpeekPoll('${id}')">回答する画面に戻る</button></div>`;
+          if (!voted && !done) body += `<div class="actions"><button class="btn sm" onclick="unpeekPoll('${id}')">回答する画面に戻る</button></div>`;
         } else {
           const sel = pollSel[p.id] || [];
           body = opts.map((o, i) => `<label class="opt${sel.includes(i) ? ' on' : ''}">
@@ -709,10 +748,11 @@
              </div>`;
         }
 
-        return `<div class="card${p.closed ? ' closed-card' : ''}">
+        return `<div class="card${done ? ' closed-card' : ''}">
           <div class="h-top">
             <div style="min-width:0">
               <div class="h-title">${esc(p.title)}<span class="anon">匿名</span></div>
+              ${deadlineLine(p)}
               ${p.desc ? `<div class="post-body" style="margin-top:4px">${linkify(esc(p.desc))}</div>` : ''}
             </div>
             ${tag}
@@ -723,14 +763,16 @@
           </div>
           ${mine ? `<div class="actions" style="margin-top:4px">
             <button class="btn sm" onclick="togglePollClosed('${id}', ${p.closed ? 'false' : 'true'})">${p.closed ? '回答を再開' : '回答を締め切る'}</button>
-            <button class="btn sm danger" onclick="deletePoll('${id}')">削除</button></div>` : ''}
+            <button class="btn sm danger" onclick="deletePoll('${id}')">削除</button></div>
+          <div style="margin-top:6px">${deadlineEditor('poll', id, p)}</div>` : ''}
         </div>`;
       }).join('');
     }
 
     window.votePoll = async (id) => {
       const p = polls.find(x => x.id === id); if (!p) return;
-      if ((p.voters || []).includes(me.uid) || p.closed) return;
+      if ((p.voters || []).includes(me.uid)) return;
+      if (p.closed || isExpired(p)) { alert('このアンケートは締め切られています。'); return; }
       const sel = (pollSel[id] || []).filter(i => i >= 0 && i < (p.options || []).length);
       if (!sel.length) { alert('選択肢を選んでください。'); return; }
       if (!p.multi && sel.length !== 1) { alert('選択肢を1つ選んでください。'); return; }
@@ -779,9 +821,10 @@
           uid: me.uid, name: name.slice(0, 30),
           title: title.slice(0, 80), desc: $('pDesc').value.trim().slice(0, 300),
           options: options, multi: $('pMulti').checked,
-          counts: counts, voters: [], closed: false, createdAt: serverTimestamp()
+          counts: counts, voters: [], closed: false, createdAt: serverTimestamp(),
+          deadlineAt: $('pDeadline').value ? endOfDay($('pDeadline').value) : null
         });
-        ['pTitle', 'pDesc', 'pOptions'].forEach(i => { $(i).value = ''; });
+        ['pTitle', 'pDesc', 'pOptions', 'pDeadline'].forEach(i => { $(i).value = ''; });
         $('pMulti').checked = false;
         window.togglePollForm();
         setStatus('');
@@ -826,6 +869,9 @@
         (snap) => { polls = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPolls(); },
         (err) => { console.error(err); setStatus(errText(err), true); }));
     });
+
+    // 画面を開いたままでも、締切日を過ぎたら自動で締切表示に切り替える
+    setInterval(() => { if (me) { renderHelps(); renderPolls(); } }, 60000);
 
     // 名前入力が終わったら、後回しにしていた募集一覧の更新を反映する
     $('helpList').addEventListener('focusout', () => {
