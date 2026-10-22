@@ -537,8 +537,17 @@
       location.href = 'index.html';
     };
 
+    // アカウントに保存された名前を、この端末に反映する（別の端末でも同じ名前を使う）
+    async function pullMyName(user) {
+      try {
+        const m = await import('./profile.js');
+        await Promise.race([m.syncMyName(user), new Promise(r => setTimeout(r, 4000))]);
+      } catch (e) { console.warn('pullMyName failed', e); }
+    }
+
     onAuthStateChanged(auth, async (user) => {
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      if (user) await pullMyName(user);
       try {
         const nm = (localStorage.getItem('ryusyokai_my_name') || (user && user.displayName) || '').trim();
         $('myNameLink').textContent = nm ? '👤 ' + nm : '名前を登録';

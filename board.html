@@ -843,6 +843,14 @@
     // ---------- 起動 ----------
     function stopListening() { unsubs.forEach(u => u()); unsubs = []; }
 
+    // アカウントに保存された名前を、この端末に反映する（別の端末でも同じ名前を使う）
+    async function pullMyName(user) {
+      try {
+        const m = await import('./profile.js');
+        await Promise.race([m.syncMyName(user), new Promise(r => setTimeout(r, 4000))]);
+      } catch (e) { console.warn('pullMyName failed', e); }
+    }
+
     onAuthStateChanged(auth, async (user) => {
       stopListening();
       me = user || null;
@@ -858,6 +866,7 @@
       $('app').classList.remove('hidden');
       $('loginUserLabel').textContent = user.email || '';
       setStatus('');
+      await pullMyName(user);
 
       $('myNameView').textContent = myName() || '未登録';
       if (!myName()) setStatus('投稿・募集・参加には名前の登録が必要です。「変更」から登録してください。', true);

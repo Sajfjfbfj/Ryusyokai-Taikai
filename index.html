@@ -2392,7 +2392,15 @@
     // 名前をFirebaseアカウントの表示名にも保存（別の端末でログインしたとき候補として出る）
     window.__syncNameToAuth = (name) => {
       try { if (auth.currentUser) updateProfile(auth.currentUser, { displayName: name }).catch(() => {}); } catch (e) { /* ignore */ }
+      import('./profile.js').then(m => m.saveMyNameToCloud(name)).catch(e => console.warn('save name failed', e));
     };
+    // アカウントに保存された名前を、この端末に反映する（別の端末でも同じ名前を使う）
+    async function pullMyName(user) {
+      try {
+        const m = await import('./profile.js');
+        await Promise.race([m.syncMyName(user), new Promise(r => setTimeout(r, 4000))]);
+      } catch (e) { console.warn('pullMyName failed', e); }
+    }
 
     let unsubscribe = null;
     let lastJson = null;
@@ -2612,6 +2620,7 @@
         }
       }
 
+      await pullMyName(user);
       // 名前の登録は、表の描画でエラーが出ても必ず先に実行する
       try { window.ensureMyName(user); } catch (e) { console.error('ensureMyName failed', e); }
       try {

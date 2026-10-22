@@ -82,6 +82,7 @@ async function cleanupMyData(db, uid) {
     (data.volunteers || []).filter(v => v && v.uid === uid)
       .forEach(v => jobs.push(updateDoc(d.ref, { volunteers: arrayRemove(v) })));
   });
+  jobs.push(deleteDoc(doc(db, 'users', uid)).catch(() => {})); // 名前の保存データ
   const results = await Promise.allSettled(jobs);
   return results.filter(r => r.status === 'rejected').length;
 }
@@ -112,7 +113,7 @@ export function openWithdraw(opts = {}) {
           <li>自分が投稿した掲示板・お手伝い募集・アンケート</li>
           ${rosterName ? `<li>名簿（参加表）に登録した自分の名前「${esc(rosterName)}」と、全年度の参加・集金の記録（下のチェックで残すこともできます）</li>` : ''}
           <li>他の募集への「参加表明」</li>
-          <li>この端末に保存した表示名</li>
+          <li>アカウントに保存した表示名（この端末の分も含む）</li>
         </ul>
         <div style="font-weight:900;">削除されないもの</div>
         <ul style="margin:2px 0 0;padding-left:20px;">
