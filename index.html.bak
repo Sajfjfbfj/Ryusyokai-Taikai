@@ -1,0 +1,2216 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- 検索エンジンに表示させない -->
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>弓道大会 参加・集金管理アプリ</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@1.60.0/dist/umd/lucide.min.js"
+          integrity="sha384-7t6ugxIvI5KM451iZguW/w4WR9KsajFzrdbn/efIoggU1wLCUBTbdndWJwbkPFQP"
+          crossorigin="anonymous"></script>
+  <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background-color: white !important;
+        color: black !important;
+        padding: 0 !important;
+        font-size: 10pt !important;
+      }
+      .print-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+      }
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+      }
+      th, td {
+        border: 1px solid #000 !important;
+        padding: 4px 2px !important;
+        text-align: center !important;
+        color: #000 !important;
+        background-color: transparent !important;
+      }
+      .print-header-bg {
+        background-color: #f0f0f0 !important;
+        font-weight: bold !important;
+      }
+      .print-example-bg {
+        background-color: #fafafa !important;
+      }
+      .print-title {
+        display: block !important;
+      }
+      input {
+        border: none !important;
+        background: transparent !important;
+        text-align: center !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+      }
+    }
+    .status-badge {
+      transition: all 0.15s ease-in-out;
+      user-select: none;
+    }
+    .status-badge:hover {
+      transform: scale(1.05);
+    }
+    .th-inline-input {
+      background: transparent;
+      border: 1px dashed transparent;
+      transition: all 0.2s;
+      border-radius: 4px;
+    }
+    .th-inline-input:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+    .th-inline-input:focus {
+      border-color: #10b981;
+      background-color: #ffffff;
+      color: #0f172a;
+      outline: none;
+    }
+    .canceled-col {
+      background-color: rgba(241, 245, 249, 0.7);
+    }
+
+    /* 画面表示の情報設計。印刷用レイアウトには影響させない。 */
+    :root {
+      color-scheme: light;
+    }
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(5, 150, 105, 0.06), transparent 28rem),
+        #f4f7f6;
+      letter-spacing: 0.01em;
+    }
+    button,
+    input,
+    select,
+    textarea {
+      transition: border-color 0.16s ease, box-shadow 0.16s ease, background-color 0.16s ease, color 0.16s ease, transform 0.16s ease;
+    }
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid rgba(5, 150, 105, 0.18) !important;
+      outline-offset: 2px;
+    }
+    button:active {
+      transform: translateY(1px);
+    }
+    .app-shell {
+      max-width: 96rem;
+    }
+    .app-header {
+      border-color: #dce6e1;
+      border-radius: 1.25rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 14px 36px rgba(15, 23, 42, 0.06);
+    }
+    .header-main {
+      align-items: flex-start;
+    }
+    .brand-row {
+      row-gap: 0.75rem;
+    }
+    .action-toolbar {
+      padding: 0.375rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.875rem;
+      background: #f8fafc;
+    }
+    .control-bar {
+      margin-left: -1.25rem;
+      margin-right: -1.25rem;
+      margin-bottom: -1.25rem;
+      padding: 1rem 1.25rem 1.25rem;
+      border-radius: 0 0 1.25rem 1.25rem;
+      background: #fafcfb;
+    }
+    .auth-card {
+      border-color: #dce6e1;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.14);
+    }
+    .stats-grid > div {
+      min-height: 6.25rem;
+      border-radius: 0.875rem;
+      padding: 0.875rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .stats-grid > div:hover {
+      border-color: #94a3b8;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+      transform: translateY(-1px);
+    }
+    .data-panel {
+      border-color: #d8e2de;
+      border-radius: 1.125rem;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 18px 44px rgba(15, 23, 42, 0.07);
+    }
+    .table-scroll {
+      scrollbar-color: #94a3b8 #e2e8f0;
+      scrollbar-width: thin;
+    }
+    #mainTable {
+      line-height: 1.4;
+    }
+    #mainTable thead {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      box-shadow: 0 2px 0 rgba(15, 23, 42, 0.18);
+    }
+    #mainTable tbody tr {
+      height: 3.25rem;
+    }
+    #mainTable tbody tr:nth-child(even):not(.print-example-bg) {
+      background-color: rgba(248, 250, 252, 0.72);
+    }
+    #mainTable tbody tr:hover {
+      background-color: #ecfdf5;
+    }
+    #mainTable tbody td {
+      border-color: #e2e8f0;
+    }
+    #mainTable tbody td:nth-child(2),
+    #mainTable thead th:nth-child(2) {
+      box-shadow: 1px 0 0 #dbe4e0;
+    }
+    #mainTable .status-cell {
+      cursor: pointer;
+    }
+    #mainTable .status-cell:hover {
+      background: rgba(16, 185, 129, 0.08);
+    }
+    .status-badge {
+      min-width: 2.75rem;
+      min-height: 1.75rem;
+      border-radius: 9999px;
+      box-shadow: none;
+    }
+    .th-inline-input:focus {
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+    }
+    #tableFoot {
+      position: sticky;
+      bottom: 0;
+      z-index: 10;
+      box-shadow: 0 -2px 8px rgba(15, 23, 42, 0.06);
+    }
+    .help-footer {
+      padding: 1rem 1.125rem;
+      border: 1px solid #dce6e1;
+      border-radius: 0.875rem;
+      background: rgba(255, 255, 255, 0.76);
+      line-height: 1.7;
+    }
+    #newYearModal > div,
+    #yearManageModal > div,
+    #addMemberModal > div,
+    #tournamentModal > div {
+      border-radius: 1.25rem;
+      border-color: #dce6e1;
+      box-shadow: 0 28px 80px rgba(15, 23, 42, 0.22);
+    }
+    #statusMenu {
+      border-radius: 0.875rem;
+      box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
+    }
+    @media (max-width: 767px) {
+      .app-header {
+        border-radius: 1rem;
+      }
+      .action-toolbar {
+        width: 100%;
+      }
+      .action-toolbar > button,
+      .action-toolbar > div {
+        flex-grow: 1;
+      }
+      .control-bar {
+        border-radius: 0 0 1rem 1rem;
+      }
+      #appTitle {
+        width: 100%;
+      }
+    }
+    @media print {
+      body {
+        letter-spacing: normal;
+      }
+      #mainTable thead,
+      #tableFoot {
+        position: static;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen font-sans">
+  <!-- ログイン画面（Firebase認証） -->
+  <div id="loginOverlay" class="no-print fixed inset-0 z-[100] bg-slate-100 flex items-center justify-center p-4">
+    <div class="auth-card w-full max-w-sm bg-white rounded-2xl shadow-lg border border-slate-200 p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="inline-flex items-center justify-center p-2.5 bg-emerald-700 text-white rounded-xl shadow-sm text-lg leading-none">🎯</span>
+        <div>
+          <h1 class="text-base font-bold text-slate-900">弓道大会 参加・集金管理</h1>
+          <p class="text-xs text-slate-500">ログインしてください</p>
+        </div>
+      </div>
+      <p id="loginLoading" class="text-sm text-slate-500 py-6 text-center">読み込み中…</p>
+      <form id="loginForm" class="hidden space-y-3" onsubmit="return cloudLogin(event)">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" for="loginEmail">メールアドレス</label>
+          <input type="email" id="loginEmail" autocomplete="username" required
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1" for="loginPassword">パスワード</label>
+          <input type="password" id="loginPassword" autocomplete="current-password" required
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
+        </div>
+        <div id="regConfirmWrap" class="hidden">
+          <label class="block text-xs font-bold text-slate-700 mb-1" for="loginPassword2">パスワード（確認）</label>
+          <input type="password" id="loginPassword2" autocomplete="new-password"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600">
+          <p class="text-[11px] text-slate-400 mt-1">6文字以上で設定してください。</p>
+        </div>
+        <p id="loginError" class="text-xs text-rose-600 font-medium min-h-[1rem]"></p>
+        <button type="submit" id="loginSubmit" class="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-bold rounded-lg transition">ログイン</button>
+        <button type="button" id="modeToggle" onclick="toggleAuthMode()" class="w-full text-xs text-emerald-800 hover:underline font-medium">はじめての方は新規登録</button>
+      </form>
+      <div id="googleBlock" class="hidden mt-3">
+        <div class="flex items-center gap-2 text-[11px] text-slate-400 mb-3">
+          <hr class="flex-1 border-slate-200"><span>または</span><hr class="flex-1 border-slate-200">
+        </div>
+        <button type="button" id="googleBtn" onclick="cloudLoginGoogle()"
+                class="w-full flex items-center justify-center gap-2 py-2 bg-white hover:bg-slate-50 text-slate-700 text-sm font-bold rounded-lg border border-slate-300 transition">
+          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          </svg>
+          Googleでログイン・新規登録
+        </button>
+      </div>
+      <p id="loginFatal" class="hidden text-xs text-rose-600 font-medium leading-relaxed mt-2"></p>
+    </div>
+  </div>
+  <div class="app-shell max-w-7xl mx-auto px-3 sm:px-6 py-6 print-container">
+    
+    <!-- 操作・設定ヘッダー（印刷非表示） -->
+    <header class="app-header no-print bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-5">
+      <div class="header-main flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <div class="brand-row flex flex-wrap items-center gap-3">
+            <span class="inline-flex items-center justify-center p-2.5 bg-emerald-700 text-white rounded-xl shadow-sm">
+              <i data-lucide="target" class="w-6 h-6"></i>
+            </span>
+
+            <!-- 年度切り替え・管理UI -->
+            <div class="flex items-center bg-emerald-50 border border-emerald-300 rounded-lg p-1 gap-1.5 shadow-2xs">
+              <span class="text-xs font-bold text-emerald-800 pl-1.5 flex items-center gap-1">
+                <i data-lucide="folder" class="w-3.5 h-3.5"></i> 年度:
+              </span>
+              
+              <!-- 保存済み年度のドロップダウン切り替え -->
+              <select id="yearSelect" onchange="switchYear(this.value)" 
+                      class="text-sm font-bold text-emerald-950 bg-white border border-emerald-300 rounded px-2.5 py-1 focus:outline-none focus:border-emerald-600 cursor-pointer shadow-xs">
+                <!-- JSで年度一覧を生成 -->
+              </select>
+
+              <!-- 新規年度追加ボタン -->
+              <button onclick="openNewYearModal()" class="flex items-center gap-1 px-2.5 py-1 text-xs font-semibold bg-emerald-700 hover:bg-emerald-800 text-white rounded transition shadow-2xs" title="新しい年度のデータを作成（前年度からの引き継ぎも可能）">
+                <i data-lucide="folder-plus" class="w-3.5 h-3.5"></i> 新年度追加
+              </button>
+
+              <!-- 年度名変更・削除メニュー -->
+              <button onclick="openYearManageModal()" class="p-1 text-emerald-800 hover:bg-emerald-100 rounded transition" title="現在の年度の名前変更または削除">
+                <i data-lucide="settings" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- アプリタイトル -->
+            <input type="text" id="appTitle" value="大会参加・参加費管理表" 
+                   class="text-xl md:text-2xl font-bold text-slate-900 border-b border-transparent hover:border-slate-300 focus:border-emerald-600 focus:outline-none bg-transparent transition px-1"
+                   title="クリックしてタイトルを変更できます">
+          </div>
+
+          <p class="text-xs text-slate-500 mt-2 ml-1 flex flex-wrap items-center gap-2">
+            <span>✨ <strong>年度ごとにクラウド自動保存</strong>されます。過去の年度もプルダウンからいつでも戻って確認・編集できます。</span>
+          </p>
+        </div>
+
+        <!-- アクションボタン群 -->
+        <div class="action-toolbar flex flex-wrap items-center gap-2">
+          <span id="syncStatus" class="text-xs font-medium text-slate-500 px-2 py-1 rounded bg-slate-50 border border-slate-200" title="クラウド同期の状態">☁ 未接続</span>
+          <button onclick="openAddMemberModal()" class="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>氏名追加</span>
+          </button>
+          <button onclick="addTournamentQuick()" class="flex items-center gap-1.5 px-3.5 py-2 bg-sky-700 hover:bg-sky-800 text-white text-sm font-semibold rounded-lg shadow-sm transition" title="表の右端に新しい大会の列を追加します">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>大会追加</span>
+          </button>
+          <button onclick="openTournamentSettingsModal()" class="flex items-center gap-1.5 px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+            <i data-lucide="calendar-cog" class="w-4 h-4"></i>
+            <span>大会・日程一括編集</span>
+          </button>
+          <button onclick="window.print()" class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg border border-slate-300 transition">
+            <i data-lucide="printer" class="w-4 h-4"></i>
+            <span>印刷 / PDF</span>
+          </button>
+          <div class="relative group">
+            <button class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg border border-slate-300 transition">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              <span>データ管理</span>
+            </button>
+            <div class="absolute right-0 mt-1 w-52 bg-white border border-slate-200 rounded-lg shadow-lg hidden group-hover:block z-30 py-1">
+              <button onclick="exportCSV()" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-600"></i> この年度のCSV出力
+              </button>
+              <button onclick="exportJSON()" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4 text-blue-600"></i> 全年度バックアップ保存
+              </button>
+              <label class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
+                <i data-lucide="upload" class="w-4 h-4 text-amber-600"></i> バックアップ読込
+                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="importJSON(event)">
+              </label>
+              <hr class="my-1 border-slate-100">
+              <button onclick="resetDataPrompt()" class="w-full text-left px-4 py-2 text-xs md:text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> 初期状態に戻す
+              </button>
+              <hr class="my-1 border-slate-100">
+              <div id="loginUserLabel" class="px-4 pt-1 text-[11px] text-slate-400 truncate"></div>
+              <button onclick="cloudLogout()" class="w-full text-left px-4 py-2 text-xs md:text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
+                <i data-lucide="log-out" class="w-4 h-4 text-slate-500"></i> ログアウト
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- コントロールバー（検索・フィルタ・参考例トグル・凡例） -->
+      <div class="control-bar mt-4 pt-4 border-t border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-3">
+          <div class="relative min-w-[200px]">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+            <input type="text" id="searchInput" placeholder="氏名で絞り込み..." oninput="renderTable()"
+                   class="w-full pl-9 pr-3 py-1.5 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-emerald-600 focus:bg-white transition">
+          </div>
+          
+          <select id="filterStatus" onchange="renderTable()" class="text-sm bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-700 focus:outline-none focus:border-emerald-600 font-medium">
+            <option value="all">全員を表示</option>
+            <option value="has_unpaid">⚠️ 未払いがある人のみ表示</option>
+            <option value="attending_any">いずれかに参加予定の人</option>
+          </select>
+
+          <!-- 参考例表示切り替え -->
+          <label class="flex items-center gap-1.5 text-xs text-slate-600 bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200 cursor-pointer select-none">
+            <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)" class="rounded text-amber-600 focus:ring-amber-500">
+            <span class="font-medium text-amber-900">参考例（3名）を表示</span>
+          </label>
+        </div>
+
+        <!-- 凡例 -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-slate-600 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+          <span class="font-semibold text-slate-700">凡例:</span>
+          <span class="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">○済 (支払完了)</span>
+          <span class="inline-flex items-center gap-1 font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">○ (未払い)</span>
+          <span class="inline-flex items-center gap-1 font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">× (不参加)</span>
+          <span class="inline-flex items-center gap-1 text-slate-400 bg-white px-2 py-0.5 rounded border border-slate-200">ー (未定)</span>
+          <span class="inline-flex items-center gap-1 text-red-700 bg-red-100 px-1.5 py-0.5 rounded font-bold">中止</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 印刷用タイトルヘッダー（印刷時のみ表示） -->
+    <div class="hidden print-title mb-3">
+      <h1 id="printFullTitle" class="text-xl font-bold text-center tracking-wide">令和8年度 大会参加申し込み表</h1>
+      <div class="flex justify-between items-center text-xs mt-1 px-1">
+        <span>弓道部 / 弓道連盟支部</span>
+        <span>印刷日: <span id="printDate"></span></span>
+      </div>
+    </div>
+
+    <!-- 統計サマリー（大会ごとの集計） -->
+    <div class="stats-grid no-print mb-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3" id="tournamentStatsSummary">
+      <!-- JSで動的生成 -->
+    </div>
+
+    <!-- メインテーブル -->
+    <div class="data-panel bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="table-scroll overflow-x-auto">
+        <table class="w-full border-collapse text-sm text-center" id="mainTable">
+          <thead>
+            <!-- 1行目：支部内締切日行 -->
+            <tr class="bg-slate-900 text-amber-300 border-b border-slate-700 print-header-bg" id="deadlineHeaderRow">
+              <!-- JSで生成 -->
+            </tr>
+            <!-- 2行目：大会名・開催日・参加費行 -->
+            <tr class="bg-slate-800 text-white border-b border-slate-700 print-header-bg" id="tournamentHeaderRow">
+              <!-- JSで生成 -->
+            </tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200">
+            <!-- 参考例行 ＆ 参加者行がJSで挿入される -->
+          </tbody>
+          <tfoot id="tableFoot" class="bg-slate-50 font-medium text-slate-700 border-t-2 border-slate-300">
+            <!-- 合計行がJSで挿入される -->
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- 印刷時の下部注釈（元の用紙を忠実に再現） -->
+    <div class="hidden print-title mt-3 text-xs text-slate-800 border-t border-slate-400 pt-2 px-1">
+      <p class="font-medium text-center">参加予定の方は「○」をつけてください。また、参加費支払い済みの方は「○済」の記入をお願いします。</p>
+    </div>
+
+    <!-- フッター（操作補助） -->
+    <footer class="help-footer no-print mt-5 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <div>
+        <span>💡 見出しの<strong>締切日</strong>・<strong>開催日</strong>をクリックして編集できます。<strong>【中止】</strong>ボタンで大会中止の切り替え、表右端の<strong>【＋大会追加】</strong>で大会を増やせます。</span>
+      </div>
+      <div>
+        <span>データはクラウドに自動保存され、ログインした全端末で共有されます（参考例は集計対象外）。</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- 新規年度追加モーダル -->
+  <div id="newYearModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="folder-plus" class="w-5 h-5 text-emerald-700"></i>
+          新しい年度の追加
+        </h3>
+        <button onclick="closeNewYearModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">年度名</label>
+          <input type="text" id="newYearNameInput" placeholder="例: 令和8年度, 2026年度"
+                 class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600 font-bold">
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+          <div class="text-xs font-bold text-slate-700">データの引き継ぎ設定</div>
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+            <input type="checkbox" id="copyMembersCheckbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span>現在のメンバー名簿を引き継ぐ (出欠・支払いはクリア)</span>
+          </label>
+          <label class="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+            <input type="checkbox" id="copyTournamentsCheckbox" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+            <span>現在の大会一覧（大会名・参加費）を引き継ぐ</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeNewYearModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition">キャンセル</button>
+        <button onclick="createNewYear()" class="px-4 py-2 text-sm bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition">新年度を作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 年度管理（名前変更・削除）モーダル -->
+  <div id="yearManageModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl max-w-sm w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="settings" class="w-5 h-5 text-slate-700"></i>
+          年度の設定・管理
+        </h3>
+        <button onclick="closeYearManageModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">現在の年度名を変更</label>
+          <div class="flex gap-2">
+            <input type="text" id="renameYearInput" class="flex-1 px-3 py-1.5 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600 font-bold">
+            <button onclick="renameCurrentYear()" class="px-3 py-1.5 text-xs bg-slate-800 hover:bg-slate-900 text-white font-semibold rounded-lg transition">変更</button>
+          </div>
+        </div>
+
+        <hr class="border-slate-100">
+
+        <div>
+          <label class="block text-xs font-semibold text-red-600 mb-1">この年度を削除</label>
+          <p class="text-[11px] text-slate-400 mb-2">※削除するとこの年度の記録は完全に消去されます。</p>
+          <button onclick="deleteCurrentYear()" class="w-full px-3 py-2 text-xs bg-red-50 hover:bg-red-100 text-red-700 font-semibold border border-red-200 rounded-lg transition flex items-center justify-center gap-1.5">
+            <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> 現在の年度データを削除
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 氏名追加モーダル -->
+  <div id="addMemberModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="user-plus" class="w-5 h-5 text-emerald-700"></i>
+          参加者の追加
+        </h3>
+        <button onclick="closeAddMemberModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">氏名 (1行に1人入力で一括登録可能)</label>
+          <textarea id="newMemberNames" rows="5" placeholder="例:&#10;鈴木 一郎&#10;佐藤 美咲&#10;高橋 健太"
+                    class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-emerald-600"></textarea>
+          <span class="text-[11px] text-slate-400">改行して複数の名前を一度に貼り付けることができます。</span>
+        </div>
+      </div>
+
+      <div class="mt-6 flex justify-end gap-2">
+        <button onclick="closeAddMemberModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition">キャンセル</button>
+        <button onclick="saveNewMembers()" class="px-4 py-2 text-sm bg-emerald-700 hover:bg-emerald-800 text-white font-medium rounded-lg shadow-sm transition">追加する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 大会・日程一括編集モーダル -->
+  <div id="tournamentModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-xl max-w-3xl w-full p-6 shadow-xl border border-slate-200 max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i data-lucide="calendar-cog" class="w-5 h-5 text-emerald-700"></i>
+          大会・締切日・開催日・中止の一括編集
+        </h3>
+        <button onclick="closeTournamentSettingsModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <p class="text-xs text-slate-500 mb-3">
+        現在の年度（<span id="modalCurrentYearDisplay" class="font-bold text-emerald-700"></span>）の「大会名」「支部内締切日」「大会開催日」「中止設定」「参加費」をまとめて編集できます。
+      </p>
+
+      <div class="overflow-y-auto flex-1 space-y-2.5 pr-1" id="tournamentEditorList">
+        <!-- JSで大会編集項目を生成 -->
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
+        <button onclick="addNewTournamentRow()" class="flex items-center gap-1.5 px-3 py-2 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i> 大会を追加
+        </button>
+        <div class="flex gap-2">
+          <button onclick="closeTournamentSettingsModal()" class="px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 rounded-lg transition">キャンセル</button>
+          <button onclick="saveTournamentsConfig()" class="px-4 py-2 text-sm bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition">変更を保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- セルクイック操作ポップオーバー（右クリック用） -->
+  <div id="statusMenu" class="fixed hidden z-50 bg-white rounded-lg shadow-xl border border-slate-200 p-1.5 text-xs w-44">
+    <div class="px-2 py-1 text-[11px] font-semibold text-slate-400 border-b border-slate-100 mb-1">状態の変更</div>
+    <button onclick="applyCellStatus('paid')" class="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded hover:bg-emerald-50 text-emerald-800 font-bold">
+      <span class="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[11px]">○済</span>
+      参加 (支払済)
+    </button>
+    <button onclick="applyCellStatus('attending')" class="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded hover:bg-blue-50 text-blue-800 font-bold">
+      <span class="w-5 h-5 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-[11px]">○</span>
+      参加 (未払い)
+    </button>
+    <button onclick="applyCellStatus('absent')" class="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded hover:bg-rose-50 text-rose-800 font-bold">
+      <span class="w-5 h-5 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-[11px]">×</span>
+      不参加
+    </button>
+    <button onclick="applyCellStatus('none')" class="w-full flex items-center gap-2 px-2.5 py-1.5 text-left rounded hover:bg-slate-100 text-slate-600">
+      <span class="w-5 h-5 rounded-full bg-slate-100 text-slate-500 flex items-center justify-center text-[11px]">ー</span>
+      未定・クリア
+    </button>
+  </div>
+
+  <script>
+    // --- 参考例（サンプル固定メンバー3名：画像の例を完全固定再現） ---
+    const FIXED_EXAMPLE_MEMBERS = [
+      {
+        id: 'example_1',
+        name: '（例）龍翔 太郎',
+        isExample: true,
+        records: {
+          t1: 'paid',      // ○済
+          t2: 'attending', // ○
+          t3: 'attending', // ○
+          t4: 'attending', // ○
+          t5: 'attending', // ○
+          t6: 'attending', // ○
+          t7: 'absent',    // ×
+          t8: 'absent'     // ×
+        }
+      },
+      {
+        id: 'example_2',
+        name: '（例）弓道 花子',
+        isExample: true,
+        records: {
+          t1: 'paid',
+          t2: 'paid',
+          t3: 'attending',
+          t4: 'absent',
+          t5: 'attending',
+          t6: 'none',
+          t7: 'attending',
+          t8: 'paid'
+        }
+      },
+      {
+        id: 'example_3',
+        name: '（例）的中 次郎',
+        isExample: true,
+        records: {
+          t1: 'attending',
+          t2: 'paid',
+          t3: 'absent',
+          t4: 'attending',
+          t5: 'none',
+          t6: 'attending',
+          t7: 'paid',
+          t8: 'none'
+        }
+      }
+    ];
+
+    // --- 初期大会データ（isCanceled: 中止フラグ対応） ---
+    const DEFAULT_TOURNAMENTS = [
+      { id: 't1', name: '県民総体', deadline: '', date: '', isCanceled: false, fee: 1000 },
+      { id: 't2', name: '県選手権', deadline: '', date: '', isCanceled: false, fee: 1000 },
+      { id: 't3', name: '遠的大会', deadline: '6/10', date: '6/21', isCanceled: false, fee: 1000 },
+      { id: 't4', name: '夏季錬成大会', deadline: '8/10', date: '8/24', isCanceled: false, fee: 1000 },
+      { id: 't5', name: '段位別大会', deadline: '9/10', date: '9/21', isCanceled: false, fee: 1000 },
+      { id: 't6', name: '中野杯', deadline: '10/20', date: '11/1', isCanceled: false, fee: 1000 },
+      { id: 't7', name: '支部対抗', deadline: '11/15', date: '11/30', isCanceled: false, fee: 1000 },
+      { id: 't8', name: '新年射会', deadline: '12/25', date: '1/10', isCanceled: false, fee: 1000 }
+    ];
+
+    // --- State 管理 ---
+    const STORAGE_KEY = 'kyudo_tournament_app_v3';
+    
+    let appStore = {
+      currentYear: '令和8年度',
+      showExamples: true,
+      years: {
+        '令和8年度': {
+          title: '大会参加・参加費管理表',
+          tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+          members: [] // 実際の登録者（最初は空、またはユーザー追加分）
+        }
+      }
+    };
+
+    let activeCell = null;
+
+    function getCurrentData() {
+      if (!appStore.years[appStore.currentYear]) {
+        appStore.years[appStore.currentYear] = {
+          title: '大会参加・参加費管理表',
+          tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+          members: []
+        };
+      }
+      return appStore.years[appStore.currentYear];
+    }
+
+    // --- データの検証・無害化（クラウド／バックアップ／端末内の全データに適用） ---
+    // IDは英数字・_・- のみ許可（HTMLの onclick に埋め込むため）。型・長さ・値も制限する。
+    const VALID_STATUS = ['paid', 'attending', 'absent', 'none'];
+    const BLOCKED_KEYS = ['__proto__', 'constructor', 'prototype'];
+
+    function safeId(v, fallback) {
+      const s = String(v == null ? '' : v).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 64);
+      return s || fallback;
+    }
+
+    function sanitizeYears(years) {
+      const out = {};
+      if (!years || typeof years !== 'object') return out;
+      Object.keys(years).slice(0, 200).forEach(yk => {
+        const key = String(yk).slice(0, 60);
+        const y = years[yk];
+        if (!key || BLOCKED_KEYS.includes(key) || !y || typeof y !== 'object') return;
+
+        const idMap = {};
+        const usedT = new Set();
+        const tournaments = (Array.isArray(y.tournaments) ? y.tournaments : []).slice(0, 50).map((t, i) => {
+          t = (t && typeof t === 'object') ? t : {};
+          let id = safeId(t.id, 't' + (i + 1));
+          while (usedT.has(id)) id += '_';
+          usedT.add(id);
+          idMap[String(t.id)] = id;
+          const fee = Number(t.fee);
+          return {
+            id: id,
+            name: String(t.name == null ? '' : t.name).slice(0, 100),
+            deadline: String(t.deadline == null ? '' : t.deadline).slice(0, 40),
+            date: String(t.date == null ? '' : t.date).slice(0, 40),
+            isCanceled: t.isCanceled === true,
+            fee: (isFinite(fee) && fee >= 0) ? Math.min(Math.round(fee), 10000000) : 0
+          };
+        });
+
+        const usedM = new Set();
+        const members = (Array.isArray(y.members) ? y.members : []).slice(0, 2000).map((m, i) => {
+          m = (m && typeof m === 'object') ? m : {};
+          let id = safeId(m.id, 'm_' + i + '_' + Math.random().toString(36).slice(2, 7));
+          while (usedM.has(id)) id += '_';
+          usedM.add(id);
+          const records = {};
+          if (m.records && typeof m.records === 'object') {
+            Object.keys(m.records).forEach(k => {
+              const nk = idMap[k];
+              const st = m.records[k];
+              if (nk && VALID_STATUS.includes(st)) records[nk] = st;
+            });
+          }
+          return { id: id, name: String(m.name == null ? '' : m.name).slice(0, 100), records: records };
+        });
+
+        out[key] = {
+          title: String(y.title == null ? '大会参加・参加費管理表' : y.title).slice(0, 100),
+          tournaments: tournaments,
+          members: members
+        };
+      });
+      return out;
+    }
+
+    function normalizeStore() {
+      appStore.years = sanitizeYears(appStore.years);
+      const keys = Object.keys(appStore.years);
+      if (!keys.length) {
+        appStore.years['令和8年度'] = {
+          title: '大会参加・参加費管理表',
+          tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+          members: []
+        };
+        keys.push('令和8年度');
+      }
+      if (typeof appStore.currentYear !== 'string' || !appStore.years[appStore.currentYear]) {
+        appStore.currentYear = keys[0];
+      }
+      appStore.showExamples = appStore.showExamples !== false;
+    }
+
+    // --- ローカルストレージ連携 ---
+    // 参考例と同じ名前かどうかを判定（空白・全角半角・「（例）」付きの揺れを吸収）
+    const EXAMPLE_BASE_NAMES = ['龍翔太郎', '弓道花子', '的中次郎'];
+    function isExampleName(name) {
+      if (!name) return false;
+      const norm = String(name)
+        .normalize('NFKC')
+        .replace(/\s+/g, '')
+        .replace(/^[（(]例[）)]/, '');
+      return EXAMPLE_BASE_NAMES.includes(norm) || /^[（(]例[）)]/.test(String(name).normalize('NFKC').replace(/\s+/g, ''));
+    }
+
+    function cleanDuplicateExamples() {
+      // 参考例と同じ名前のメンバーを実登録者リストから全年度分まとめて除外
+      if (appStore && appStore.years) {
+        Object.values(appStore.years).forEach(y => {
+          if (y && y.members) {
+            y.members = y.members.filter(m => m && m.name && !isExampleName(m.name));
+          }
+        });
+      }
+    }
+
+    function loadStore() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed && parsed.years && parsed.currentYear) {
+            appStore = parsed;
+            normalizeStore();
+            // 中止フラグ補完
+            Object.values(appStore.years).forEach(y => {
+              if (y.tournaments) {
+                y.tournaments.forEach(t => {
+                  if (t.isCanceled === undefined) t.isCanceled = false;
+                });
+              }
+            });
+            // 重複していた参考例メンバーを実登録リストからクリーンアップ
+            cleanDuplicateExamples();
+            saveLocal();
+            return;
+          }
+        }
+
+        // 旧データマイグレーション
+        const legacyKey = 'kyudo_tournament_app_multiyr_v1';
+        const legacySaved = localStorage.getItem(legacyKey) || localStorage.getItem('kyudo_tournament_app_v2') || localStorage.getItem('kyudo_tournament_app_v1');
+        if (legacySaved) {
+          const legacy = JSON.parse(legacySaved);
+          if (legacy.years) {
+            appStore.years = legacy.years;
+            appStore.currentYear = legacy.currentYear || '令和8年度';
+          } else {
+            const yr = legacy.year || '令和8年度';
+            appStore.currentYear = yr;
+            appStore.years[yr] = {
+              title: legacy.title || '大会参加・参加費管理表',
+              tournaments: legacy.tournaments || JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+              members: legacy.members || []
+            };
+          }
+          normalizeStore();
+          cleanDuplicateExamples();
+          saveLocal();
+        }
+      } catch (e) {
+        console.error('Failed to load store', e);
+      }
+    }
+
+    // 端末内（localStorage）だけに保存
+    function saveLocal() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appStore));
+      } catch (e) {
+        console.error('Failed to save store', e);
+      }
+    }
+
+    // 端末内に保存し、ログイン中ならクラウドにも保存
+    function saveStore() {
+      saveLocal();
+      if (window.cloudSave) window.cloudSave();
+    }
+
+    // --- クラウド連携用ブリッジ（下部のFirebaseモジュールから呼ぶ） ---
+    // 年度ごとのデータだけを共有。表示中の年度・参考例の表示は端末ごとに保持する。
+    function getYearsForCloud() {
+      return appStore.years;
+    }
+
+    function setStoreFromCloud(years) {
+      appStore.years = years || {};
+      normalizeStore();
+      cleanDuplicateExamples();
+      saveLocal();
+    }
+
+    function backupLocalOnce() {
+      try {
+        const k = STORAGE_KEY + '_backup_before_cloud';
+        if (!localStorage.getItem(k)) {
+          const cur = localStorage.getItem(STORAGE_KEY);
+          if (cur) localStorage.setItem(k, cur);
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    function countMembersIn(years) {
+      return Object.values(years || {}).reduce((n, y) => n + ((y && y.members) ? y.members.length : 0), 0);
+    }
+
+    function refreshUI() {
+      renderYearSelect();
+      const toggle = document.getElementById('showExamplesToggle');
+      if (toggle) toggle.checked = (appStore.showExamples !== false);
+      const current = getCurrentData();
+      document.getElementById('appTitle').value = current.title || '大会参加・参加費管理表';
+      updatePrintTitle();
+      renderTable();
+      renderStatsSummary();
+      lucide.createIcons();
+    }
+
+    // --- 初期化 ---
+    function init(skipLoad) {
+      if (skipLoad !== true) loadStore();
+      renderYearSelect();
+
+      const toggle = document.getElementById('showExamplesToggle');
+      if (toggle) toggle.checked = (appStore.showExamples !== false);
+
+      const current = getCurrentData();
+      const titleInput = document.getElementById('appTitle');
+      titleInput.value = current.title || '大会参加・参加費管理表';
+      titleInput.oninput = (e) => {
+        getCurrentData().title = e.target.value;
+        updatePrintTitle();
+        saveStore();
+      };
+
+      updatePrintTitle();
+      document.getElementById('printDate').textContent = new Date().toLocaleDateString('ja-JP');
+
+      renderTable();
+      renderStatsSummary();
+      lucide.createIcons();
+
+      if (!window.__clickBound) {
+        window.__clickBound = true;
+        document.addEventListener('click', (e) => {
+          const menu = document.getElementById('statusMenu');
+          if (!menu.contains(e.target) && !e.target.closest('.status-cell')) {
+            menu.classList.add('hidden');
+          }
+        });
+      }
+    }
+
+    // ログイン・クラウド読み込み完了後に呼ばれる
+    function startApp() {
+      init(true);
+    }
+
+    function toggleExamples(checked) {
+      appStore.showExamples = checked;
+      saveStore();
+      renderTable();
+    }
+
+    function renderYearSelect() {
+      const select = document.getElementById('yearSelect');
+      const yearKeys = Object.keys(appStore.years);
+      
+      select.innerHTML = yearKeys.map(y => `
+        <option value="${escapeHtml(y)}" ${y === appStore.currentYear ? 'selected' : ''}>
+          ${escapeHtml(y)}
+        </option>
+      `).join('');
+    }
+
+    function switchYear(newYear) {
+      if (appStore.years[newYear]) {
+        appStore.currentYear = newYear;
+        saveStore();
+
+        const current = getCurrentData();
+        document.getElementById('appTitle').value = current.title || '大会参加・参加費管理表';
+        updatePrintTitle();
+        renderTable();
+        renderStatsSummary();
+        lucide.createIcons();
+      }
+    }
+
+    function updatePrintTitle() {
+      const current = getCurrentData();
+      const fullTitle = `${appStore.currentYear} ${current.title || '大会参加・参加費管理表'}`;
+      document.getElementById('printFullTitle').textContent = fullTitle;
+      document.title = fullTitle;
+    }
+
+    // --- 大会の中止トグル ---
+    function toggleTournamentCanceled(tournamentId) {
+      const current = getCurrentData();
+      const t = current.tournaments.find(item => item.id === tournamentId);
+      if (t) {
+        t.isCanceled = !t.isCanceled;
+        saveStore();
+        renderTable();
+        renderStatsSummary();
+      }
+    }
+
+    // --- 新規年度追加 ---
+    function openNewYearModal() {
+      let suggest = '';
+      const match = appStore.currentYear.match(/^(令和|平成)?(\d+)(年度)?$/);
+      if (match) {
+        const prefix = match[1] || '令和';
+        const num = parseInt(match[2], 10) + 1;
+        suggest = `${prefix}${num}年度`;
+      } else {
+        suggest = `${appStore.currentYear}_新`;
+      }
+
+      document.getElementById('newYearNameInput').value = suggest;
+      document.getElementById('newYearModal').classList.remove('hidden');
+      document.getElementById('newYearNameInput').focus();
+    }
+
+    function closeNewYearModal() {
+      document.getElementById('newYearModal').classList.add('hidden');
+    }
+
+    function createNewYear() {
+      const name = document.getElementById('newYearNameInput').value.trim();
+      if (!name) {
+        alert('年度名を入力してください。');
+        return;
+      }
+      if (appStore.years[name]) {
+        alert(`「${name}」は既に存在します。`);
+        return;
+      }
+
+      const copyMembers = document.getElementById('copyMembersCheckbox').checked;
+      const copyTournaments = document.getElementById('copyTournamentsCheckbox').checked;
+      const current = getCurrentData();
+
+      const newTournaments = copyTournaments 
+        ? JSON.parse(JSON.stringify(current.tournaments)).map(t => ({
+            ...t,
+            deadline: '',
+            date: '',
+            isCanceled: false
+          }))
+        : JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS));
+
+      const newMembers = copyMembers
+        ? current.members.filter(m => !isExampleName(m.name)).map(m => ({
+            id: 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+            name: m.name,
+            records: {}
+          }))
+        : [];
+
+      appStore.years[name] = {
+        title: current.title || '大会参加・参加費管理表',
+        tournaments: newTournaments,
+        members: newMembers
+      };
+      appStore.currentYear = name;
+      saveStore();
+
+      renderYearSelect();
+      closeNewYearModal();
+
+      document.getElementById('appTitle').value = appStore.years[name].title;
+      updatePrintTitle();
+      renderTable();
+      renderStatsSummary();
+      lucide.createIcons();
+    }
+
+    function openYearManageModal() {
+      document.getElementById('renameYearInput').value = appStore.currentYear;
+      document.getElementById('yearManageModal').classList.remove('hidden');
+    }
+
+    function closeYearManageModal() {
+      document.getElementById('yearManageModal').classList.add('hidden');
+    }
+
+    function renameCurrentYear() {
+      const newName = document.getElementById('renameYearInput').value.trim();
+      if (!newName || newName === appStore.currentYear) {
+        closeYearManageModal();
+        return;
+      }
+      if (appStore.years[newName]) {
+        alert(`「${newName}」は既に存在しています。`);
+        return;
+      }
+
+      appStore.years[newName] = appStore.years[appStore.currentYear];
+      delete appStore.years[appStore.currentYear];
+      appStore.currentYear = newName;
+      saveStore();
+
+      renderYearSelect();
+      updatePrintTitle();
+      closeYearManageModal();
+      renderTable();
+    }
+
+    function deleteCurrentYear() {
+      const keys = Object.keys(appStore.years);
+      if (keys.length <= 1) {
+        alert('年度データは最低1つ必要なため、削除できません。');
+        return;
+      }
+
+      if (confirm(`本当に「${appStore.currentYear}」の全データを削除しますか？\n（この操作は元に戻せません）`)) {
+        delete appStore.years[appStore.currentYear];
+        appStore.currentYear = Object.keys(appStore.years)[0];
+        saveStore();
+
+        renderYearSelect();
+        closeYearManageModal();
+        init();
+      }
+    }
+
+    // --- ステータス循環 ---
+    const STATUS_CYCLE = ['none', 'attending', 'paid', 'absent'];
+
+    function getNextStatus(curr) {
+      const idx = STATUS_CYCLE.indexOf(curr);
+      if (idx === -1 || idx === STATUS_CYCLE.length - 1) {
+        return STATUS_CYCLE[0];
+      }
+      return STATUS_CYCLE[idx + 1];
+    }
+
+    function getStatusBadge(status, isCanceled) {
+      if (isCanceled) {
+        if (status === 'paid') {
+          return `<span class="status-badge inline-flex items-center justify-center font-bold text-amber-900 bg-amber-100 border border-amber-300 rounded px-2 py-0.5 text-xs opacity-75" title="大会中止 (支払い済/返金要)">○済</span>`;
+        }
+        return `<span class="text-slate-300 text-xs">ー</span>`;
+      }
+
+      switch (status) {
+        case 'paid':
+          return `<span class="status-badge inline-flex items-center justify-center font-bold text-emerald-800 bg-emerald-100 hover:bg-emerald-200 border border-emerald-300 rounded-md px-2.5 py-1 text-xs shadow-sm cursor-pointer" title="参加 (支払済)">
+                    ○済
+                  </span>`;
+        case 'attending':
+          return `<span class="status-badge inline-flex items-center justify-center font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 border border-blue-300 rounded-md px-2.5 py-1 text-xs shadow-sm cursor-pointer" title="参加 (未払い)">
+                    ○
+                  </span>`;
+        case 'absent':
+          return `<span class="status-badge inline-flex items-center justify-center font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md px-2.5 py-1 text-xs cursor-pointer" title="不参加">
+                    ×
+                  </span>`;
+        case 'none':
+        default:
+          return `<span class="status-badge inline-flex items-center justify-center text-slate-300 hover:text-slate-500 hover:bg-slate-100 rounded-md px-2.5 py-1 text-xs cursor-pointer" title="未定 (クリックで変更)">
+                    ー
+                  </span>`;
+      }
+    }
+
+    // --- メインテーブル描画 ---
+    function renderTable() {
+      const current = getCurrentData();
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const filter = document.getElementById('filterStatus').value;
+
+      // 1. ヘッダー1行目：支部内締切日行
+      const deadlineRow = document.getElementById('deadlineHeaderRow');
+      deadlineRow.innerHTML = `
+        <th colspan="2" class="py-2 px-3 text-center font-bold text-xs md:text-sm tracking-wider border-r border-slate-700 bg-slate-950/60 print-header-bg">
+          <div class="flex items-center justify-center gap-1">
+            <i data-lucide="clock" class="w-3.5 h-3.5 no-print text-amber-400"></i>
+            <span>支部内締切日</span>
+          </div>
+        </th>
+        ${current.tournaments.map((t) => `
+          <th class="py-1.5 px-1 border-r border-slate-700 text-center min-w-[95px] ${t.isCanceled ? 'bg-slate-800/80' : ''}">
+            <input type="text" value="${escapeHtml(t.deadline || '')}" 
+                   placeholder="締切日..."
+                   onchange="updateTournamentField('${t.id}', 'deadline', this.value)"
+                   class="th-inline-input w-full text-center text-xs font-semibold text-amber-300 placeholder:text-slate-500 py-0.5 ${t.isCanceled ? 'opacity-40' : ''}"
+                   title="支部内締切日をクリックして直接入力できます">
+          </th>
+        `).join('')}
+        <th class="py-1.5 px-2 text-center text-xs border-r border-slate-700 text-slate-400"></th>
+        <th class="py-1.5 px-1 text-center text-xs no-print text-slate-400"></th>
+        <th rowspan="2" class="no-print w-14 bg-slate-900 align-middle border-l border-slate-700">
+          <button onclick="addTournamentQuick()" title="大会を追加"
+                  class="mx-auto flex flex-col items-center gap-1 px-2 py-3 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-[11px] font-bold transition">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            <span style="writing-mode:vertical-rl;letter-spacing:.1em">大会追加</span>
+          </button>
+        </th>
+      `;
+
+      // 2. ヘッダー2行目：年度・大会名・開催日・中止トグル・参加費
+      const tournamentRow = document.getElementById('tournamentHeaderRow');
+      tournamentRow.innerHTML = `
+        <th class="py-2.5 px-2 text-center font-semibold w-10 border-r border-slate-700 text-xs">No.</th>
+        <th class="py-2.5 px-3 text-left font-semibold min-w-[140px] border-r border-slate-700">
+          <div class="text-[11px] text-emerald-400 font-mono tracking-wide leading-none">${escapeHtml(appStore.currentYear)}</div>
+          <div class="text-sm font-bold text-white mt-0.5">氏名</div>
+        </th>
+        ${current.tournaments.map((t) => `
+          <th class="py-2 px-1 font-semibold min-w-[95px] border-r border-slate-700 text-center relative ${t.isCanceled ? 'bg-rose-950/40' : ''}">
+            <!-- 中止バッジ・トグルボタン -->
+            <div class="no-print mb-1 flex justify-center">
+              <button onclick="toggleTournamentCanceled('${t.id}')" 
+                      class="px-1.5 py-0.2 rounded text-[10px] font-bold transition flex items-center gap-0.5 ${t.isCanceled ? 'bg-rose-600 hover:bg-rose-700 text-white shadow-2xs' : 'bg-slate-700 hover:bg-slate-600 text-slate-300'}"
+                      title="${t.isCanceled ? '大会は中止に設定されています。クリックで通常開催に戻す' : 'クリックして中止に設定'}">
+                ${t.isCanceled ? '⚠️ 中止' : '中止切替'}
+              </button>
+              <button onclick="deleteTournament('${t.id}')" class="ml-1 p-0.5 rounded text-slate-500 hover:text-rose-400 hover:bg-slate-700 transition" title="この大会を削除">
+                <i data-lucide="trash-2" class="w-3 h-3"></i>
+              </button>
+            </div>
+            
+            ${t.isCanceled ? `<div class="hidden print-title text-red-600 font-bold text-xs">【中止】</div>` : ''}
+
+            <!-- 大会名 -->
+            <input type="text" value="${escapeHtml(t.name)}" 
+                   onchange="updateTournamentField('${t.id}', 'name', this.value)"
+                   class="th-inline-input w-full text-center text-xs md:text-sm font-bold ${t.isCanceled ? 'line-through text-slate-400' : 'text-white'} px-1 py-0.5"
+                   title="大会名をクリックして変更可能">
+            
+            <!-- 大会開催日 -->
+            <div class="mt-0.5 flex items-center justify-center">
+              <input type="text" value="${escapeHtml(t.date || '')}" 
+                     placeholder="開催日..."
+                     onchange="updateTournamentField('${t.id}', 'date', this.value)"
+                     class="th-inline-input w-20 text-center text-[11px] font-medium text-emerald-300 placeholder:text-slate-500 py-0.2 ${t.isCanceled ? 'line-through opacity-50' : ''}"
+                     title="大会開催日をクリックして直接入力 (例: 6/21)">
+            </div>
+
+            <!-- 参加費（画面では直接編集、印刷では文字で表示） -->
+            <div class="no-print mt-0.5 flex items-center justify-center text-[10px] ${t.isCanceled ? 'text-slate-500 line-through' : 'text-slate-400'}">
+              <span>¥</span>
+              <input type="number" min="0" step="100" value="${t.fee || 0}"
+                     onchange="updateTournamentField('${t.id}', 'fee', this.value)"
+                     class="th-inline-input w-16 text-center text-[10px] text-slate-300 py-0.5"
+                     title="参加費（円）をクリックして直接入力">
+            </div>
+            ${t.fee ? `<div class="hidden print-title text-[10px] font-normal mt-0.5">¥${t.fee.toLocaleString()}</div>` : ''}
+          </th>
+        `).join('')}
+        <th class="py-2.5 px-2 font-semibold min-w-[85px] border-r border-slate-700 text-center text-xs md:text-sm">未払計</th>
+        <th class="py-2.5 px-1 font-semibold w-12 no-print border-slate-700 text-center text-xs">操作</th>
+      `;
+
+      cleanDuplicateExamples();
+
+      // 3. 参考例行のHTML生成（固定3名）
+      let exampleRowsHtml = '';
+      if (appStore.showExamples !== false) {
+        exampleRowsHtml = FIXED_EXAMPLE_MEMBERS.map((exMember, idx) => `
+          <tr class="bg-amber-50/50 hover:bg-amber-50 transition border-b border-amber-200/70 print-example-bg">
+            <td class="py-3 px-2 text-amber-700 font-mono text-[11px] text-center border-r border-slate-200 font-bold">例${idx + 1}</td>
+            <td class="py-3 px-3 text-left font-bold text-amber-950 border-r border-slate-200">
+              <div class="flex items-center gap-1.5">
+                <span class="inline-block px-1.5 py-0.2 bg-amber-200 text-amber-900 text-[10px] font-bold rounded">参考例</span>
+                <span>${escapeHtml(exMember.name)}</span>
+              </div>
+            </td>
+            ${current.tournaments.map(t => {
+              const status = exMember.records[t.id] || 'none';
+              return `
+                <td class="py-3 px-1 text-center border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}">
+                  ${getStatusBadge(status, t.isCanceled)}
+                </td>
+              `;
+            }).join('')}
+            <td class="py-3 px-2 text-center border-r border-slate-200">
+              <span class="text-[11px] text-slate-400 font-medium">（例示）</span>
+            </td>
+            <td class="py-2 px-1 text-center no-print">
+              <span class="text-[10px] text-slate-400" title="参考例のため固定表示です">固定</span>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      // 4. 実登録者のフィルタリング
+      const filteredMembers = current.members.filter(m => {
+        if (search && !m.name.toLowerCase().includes(search)) return false;
+
+        if (filter === 'has_unpaid') {
+          // 中止になっていない大会で未払い（attending）があるか
+          const hasUnpaid = current.tournaments.some(t => !t.isCanceled && (m.records && m.records[t.id] === 'attending'));
+          if (!hasUnpaid) return false;
+        } else if (filter === 'attending_any') {
+          const isAttending = current.tournaments.some(t => {
+            if (t.isCanceled) return false;
+            const st = m.records && m.records[t.id];
+            return st === 'attending' || st === 'paid';
+          });
+          if (!isAttending) return false;
+        }
+
+        return true;
+      });
+
+      // 5. 実登録者行のHTML生成
+      let actualRowsHtml = '';
+      if (filteredMembers.length === 0 && current.members.length === 0) {
+        actualRowsHtml = `
+          <tr>
+            <td colspan="${current.tournaments.length + 4}" class="py-8 text-center text-slate-400 bg-slate-50/50">
+              まだこの年度（${escapeHtml(appStore.currentYear)}）の参加者が登録されていません。<br>
+              上の「<strong>氏名追加</strong>」ボタンを押して登録してください。
+            </td>
+          </tr>
+        `;
+      } else if (filteredMembers.length === 0) {
+        actualRowsHtml = `
+          <tr>
+            <td colspan="${current.tournaments.length + 4}" class="py-8 text-center text-slate-400">
+              検索条件に一致する参加者がいません。
+            </td>
+          </tr>
+        `;
+      } else {
+        actualRowsHtml = filteredMembers.map((member, index) => {
+          let unpaidCount = 0;
+          let unpaidAmount = 0;
+
+          current.tournaments.forEach(t => {
+            if (!t.isCanceled && member.records && member.records[t.id] === 'attending') {
+              unpaidCount++;
+              unpaidAmount += (t.fee || 0);
+            }
+          });
+
+          return `
+            <tr class="hover:bg-slate-50 transition border-b border-slate-200">
+              <td class="py-3 px-2 text-slate-500 font-mono text-xs text-center border-r border-slate-200">${index + 1}</td>
+              <td class="py-3 px-3 text-left font-semibold text-slate-900 border-r border-slate-200">
+                <input type="text" value="${escapeHtml(member.name)}" 
+                       onchange="updateMemberName('${member.id}', this.value)"
+                       class="w-full bg-transparent border-b border-transparent hover:border-slate-300 focus:border-emerald-600 focus:bg-white focus:outline-none rounded px-1 text-sm font-semibold">
+              </td>
+              ${current.tournaments.map(t => {
+                const status = (member.records && member.records[t.id]) || 'none';
+                return `
+                  <td class="py-3 px-1 text-center status-cell border-r border-slate-200 ${t.isCanceled ? 'canceled-col' : ''}"
+                      onclick="${t.isCanceled ? '' : `cycleStatus('${member.id}', '${t.id}')`}"
+                      oncontextmenu="${t.isCanceled ? '' : `openContextMenu(event, '${member.id}', '${t.id}')`}">
+                    ${getStatusBadge(status, t.isCanceled)}
+                  </td>
+                `;
+              }).join('')}
+              <td class="py-3 px-2 text-center border-r border-slate-200">
+                ${unpaidCount > 0 ? `
+                  <span class="inline-flex items-center gap-1 font-bold text-xs text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    ${unpaidAmount > 0 ? `¥${unpaidAmount.toLocaleString()}` : `${unpaidCount}件`}
+                  </span>
+                ` : `
+                  <span class="text-xs text-emerald-600 font-medium">なし</span>
+                `}
+              </td>
+              <td class="py-2 px-1 text-center no-print">
+                <button onclick="deleteMember('${member.id}')" class="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition" title="この人を削除">
+                  <i data-lucide="trash-2" class="w-4 h-4"></i>
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = exampleRowsHtml + actualRowsHtml;
+
+      // 6. フッター合計描画
+      renderTableFooter();
+      renderStatsSummary();
+      lucide.createIcons();
+    }
+
+    function renderTableFooter() {
+      const current = getCurrentData();
+      const tfoot = document.getElementById('tableFoot');
+      let totalUnpaidOverall = 0;
+
+      // 合計は実際の登録者のみをカウント（参考例は除外して正確な会計を保持）
+      const colsHtml = current.tournaments.map(t => {
+        if (t.isCanceled) {
+          let paid = 0;
+          current.members.forEach(m => {
+            if (m.records && m.records[t.id] === 'paid') paid++;
+          });
+          return `
+            <td class="py-2 px-1 text-center text-xs border-r border-slate-200 bg-rose-50/50">
+              <span class="text-rose-700 font-bold block text-[11px]">中止</span>
+              ${paid > 0 ? `<span class="text-[10px] text-amber-800 font-bold">返金要: ${paid}名</span>` : '<span class="text-[10px] text-slate-400">集金無</span>'}
+            </td>
+          `;
+        }
+
+        let paid = 0;
+        let attending = 0;
+
+        current.members.forEach(m => {
+          const st = m.records && m.records[t.id];
+          if (st === 'paid') paid++;
+          else if (st === 'attending') attending++;
+        });
+
+        const totalAttending = paid + attending;
+        const unpaidMoney = attending * (t.fee || 0);
+        totalUnpaidOverall += unpaidMoney;
+
+        return `
+          <td class="py-2.5 px-1 text-center text-xs border-r border-slate-200">
+            <div class="font-bold text-slate-800">計 ${totalAttending}名</div>
+            <div class="text-[10px] space-y-0.2 mt-0.5">
+              <div class="text-emerald-700 font-semibold">済: ${paid}</div>
+              <div class="text-blue-700 font-medium">未払: ${attending}</div>
+            </div>
+          </td>
+        `;
+      }).join('');
+
+      tfoot.innerHTML = `
+        <tr class="bg-slate-50 print-header-bg">
+          <td colspan="2" class="py-3 px-3 text-left font-bold text-slate-800 border-r border-slate-200 text-xs md:text-sm">
+            ${escapeHtml(appStore.currentYear)} 集計 (実登録: ${current.members.length}名)
+          </td>
+          ${colsHtml}
+          <td class="py-3 px-2 text-center text-xs font-bold text-amber-700 border-r border-slate-200">
+            ${totalUnpaidOverall > 0 ? `¥${totalUnpaidOverall.toLocaleString()}` : '全受領'}
+          </td>
+          <td class="no-print"></td>
+        </tr>
+      `;
+    }
+
+    function renderStatsSummary() {
+      const current = getCurrentData();
+      const summaryContainer = document.getElementById('tournamentStatsSummary');
+      
+      summaryContainer.innerHTML = current.tournaments.map(t => {
+        if (t.isCanceled) {
+          let paid = 0;
+          current.members.forEach(m => {
+            if (m.records && m.records[t.id] === 'paid') paid++;
+          });
+          return `
+            <div class="bg-rose-50/60 rounded-lg p-3 border border-rose-300 shadow-xs flex flex-col justify-between transition">
+              <div>
+                <div class="text-sm font-bold text-rose-950 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
+                <div class="text-[11px] text-rose-600 font-bold mt-1">⚠️ 大会中止</div>
+              </div>
+              <div class="mt-2 flex items-baseline justify-between border-t border-rose-200/60 pt-1">
+                <span class="text-xs text-rose-800 font-bold">中止</span>
+                <span class="text-[10px] ${paid > 0 ? 'text-amber-800 font-bold bg-amber-100 px-1 rounded' : 'text-slate-500'}">
+                  ${paid > 0 ? `返金要: ${paid}` : '精算無'}
+                </span>
+              </div>
+            </div>
+          `;
+        }
+
+        let paid = 0;
+        let attending = 0;
+
+        current.members.forEach(m => {
+          const st = m.records && m.records[t.id];
+          if (st === 'paid') paid++;
+          if (st === 'attending') attending++;
+        });
+
+        const total = paid + attending;
+        const isComplete = total > 0 && attending === 0;
+
+        return `
+          <div class="bg-white rounded-lg p-3 border ${isComplete ? 'border-emerald-300 bg-emerald-50/20' : attending > 0 ? 'border-amber-200' : 'border-slate-200'} shadow-xs flex flex-col justify-between transition">
+            <div>
+              <div class="text-sm font-bold text-slate-800 truncate" title="${escapeHtml(t.name)}">${escapeHtml(t.name)}</div>
+              <div class="flex items-center gap-1 text-[11px] text-slate-500 mt-1 truncate">
+                ${t.date ? `<span class="text-emerald-700 font-medium">開: ${escapeHtml(t.date)}</span>` : ''}
+                ${t.deadline ? `<span class="text-amber-700 font-medium ml-1">切: ${escapeHtml(t.deadline)}</span>` : ''}
+              </div>
+            </div>
+            <div class="mt-2 flex items-baseline justify-between border-t border-slate-100 pt-1">
+              <span class="text-xl font-extrabold text-slate-900">${total}<span class="text-[10px] font-normal text-slate-500 ml-0.5">名</span></span>
+              <span class="text-[10px] font-semibold ${attending > 0 ? 'text-amber-600 bg-amber-50 px-1 py-0.2 rounded border border-amber-200' : 'text-emerald-600'}">
+                ${attending > 0 ? `未払: ${attending}` : '集金済'}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // --- 大会をメイン画面から追加・削除 ---
+    const MAX_TOURNAMENTS = 50;
+
+    function newTournamentId() {
+      return 't_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    }
+
+    function addTournamentQuick() {
+      const current = getCurrentData();
+      if (current.tournaments.length >= MAX_TOURNAMENTS) {
+        alert(`大会は最大${MAX_TOURNAMENTS}件までです。`);
+        return;
+      }
+      // 直前の大会と同じ参加費を引き継ぐ
+      const last = current.tournaments[current.tournaments.length - 1];
+      const id = newTournamentId();
+      current.tournaments.push({
+        id: id,
+        name: `新大会 ${current.tournaments.length + 1}`,
+        deadline: '',
+        date: '',
+        isCanceled: false,
+        fee: last ? (last.fee || 1000) : 1000
+      });
+      saveStore();
+      renderTable();
+      // 追加した列へスクロールして、大会名を入力できる状態にする
+      const inputs = document.querySelectorAll('#tournamentHeaderRow input[type="text"]');
+      const nameInputs = Array.from(inputs).filter((_, i) => i % 2 === 0); // 大会名・開催日が交互に並ぶ
+      const target = nameInputs[nameInputs.length - 1];
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        target.focus();
+        target.select();
+      }
+    }
+
+    function deleteTournament(id) {
+      const current = getCurrentData();
+      if (current.tournaments.length <= 1) {
+        alert('大会は最低1つ必要です。');
+        return;
+      }
+      const t = current.tournaments.find(x => x.id === id);
+      if (!t) return;
+      const recCount = current.members.filter(m => m.records && m.records[id] && m.records[id] !== 'none').length;
+      const msg = `大会「${t.name}」を削除しますか？` + (recCount ? `\n（${recCount}名分の参加・支払い記録も削除されます）` : '');
+      if (!confirm(msg)) return;
+      current.tournaments = current.tournaments.filter(x => x.id !== id);
+      current.members.forEach(m => { if (m.records) delete m.records[id]; });
+      saveStore();
+      renderTable();
+    }
+
+    // --- 大会フィールド更新 ---
+    function updateTournamentField(id, field, value) {
+      const current = getCurrentData();
+      const tournament = current.tournaments.find(t => t.id === id);
+      if (tournament) {
+        if (field === 'fee') {
+          const n = parseInt(value, 10);
+          tournament.fee = (isFinite(n) && n >= 0) ? Math.min(n, 10000000) : 0;
+        } else {
+          tournament[field] = String(value).trim();
+        }
+        saveStore();
+        renderTable();
+      }
+    }
+
+    // --- セル状態変更 ---
+    function cycleStatus(memberId, tournamentId) {
+      const current = getCurrentData();
+      const member = current.members.find(m => m.id === memberId);
+      if (!member) return;
+
+      if (!member.records) member.records = {};
+      const curr = member.records[tournamentId] || 'none';
+      member.records[tournamentId] = getNextStatus(curr);
+
+      saveStore();
+      renderTable();
+    }
+
+    function openContextMenu(e, memberId, tournamentId) {
+      e.preventDefault();
+      activeCell = { memberId, tournamentId };
+      const menu = document.getElementById('statusMenu');
+      
+      menu.style.left = `${Math.min(e.pageX, window.innerWidth - 190)}px`;
+      menu.style.top = `${e.pageY}px`;
+      menu.classList.remove('hidden');
+    }
+
+    function applyCellStatus(newStatus) {
+      if (!activeCell) return;
+      const current = getCurrentData();
+      const { memberId, tournamentId } = activeCell;
+      const member = current.members.find(m => m.id === memberId);
+      if (member) {
+        if (!member.records) member.records = {};
+        member.records[tournamentId] = newStatus;
+        saveStore();
+        renderTable();
+      }
+      document.getElementById('statusMenu').classList.add('hidden');
+      activeCell = null;
+    }
+
+    function updateMemberName(memberId, newName) {
+      const current = getCurrentData();
+      const member = current.members.find(m => m.id === memberId);
+      if (member && newName.trim()) {
+        member.name = newName.trim();
+        saveStore();
+      }
+    }
+
+    function deleteMember(memberId) {
+      const current = getCurrentData();
+      const member = current.members.find(m => m.id === memberId);
+      if (!member) return;
+      if (confirm(`「${member.name}」さんを削除しますか？`)) {
+        current.members = current.members.filter(m => m.id !== memberId);
+        saveStore();
+        renderTable();
+      }
+    }
+
+    // --- 氏名追加 ---
+    function openAddMemberModal() {
+      document.getElementById('newMemberNames').value = '';
+      document.getElementById('addMemberModal').classList.remove('hidden');
+      document.getElementById('newMemberNames').focus();
+    }
+
+    function closeAddMemberModal() {
+      document.getElementById('addMemberModal').classList.add('hidden');
+    }
+
+    function saveNewMembers() {
+      const text = document.getElementById('newMemberNames').value.trim();
+      if (!text) return;
+
+      const current = getCurrentData();
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0 && !isExampleName(l));
+      lines.forEach(name => {
+        const newId = 'm_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5);
+        current.members.push({
+          id: newId,
+          name: name,
+          records: {}
+        });
+      });
+
+      saveStore();
+      closeAddMemberModal();
+      renderTable();
+    }
+
+    // --- 大会編集モーダル ---
+    let tournamentDraft = null;
+
+    function syncDraftFromDom() {
+      if (!tournamentDraft) return;
+      const rows = document.querySelectorAll('#tournamentEditorList > div');
+      rows.forEach((row, idx) => {
+        const t = tournamentDraft[idx];
+        if (!t) return;
+        t.name = row.querySelector('.t-edit-name').value.trim() || `大会 ${idx + 1}`;
+        t.deadline = row.querySelector('.t-edit-deadline').value.trim();
+        t.date = row.querySelector('.t-edit-date').value.trim();
+        t.isCanceled = row.querySelector('.t-edit-canceled').checked;
+        t.fee = parseInt(row.querySelector('.t-edit-fee').value, 10) || 0;
+      });
+    }
+
+    function openTournamentSettingsModal() {
+      tournamentDraft = JSON.parse(JSON.stringify(getCurrentData().tournaments));
+      document.getElementById('modalCurrentYearDisplay').textContent = appStore.currentYear;
+      renderTournamentEditor();
+      document.getElementById('tournamentModal').classList.remove('hidden');
+      lucide.createIcons();
+    }
+
+    function closeTournamentSettingsModal() {
+      tournamentDraft = null;
+      document.getElementById('tournamentModal').classList.add('hidden');
+    }
+
+    function renderTournamentEditor() {
+      const container = document.getElementById('tournamentEditorList');
+      container.innerHTML = tournamentDraft.map((t, index) => `
+        <div class="bg-slate-50 p-3 rounded-lg border ${t.isCanceled ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200'} space-y-2" data-idx="${index}">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-mono w-4 font-bold">${index + 1}</span>
+            <input type="text" value="${escapeHtml(t.name)}" 
+                   class="t-edit-name flex-1 px-2.5 py-1 text-sm border border-slate-300 rounded focus:border-emerald-600 focus:outline-none bg-white font-bold" 
+                   placeholder="大会名">
+            
+            <label class="flex items-center gap-1 text-xs font-bold ${t.isCanceled ? 'text-rose-700' : 'text-slate-600'} cursor-pointer px-2 py-1 rounded bg-white border border-slate-200">
+              <input type="checkbox" ${t.isCanceled ? 'checked' : ''} class="t-edit-canceled rounded text-rose-600 focus:ring-rose-500">
+              <span>中止</span>
+            </label>
+
+            <button onclick="removeTournamentRow(${index})" class="p-1 text-slate-400 hover:text-rose-600 rounded" title="大会を削除">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pl-6">
+            <div>
+              <label class="block text-[11px] font-semibold text-amber-700">支部内締切日</label>
+              <input type="text" value="${escapeHtml(t.deadline || '')}" 
+                     class="t-edit-deadline w-full px-2 py-1 text-xs border border-slate-300 rounded focus:border-emerald-600 focus:outline-none bg-white" 
+                     placeholder="例: 6/10">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-emerald-700">大会開催日</label>
+              <input type="text" value="${escapeHtml(t.date || '')}" 
+                     class="t-edit-date w-full px-2 py-1 text-xs border border-slate-300 rounded focus:border-emerald-600 focus:outline-none bg-white" 
+                     placeholder="例: 6/21">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">参加費 (円)</label>
+              <div class="flex items-center gap-1">
+                <span class="text-xs text-slate-500">¥</span>
+                <input type="number" value="${t.fee || 0}" step="100" min="0" 
+                       class="t-edit-fee w-full px-2 py-1 text-xs border border-slate-300 rounded focus:border-emerald-600 focus:outline-none bg-white text-right"
+                       placeholder="1000">
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addNewTournamentRow() {
+      if (!tournamentDraft) return;
+      if (tournamentDraft.length >= MAX_TOURNAMENTS) {
+        alert(`大会は最大${MAX_TOURNAMENTS}件までです。`);
+        return;
+      }
+      syncDraftFromDom();
+      const last = tournamentDraft[tournamentDraft.length - 1];
+      tournamentDraft.push({
+        id: newTournamentId(),
+        name: `新大会 ${tournamentDraft.length + 1}`,
+        deadline: '',
+        date: '',
+        isCanceled: false,
+        fee: last ? (last.fee || 1000) : 1000
+      });
+      renderTournamentEditor();
+      lucide.createIcons();
+      const list = document.getElementById('tournamentEditorList');
+      list.scrollTop = list.scrollHeight;
+      const names = list.querySelectorAll('.t-edit-name');
+      const el = names[names.length - 1];
+      if (el) { el.focus(); el.select(); }
+    }
+
+    function removeTournamentRow(index) {
+      if (!tournamentDraft) return;
+      if (tournamentDraft.length <= 1) {
+        alert('大会は最低1つ必要です。');
+        return;
+      }
+      syncDraftFromDom();
+      const t = tournamentDraft[index];
+      if (confirm(`大会「${t.name}」を削除しますか？\n（「変更を保存」を押すと、この大会の記録データも削除されます）`)) {
+        tournamentDraft.splice(index, 1);
+        renderTournamentEditor();
+        lucide.createIcons();
+      }
+    }
+
+    function saveTournamentsConfig() {
+      if (!tournamentDraft) return;
+      syncDraftFromDom();
+      const current = getCurrentData();
+      const keepIds = new Set(tournamentDraft.map(t => t.id));
+      // 削除された大会の記録を掃除
+      current.members.forEach(m => {
+        if (!m.records) return;
+        Object.keys(m.records).forEach(k => { if (!keepIds.has(k)) delete m.records[k]; });
+      });
+      current.tournaments = tournamentDraft;
+      tournamentDraft = null;
+      saveStore();
+      closeTournamentSettingsModal();
+      renderTable();
+    }
+
+    // --- CSVエクスポート ---
+    // Excelで開いたときに数式として実行されないよう、先頭が = + - @ の文字列は ' を付ける
+    function csvCell(v) {
+      if (typeof v === 'number') return String(v);
+      let t = String(v == null ? '' : v);
+      if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;
+      return '"' + t.replace(/"/g, '""') + '"';
+    }
+
+    function exportCSV() {
+      const current = getCurrentData();
+      const row1 = ['', '', ...current.tournaments.map(t => `締切: ${t.deadline || '未定'}${t.isCanceled ? '【中止】' : ''}`), ''];
+      const row2 = ['No', '氏名', ...current.tournaments.map(t => `${t.name}${t.isCanceled ? ' [中止]' : t.date ? ` (${t.date})` : ''}`), '未払い件数'];
+      const rows = [
+        [`${appStore.currentYear} ${current.title}`],
+        row1,
+        row2
+      ];
+
+      current.members.forEach((m, idx) => {
+        let unpaid = 0;
+        const row = [idx + 1, m.name];
+        current.tournaments.forEach(t => {
+          if (t.isCanceled) {
+            row.push('中止');
+            return;
+          }
+          const st = (m.records && m.records[t.id]) || 'none';
+          if (st === 'paid') row.push('○済');
+          else if (st === 'attending') {
+            row.push('○');
+            unpaid++;
+          } else if (st === 'absent') row.push('×');
+          else row.push('ー');
+        });
+        row.push(unpaid);
+        rows.push(row);
+      });
+
+      const csvContent = '\uFEFF' + rows.map(e => e.map(csvCell).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${appStore.currentYear}_${current.title}_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function exportJSON() {
+      const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(appStore, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute('href', dataStr);
+      downloadAnchor.setAttribute('download', `kyudo_all_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function importJSON(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (imported.years && imported.currentYear) {
+            appStore = imported;
+            normalizeStore();
+            saveStore();
+            init();
+            alert('全年度データを正常に復元しました！');
+          } else {
+            alert('対応していない形式のバックアップファイルです。');
+          }
+        } catch (err) {
+          alert('ファイルの読み込みに失敗しました。');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function resetDataPrompt() {
+      if (confirm('初期状態にリセットしますか？\n（入力したデータは消去されます）')) {
+        appStore = {
+          currentYear: '令和8年度',
+          showExamples: true,
+          years: {
+            '令和8年度': {
+              title: '大会参加・参加費管理表',
+              tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
+              members: []
+            }
+          }
+        };
+        saveStore();
+        init();
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // 起動はFirebaseモジュール（ログイン後）が startApp() を呼ぶ。
+    // 接続できない場合の案内
+    window.addEventListener('DOMContentLoaded', () => {
+      if (location.protocol === 'file:') {
+        const f = document.getElementById('loginFatal');
+        f.textContent = 'このファイルを直接開いた状態ではログインできません。公開したURL（https://…）から開いてください。';
+        f.classList.remove('hidden');
+        document.getElementById('loginLoading').classList.add('hidden');
+        return;
+      }
+      setTimeout(() => {
+        if (!window.__authReady) {
+          const f = document.getElementById('loginFatal');
+          f.textContent = 'Firebaseに接続できません。ネットワーク接続を確認して、再読み込みしてください。';
+          f.classList.remove('hidden');
+          document.getElementById('loginLoading').classList.add('hidden');
+        }
+      }, 10000);
+    });
+  </script>
+
+  <!-- Firebase（ログイン＋Firestoreでの全端末共有） -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut }
+      from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp }
+      from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDo_CYLFEjFsSAeXpGzZ_h9hHno7YQacDI",
+      authDomain: "ryusyokai-27030.firebaseapp.com",
+      projectId: "ryusyokai-27030",
+      storageBucket: "ryusyokai-27030.firebasestorage.app",
+      messagingSenderId: "508882166129",
+      appId: "1:508882166129:web:e4a0d4604701c70a1016d0",
+      measurementId: "G-3V0KZKXY8S"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const dataRef = doc(db, 'apps', 'kyudoTournament');
+
+    let unsubscribe = null;
+    let lastJson = null;       // 最後にクラウドと一致した内容
+    let saveTimer = null;      // 保存待ちタイマー
+    let pendingRemote = null;  // 入力中に届いた他端末の更新
+
+    const $ = (id) => document.getElementById(id);
+
+    function setStatus(text, tone) {
+      const el = $('syncStatus');
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'text-xs font-medium px-2 py-1 rounded border ' + ({
+        ok: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+        busy: 'text-blue-700 bg-blue-50 border-blue-200',
+        err: 'text-rose-700 bg-rose-50 border-rose-200'
+      }[tone] || 'text-slate-500 bg-slate-50 border-slate-200');
+    }
+
+    function showLogin(message) {
+      $('loginOverlay').classList.remove('hidden');
+      $('loginLoading').classList.add('hidden');
+      $('loginForm').classList.remove('hidden');
+      $('googleBlock').classList.remove('hidden');
+      $('loginError').textContent = message || '';
+      $('loginSubmit').disabled = false;
+      $('loginSubmit').textContent = authMode === 'register' ? '新規登録' : 'ログイン';
+      $('googleBtn').disabled = false;
+    }
+
+    function showLoading() {
+      $('loginOverlay').classList.remove('hidden');
+      $('loginForm').classList.add('hidden');
+      $('googleBlock').classList.add('hidden');
+      $('loginLoading').classList.remove('hidden');
+    }
+
+    // ログイン／新規登録の切り替え
+    let authMode = 'login';
+    window.toggleAuthMode = () => {
+      authMode = authMode === 'login' ? 'register' : 'login';
+      const reg = authMode === 'register';
+      $('regConfirmWrap').classList.toggle('hidden', !reg);
+      $('loginPassword2').required = reg;
+      $('loginPassword').autocomplete = reg ? 'new-password' : 'current-password';
+      $('modeToggle').textContent = reg ? 'ログインに戻る' : 'はじめての方は新規登録';
+      $('loginSubmit').textContent = reg ? '新規登録' : 'ログイン';
+      $('loginError').textContent = '';
+    };
+
+    function authErrorText(code) {
+      switch (code) {
+        case 'auth/invalid-credential':
+        case 'auth/wrong-password':
+        case 'auth/user-not-found':
+        case 'auth/invalid-login-credentials':
+          return 'メールアドレスまたはパスワードが違います。';
+        case 'auth/email-already-in-use': return 'このメールアドレスは登録済みです。ログインしてください。';
+        case 'auth/weak-password': return 'パスワードは6文字以上にしてください。';
+        case 'auth/invalid-email': return 'メールアドレスの形式が正しくありません。';
+        case 'auth/too-many-requests': return '試行回数が多すぎます。しばらくしてからお試しください。';
+        case 'auth/network-request-failed': return 'ネットワークに接続できません。';
+        case 'auth/unauthorized-domain': return 'このURLはFirebaseの「承認済みドメイン」に登録されていません。';
+        case 'auth/operation-not-allowed': return 'このログイン方法が有効になっていません。';
+        case 'auth/popup-blocked': return 'ポップアップがブロックされました。許可してもう一度お試しください。';
+        case 'auth/operation-not-supported-in-this-environment': return 'このブラウザではGoogleログインを使えません。Chrome・Safariなど通常のブラウザで開いてください。';
+        default: return 'ログインできませんでした（' + code + '）。';
+      }
+    }
+
+    window.cloudLogin = async (ev) => {
+      ev.preventDefault();
+      $('loginError').textContent = '';
+      $('loginSubmit').disabled = true;
+      const email = $('loginEmail').value.trim();
+      const pw = $('loginPassword').value;
+      if (authMode === 'register' && pw !== $('loginPassword2').value) {
+        showLogin('パスワードが一致しません。');
+        return false;
+      }
+      $('loginSubmit').textContent = authMode === 'register' ? '登録中…' : 'ログイン中…';
+      try {
+        if (authMode === 'register') {
+          await createUserWithEmailAndPassword(auth, email, pw);
+        } else {
+          await signInWithEmailAndPassword(auth, email, pw);
+        }
+      } catch (e) {
+        showLogin(authErrorText(e.code || ''));
+      }
+      return false;
+    };
+
+    window.cloudLoginGoogle = async () => {
+      $('loginError').textContent = '';
+      $('googleBtn').disabled = true;
+      try {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        await signInWithPopup(auth, provider);
+      } catch (e) {
+        const code = e.code || '';
+        const quiet = (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request');
+        showLogin(quiet ? '' : authErrorText(code));
+      }
+    };
+
+    window.cloudLogout = async (skipConfirm) => {
+      if (skipConfirm !== true && !confirm('ログアウトしますか？')) return;
+      await signOut(auth);
+      location.reload();
+    };
+
+    async function pushNow() {
+      const json = JSON.stringify(getYearsForCloud());
+      if (json === lastJson) { setStatus('☁ 同期済み', 'ok'); return; }
+      try {
+        setStatus('☁ 保存中…', 'busy');
+        await setDoc(dataRef, {
+          data: json,
+          updatedAt: serverTimestamp(),
+          updatedBy: (auth.currentUser && auth.currentUser.email) || ''
+        });
+        lastJson = json;
+        setStatus('☁ 同期済み', 'ok');
+      } catch (e) {
+        console.error('cloud save failed', e);
+        setStatus('☁ 保存エラー', 'err');
+      }
+    }
+
+    // saveStore() から呼ばれる（連続操作をまとめて保存）
+    window.cloudSave = () => {
+      if (!auth.currentUser) return;
+      setStatus('☁ 保存待ち…', 'busy');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(() => { saveTimer = null; pushNow(); }, 600);
+    };
+
+    function applyRemote(json) {
+      if (json === JSON.stringify(getYearsForCloud())) { lastJson = json; setStatus('☁ 同期済み', 'ok'); return; }
+      if (saveTimer) return; // 自分の未保存の変更を優先
+      const ae = document.activeElement;
+      if (ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA') && ae.id !== 'searchInput') {
+        pendingRemote = json; // 入力中は後で反映
+        return;
+      }
+      try {
+        setStoreFromCloud(JSON.parse(json));
+        lastJson = JSON.stringify(getYearsForCloud());
+        refreshUI();
+        setStatus('☁ 同期済み', 'ok');
+      } catch (e) { console.error(e); }
+    }
+
+    document.addEventListener('focusout', () => {
+      setTimeout(() => {
+        if (pendingRemote && !saveTimer) {
+          const j = pendingRemote; pendingRemote = null; applyRemote(j);
+        } else if (saveTimer) {
+          pendingRemote = null;
+        }
+      }, 50);
+    });
+
+    let started = false;
+    let pendingLoginMessage = '';
+
+    onAuthStateChanged(auth, async (user) => {
+      window.__authReady = true;
+      if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+
+      if (!user) { showLogin(pendingLoginMessage); pendingLoginMessage = ''; return; }
+
+      $('loginOverlay').classList.add('hidden');
+      const label = $('loginUserLabel');
+      if (label) label.textContent = user.email || '';
+      setStatus('☁ 読み込み中…', 'busy');
+
+      let ok = false;
+      try {
+        if (!started) loadStore(); // 端末内のデータを先に読む
+        const snap = await getDoc(dataRef);
+        if (snap.exists()) {
+          const remoteJson = snap.data().data;
+          const remoteYears = JSON.parse(remoteJson);
+          let linked = false;
+          try { linked = localStorage.getItem('kyudo_cloud_linked') === '1'; } catch (e) { /* ignore */ }
+          if (!linked && countMembersIn(remoteYears) === 0 && countMembersIn(getYearsForCloud()) > 0) {
+            // この端末が初めてクラウドに接続する時だけ：クラウドが空で端末にデータがあれば、端末のデータをクラウドへ
+            backupLocalOnce();
+            lastJson = null;
+            await pushNow();
+          } else {
+            backupLocalOnce();
+            setStoreFromCloud(remoteYears);
+            lastJson = JSON.stringify(getYearsForCloud());
+          }
+        } else {
+          // 初回：この端末のデータをクラウドへ移行
+          backupLocalOnce();
+          lastJson = null;
+          await pushNow();
+        }
+        ok = true;
+        try { localStorage.setItem('kyudo_cloud_linked', '1'); } catch (e) { /* ignore */ }
+      } catch (e) {
+        console.error('cloud load failed', e);
+        setStatus('☁ 接続エラー（この端末のデータを表示中）', 'err');
+        if (e && e.code === 'permission-denied' && !started) {
+          // 許可されていないアカウント → ログアウトしてログイン画面へ
+          pendingLoginMessage = 'クラウドの読み書きが許可されていません。Firestoreのルール設定を確認してください。';
+          await signOut(auth);
+          return;
+        }
+      }
+
+      if (!started) { started = true; startApp(); } else { refreshUI(); }
+
+      if (ok) {
+        unsubscribe = onSnapshot(dataRef, (snap) => {
+          if (snap.metadata.hasPendingWrites) return;
+          const d = snap.data();
+          if (d && typeof d.data === 'string') applyRemote(d.data);
+        }, (err) => {
+          console.error(err);
+          setStatus('☁ 同期エラー', 'err');
+        });
+      }
+    });
+  </script>
+</body>
+</html>
