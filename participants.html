@@ -194,7 +194,10 @@
             <h1>参加者一覧</h1>
           </div>
         </div>
-        <a class="btn" href="index.html">← 管理表へ</a>
+        <div style="display:flex; gap:6px; align-items:center; flex-shrink:0;">
+          <a class="btn" id="myNameLink" href="index.html#setname" title="あなたの表示名（クリックで変更）" style="max-width:130px; overflow:hidden; text-overflow:ellipsis;">名前を登録</a>
+          <a class="btn" href="index.html">← 管理表へ</a>
+        </div>
       </div>
 
       <div class="controls">
@@ -389,6 +392,10 @@
 
     onAuthStateChanged(auth, async (user) => {
       if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+      try {
+        const nm = (localStorage.getItem('ryusyokai_my_name') || (user && user.displayName) || '').trim();
+        $('myNameLink').textContent = nm ? '👤 ' + nm : '名前を登録';
+      } catch (e) { /* ignore */ }
 
       if (!user) {
         $('view').style.display = 'none';

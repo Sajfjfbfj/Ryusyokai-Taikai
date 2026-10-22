@@ -64,7 +64,7 @@
     .status.err { color: #ED0006; white-space: pre-wrap; }
 
     .name-row { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; margin-bottom: 10px; flex-wrap: wrap; }
-    .name-row input { height: 30px; border: 1px solid #E5E5E5; background: #fff; padding: 0 8px; font: inherit; font-size: 13px; font-weight: 700; width: 160px; max-width: 100%; }
+    .name-row b { font-size: 14px; font-weight: 900; }
 
     .card { background: #fff; border: 1px solid #E5E5E5; padding: 12px; margin-bottom: 8px; }
     .card.form { border: 2px solid #111; }
@@ -152,8 +152,10 @@
 
     <div id="app" class="hidden">
       <div class="name-row">
-        <span>投稿に表示する名前：</span>
-        <input type="text" id="displayName" maxlength="30" placeholder="例）鈴木" autocomplete="nickname">
+        <span>あなたの名前：</span>
+        <b id="myNameView">—</b>
+        <a class="btn sm" href="index.html#setname">変更</a>
+        <span class="hint" style="margin:0">（投稿・募集・参加にこの名前が使われます）</span>
       </div>
 
       <div class="tabs" role="tablist">
@@ -261,7 +263,7 @@
     const POSTS = 'board_posts';
     const HELPS = 'helper_calls';
     const POLLS = 'polls';
-    const NAME_KEY = 'board_display_name';
+    const NAME_KEY = 'ryusyokai_my_name';
 
     const $ = (id) => document.getElementById(id);
     let me = null;
@@ -303,17 +305,17 @@
       return '処理に失敗しました。通信状況を確認してもう一度お試しください。';
     }
     function myName() {
-      const v = $('displayName').value.trim();
-      return v;
+      let v = '';
+      try { v = (localStorage.getItem(NAME_KEY) || '').trim(); } catch (e) { /* ignore */ }
+      if (!v && me && me.displayName) v = me.displayName.trim();   // 別の端末では、アカウントに保存した名前を使う
+      return v.slice(0, 30);
     }
     function needName() {
       const n = myName();
       if (!n) {
-        alert('先に「投稿に表示する名前」を入力してください。');
-        $('displayName').focus();
+        if (confirm('先に管理表のページで「あなたの名前」を登録してください。\n今から登録しに行きますか？')) location.href = 'index.html#setname';
         return null;
       }
-      try { localStorage.setItem(NAME_KEY, n); } catch (e) { /* ignore */ }
       return n;
     }
 
@@ -375,11 +377,7 @@
     // ---------- お手伝い募集 ----------
     function isOpen(h) { return !h.closed && (h.volunteers || []).length < h.need; }
 
-    function savedName() {
-      const v = $('displayName').value.trim();
-      if (v) return v;
-      try { return localStorage.getItem(NAME_KEY) || ''; } catch (e) { return ''; }
-    }
+    function savedName() { return myName(); }
     window.setJoinDraft = (id, v) => { joinDrafts[id] = v; };
 
     function renderHelps() {
@@ -446,7 +444,6 @@
       if ((h.volunteers || []).some(v => v.uid === me.uid)) return;
       try {
         await updateDoc(doc(db, HELPS, id), { volunteers: arrayUnion({ uid: me.uid, name: name.slice(0, 30) }) });
-        try { localStorage.setItem(NAME_KEY, name.slice(0, 30)); } catch (e) { /* ignore */ }
         delete joinDrafts[id];
         setStatus('');
       } catch (e) { console.error(e); setStatus(errText(e), true); }
@@ -662,10 +659,8 @@
       $('app').classList.remove('hidden');
       setStatus('');
 
-      let saved = '';
-      try { saved = localStorage.getItem(NAME_KEY) || ''; } catch (e) { /* ignore */ }
-      if (!saved) saved = user.displayName || '';
-      $('displayName').value = saved;
+      $('myNameView').textContent = myName() || '未登録';
+      if (!myName()) setStatus('投稿・募集・参加には名前の登録が必要です。「変更」から登録してください。', true);
 
       if (location.hash === '#help') window.showTab('help');
       else if (location.hash === '#poll') window.showTab('poll');

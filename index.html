@@ -460,6 +460,26 @@
 </head>
 <body class="min-h-screen font-sans antialiased bg-[#F8F8F8]">
 
+  <!-- ================= 名前登録（全ページ共通の「自分の名前」） ================= -->
+  <div id="nameOverlay" class="no-print fixed inset-0 z-[110] bg-black/60 hidden items-center justify-center p-4">
+    <div class="w-full max-w-sm bg-white border-2 border-black p-6 shadow-2xl">
+      <div class="text-[10px] font-black text-uq-red uppercase tracking-widest mb-1">YOUR NAME</div>
+      <h2 class="text-base font-black text-uq-black mb-2">あなたの名前を入力してください</h2>
+      <p class="text-xs font-bold text-uq-muted leading-relaxed mb-3">
+        掲示板の投稿者名、お手伝い募集・参加の名前、支部内締切日の設定者として表示されます。<br>
+        ひとつ登録すれば、すべてのページで使われます。
+      </p>
+      <input type="text" id="nameInput" maxlength="30" placeholder="例）鈴木 太郎" autocomplete="name"
+             onkeydown="if(event.key==='Enter'){saveMyName()}"
+             class="w-full h-10 px-3 text-sm font-bold border border-uq-border focus:border-uq-black focus:outline-none">
+      <div id="nameError" class="text-xs font-bold text-uq-red min-h-[16px] mt-1"></div>
+      <div class="flex gap-2 justify-end mt-2">
+        <button id="nameCancel" onclick="closeNameModal()" class="hidden px-4 h-9 bg-white hover:bg-uq-gray text-uq-black border border-uq-border text-xs font-black">キャンセル</button>
+        <button onclick="saveMyName()" class="px-5 h-9 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider">登録する</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= ログイン画面（Firebase認証） ================= -->
   <div id="loginOverlay" class="no-print fixed inset-0 z-[100] bg-black/60 flex items-center justify-center p-4">
     <div class="w-full max-w-sm bg-white border-2 border-black p-8 shadow-2xl">
@@ -559,6 +579,13 @@
             <span class="w-1.5 h-1.5 bg-uq-muted"></span>
             ☁ 同期中
           </span>
+
+          <!-- 自分の名前（全ページ共通） -->
+          <button onclick="openNameModal()" id="myNameChip" title="あなたの表示名（クリックで変更）"
+                  class="hidden md:inline-flex items-center gap-1 px-2.5 h-9 bg-white hover:bg-uq-gray text-uq-black border border-uq-border text-xs font-black max-w-[160px]">
+            <i data-lucide="user" class="w-3.5 h-3.5 shrink-0"></i>
+            <span id="myNameText" class="truncate">名前を登録</span>
+          </button>
 
           <!-- ＋氏名追加 -->
           <button onclick="openAddMemberModal()"
@@ -771,6 +798,11 @@
       <div class="p-4 bg-uq-gray border-t border-uq-border">
         <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-1">LOGGED IN AS</div>
         <div id="loginUserLabel" class="text-xs font-mono font-bold text-uq-black truncate mb-3"></div>
+        <div class="text-[10px] font-black text-uq-muted uppercase tracking-widest mb-1">YOUR NAME / 表示名</div>
+        <div class="flex items-center gap-2 mb-3">
+          <div id="drawerNameLabel" class="text-sm font-black text-uq-black truncate flex-1">未登録</div>
+          <button onclick="closeSideMenu(); openNameModal();" class="shrink-0 px-2.5 h-7 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-[11px] font-black">変更</button>
+        </div>
         <button onclick="cloudLogout()"
                 class="w-full py-2 bg-white hover:bg-uq-black hover:text-white text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
           LOGOUT / ログアウト
@@ -1092,6 +1124,7 @@
             id: id,
             name: String(t.name == null ? '' : t.name).slice(0, 100),
             deadline: String(t.deadline == null ? '' : t.deadline).slice(0, 40),
+            deadlineBy: String(t.deadlineBy == null ? '' : t.deadlineBy).slice(0, 30),
             date: String(t.date == null ? '' : t.date).slice(0, 40),
             isCanceled: t.isCanceled === true,
             fee: (isFinite(fee) && fee >= 0) ? Math.min(Math.round(fee), 10000000) : 0
@@ -1630,6 +1663,7 @@
                      class="th-inline-input w-20 text-center text-xs font-bold text-white placeholder:text-uq-muted py-1 ${t.isCanceled ? 'line-through' : ''}"
                      title="支部内締切日をクリックして直接入力 (例: 6/10)">
             </div>
+            ${(t.deadline && t.deadlineBy) ? `<div class="no-print text-[9px] font-bold text-white/60 text-center truncate max-w-[100px] mx-auto leading-tight" title="設定者：${escapeHtml(t.deadlineBy)}">${escapeHtml(t.deadlineBy)}</div>` : ''}
           </th>
         `).join('')}
         <th class="col-unpaid-total py-1.5 px-2 text-[11px] font-bold text-white border-r border-uq-charcoal text-center w-[90px] min-w-[90px]">未払集計</th>
@@ -1892,6 +1926,7 @@
           tournament.fee = (isFinite(n) && n >= 0) ? Math.min(n, 10000000) : 0;
         } else {
           tournament[field] = String(value).trim();
+          if (field === 'deadline') tournament.deadlineBy = tournament.deadline ? getMyName() : '';
         }
         saveStore();
         renderTable();
@@ -1998,7 +2033,9 @@
         const t = tournamentDraft[idx];
         if (!t) return;
         t.name = row.querySelector('.t-edit-name').value.trim() || `大会 ${idx + 1}`;
-        t.deadline = row.querySelector('.t-edit-deadline').value.trim();
+        const newDeadline = row.querySelector('.t-edit-deadline').value.trim();
+        if (newDeadline !== (t.deadline || '')) t.deadlineBy = newDeadline ? getMyName() : '';
+        t.deadline = newDeadline;
         t.date = row.querySelector('.t-edit-date').value.trim();
         t.isCanceled = row.querySelector('.t-edit-canceled').checked;
         t.fee = parseInt(row.querySelector('.t-edit-fee').value, 10) || 0;
@@ -2235,6 +2272,52 @@
       }
     }
 
+    // --- 自分の名前（全ページ共通：localStorage ＋ Firebaseアカウントの表示名） ---
+    const MYNAME_KEY = 'ryusyokai_my_name';
+    function getMyName() {
+      try { return (localStorage.getItem(MYNAME_KEY) || '').trim(); } catch (e) { return ''; }
+    }
+    function refreshMyNameUI() {
+      const n = getMyName();
+      const t = document.getElementById('myNameText');
+      if (t) t.textContent = n || '名前を登録';
+      const d = document.getElementById('drawerNameLabel');
+      if (d) d.textContent = n || '未登録';
+    }
+    function openNameModal(prefill, forced) {
+      const ov = document.getElementById('nameOverlay');
+      if (!ov) return;
+      const cur = getMyName();
+      document.getElementById('nameInput').value = cur || prefill || '';
+      document.getElementById('nameError').textContent = '';
+      document.getElementById('nameCancel').classList.toggle('hidden', !cur || forced === true);
+      ov.classList.remove('hidden'); ov.classList.add('flex');
+      setTimeout(() => { const i = document.getElementById('nameInput'); i.focus(); i.select(); }, 30);
+    }
+    function closeNameModal() {
+      const ov = document.getElementById('nameOverlay');
+      if (!getMyName()) return;
+      ov.classList.add('hidden'); ov.classList.remove('flex');
+    }
+    function saveMyName() {
+      const v = document.getElementById('nameInput').value.trim().slice(0, 30);
+      if (!v) { document.getElementById('nameError').textContent = '名前を入力してください。'; return; }
+      try { localStorage.setItem(MYNAME_KEY, v); } catch (e) { /* ignore */ }
+      if (window.__syncNameToAuth) window.__syncNameToAuth(v);
+      const ov = document.getElementById('nameOverlay');
+      ov.classList.add('hidden'); ov.classList.remove('flex');
+      refreshMyNameUI();
+      if (typeof renderTable === 'function' && window.__appStarted) renderTable();
+    }
+    // ログイン後に呼ぶ：名前が未登録なら入力を求める（Googleログインの表示名は候補として入れる）
+    window.ensureMyName = (user) => {
+      refreshMyNameUI();
+      const wantChange = location.hash === '#setname';
+      if (!getMyName()) openNameModal((user && user.displayName) || '', true);
+      else if (wantChange) openNameModal();
+      try { if (wantChange) history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
+    };
+
     function escapeHtml(str) {
       if (!str) return '';
       return String(str)
@@ -2267,7 +2350,7 @@
   <!-- ================= Firebase（認証＋Firestoreリアルタイム同期） ================= -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut }
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, updateProfile }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot, serverTimestamp }
       from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -2286,6 +2369,11 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const dataRef = doc(db, 'apps', 'kyudoTournament');
+
+    // 名前をFirebaseアカウントの表示名にも保存（別の端末でログインしたとき候補として出る）
+    window.__syncNameToAuth = (name) => {
+      try { if (auth.currentUser) updateProfile(auth.currentUser, { displayName: name }).catch(() => {}); } catch (e) { /* ignore */ }
+    };
 
     let unsubscribe = null;
     let lastJson = null;
@@ -2498,7 +2586,8 @@
         }
       }
 
-      if (!started) { started = true; startApp(); } else { refreshUI(); }
+      if (!started) { started = true; window.__appStarted = true; startApp(); } else { refreshUI(); }
+      window.ensureMyName(user);
 
       if (ok) {
         unsubscribe = onSnapshot(dataRef, (snap) => {
