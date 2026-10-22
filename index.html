@@ -51,13 +51,18 @@
     :root {
       color-scheme: light;
     }
-    body {
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+      margin: 0;
+      padding: 0;
       font-feature-settings: "palt", "tnum";
       letter-spacing: -0.01em;
       background-color: #F8F8F8;
       color: #111111;
-      margin: 0;
-      padding: 0;
     }
 
     .tnum {
@@ -130,14 +135,17 @@
 
     /* セル内ステータスバッジの均一サイズ（48px × 24px） */
     .status-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       width: 48px;
       height: 24px;
       font-size: 11px;
       font-weight: 900;
       letter-spacing: 0.02em;
+      white-space: nowrap !important;
+      line-height: 1 !important;
+      padding: 0 !important;
       transition: all 0.1s ease;
       user-select: none;
       box-sizing: border-box;
@@ -390,6 +398,66 @@
         margin-top: 8px !important;
         font-size: 7.5pt !important;
       }
+    }
+    /* ========================================================
+       スマホ（モバイル画面幅 640px 以下）専用最適化
+       ======================================================== */
+    @media (max-width: 640px) {
+      /* 固定列（No.列 / 氏名列）をスリム化し、大会列の表示領域を大幅拡大 */
+      .sticky-col-no {
+        width: 30px !important;
+        min-width: 30px !important;
+        max-width: 30px !important;
+        font-size: 10px !important;
+        padding: 4px 1px !important;
+      }
+      .sticky-col-name {
+        left: 30px !important;
+        width: 108px !important;
+        min-width: 108px !important;
+        max-width: 108px !important;
+        padding-left: 6px !important;
+        padding-right: 4px !important;
+      }
+      .sticky-col-name input {
+        font-size: 12px !important;
+        padding: 0 !important;
+      }
+      /* 大会列の最小幅（スマホで2〜3大会分が常時視野に入る） */
+      #mainTable th:not(.sticky-col-no):not(.sticky-col-name):not(.col-unpaid-total):not(:last-child),
+      #mainTable td:not(.sticky-col-no):not(.sticky-col-name):not(.col-unpaid-total):not(:last-child) {
+        min-width: 82px !important;
+        width: 82px !important;
+      }
+      /* ステータスバッジのスマホサイズ（絶対に改行させない） */
+      .status-badge {
+        width: 38px !important;
+        height: 22px !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
+        line-height: 1 !important;
+        padding: 0 !important;
+      }
+      /* 未払計列 */
+      .col-unpaid-total {
+        width: 68px !important;
+        min-width: 68px !important;
+        padding-left: 2px !important;
+        padding-right: 2px !important;
+      }
+      /* 凡例タグを横スクロール対応 */
+      .mobile-legend {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+      /* サマリーカードのサイズ */
+      #tournamentStatsSummary > div {
+        width: 135px !important;
+        min-width: 135px !important;
+        height: 82px !important;
+        padding: 6px 8px !important;
+      }
     }  </style>
 </head>
 <body class="min-h-screen font-sans antialiased bg-[#F8F8F8]">
@@ -463,91 +531,92 @@
   </div>
 
   <!-- ================= メインアプリケーション ================= -->
-  <div class="max-w-[1720px] mx-auto px-3 sm:px-6 py-4 print-container">
+  <div class="max-w-[1720px] w-full mx-auto px-2 sm:px-6 py-3 sm:py-4 print-container overflow-x-hidden">
 
     <!-- UNIQLO風 操作・設定ヘッダー（印刷非表示） -->
-    <header class="no-print bg-white border border-uq-border p-3 sm:px-4 sm:py-3 mb-3 shadow-xs">
-      <!-- 1段目：ブランド ＆ アプリタイトル ＆ 右上メニューボタングループ -->
-      <div class="flex items-center justify-between gap-3">
-        <!-- 左側：UNIQLOロゴ ＆ タイトル ＆ 現在の年度バッジ -->
-        <div class="flex items-center gap-2.5">
-          <!-- 赤のスクエアロゴ -->
-          <div class="w-9 h-9 sm:w-10 sm:h-10 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[9px] sm:text-[10px] tracking-tighter shrink-0 select-none shadow-xs">
+    <header class="no-print w-full max-w-full min-w-0 box-border overflow-hidden bg-white border border-uq-border p-2.5 sm:px-4 sm:py-3 mb-2.5 shadow-xs">
+      <!-- 1段目：ブランド ＆ アプリタイトル ＆ 右上メニューボタングループ（スマホで絶対に溢れない設計） -->
+      <div class="flex items-center justify-between gap-1.5 sm:gap-2 min-w-0">
+        <!-- 左側：UNIQLOロゴ ＆ 年度バッジ ＆ タイトル -->
+        <div class="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1">
+          <div class="w-8 h-8 sm:w-10 sm:h-10 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[8px] sm:text-[10px] tracking-tighter shrink-0 select-none shadow-xs">
             <span>龍弓</span>
             <span>会道</span>
           </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <span id="headerCurrentYearBadge" class="text-[10px] font-black text-white bg-uq-black px-2 py-0.5 tracking-wider uppercase">令和8年度</span>
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-1.5">
+              <span id="headerCurrentYearBadge" class="text-[9px] sm:text-[10px] font-black text-white bg-uq-black px-1.5 py-0.2 tracking-wider uppercase shrink-0">令和8年度</span>
+              <span class="text-[9px] font-black uppercase tracking-widest text-uq-red hidden sm:inline">KYUDO PORTAL</span>
+            </div>
             <input type="text" id="appTitle" value="大会参加・参加費管理表"
-                   class="text-base sm:text-lg font-black text-uq-black bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-1 tracking-tight"
+                   class="w-full min-w-0 sm:w-auto text-xs sm:text-lg font-black text-uq-black bg-transparent border-b border-transparent hover:border-black focus:border-uq-red focus:bg-white focus:outline-none px-0.5 tracking-tight truncate"
                    title="クリックして表タイトルを変更可能">
           </div>
         </div>
 
-        <!-- 右側：クラウド同期 ＆ ＋氏名追加 ＆ MENUボタン（高さ36px h-9 でピシッと統一） -->
-        <div class="flex items-center gap-2 shrink-0">
-          <!-- 同期ステータス -->
-          <span id="syncStatus" class="hidden md:inline-flex font-black px-2.5 h-9 border border-uq-border text-uq-muted bg-white items-center gap-1.5 uppercase tracking-wider text-[10px]">
+        <!-- 右側：＋氏名追加 ＆ MENUボタン（スマホで完全に表示！） -->
+        <div class="flex items-center gap-1 sm:gap-1.5 shrink-0 ml-auto">
+          <!-- 同期ステータス（大画面のみ） -->
+          <span id="syncStatus" class="hidden md:inline-flex font-black px-2.5 h-8 border border-uq-border text-uq-muted bg-white items-center gap-1.5 uppercase tracking-wider text-[10px]">
             <span class="w-1.5 h-1.5 bg-uq-muted"></span>
             ☁ 同期中
           </span>
 
-          <!-- ＋氏名追加（赤のスクエアボタン、高さ36px） -->
+          <!-- ＋氏名追加 -->
           <button onclick="openAddMemberModal()"
-                  class="flex items-center gap-1.5 px-3.5 h-9 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase transition shadow-xs">
+                  class="flex items-center gap-1 px-1.5 sm:px-3.5 h-7 sm:h-9 bg-uq-red hover:bg-uq-darkred text-white text-[11px] sm:text-xs font-black tracking-wider uppercase transition shadow-xs">
             <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
-            <span class="hidden sm:inline">＋ 氏名追加</span>
-            <span class="sm:hidden">＋氏名</span>
+            <span>＋氏名</span>
           </button>
 
-          <!-- MENUボタン（黒のスクエアボタン、高さ36px） -->
+          <!-- MENUボタン（画面右端にピシッと表示！） -->
           <button onclick="openSideMenu()" id="hamburgerBtn"
-                  class="flex items-center gap-1.5 px-3.5 h-9 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black tracking-widest uppercase transition"
-                  title="メニューを開く（年度切替・大会編集・印刷・CSV・バックアップなど）">
-            <i data-lucide="menu" class="w-4 h-4"></i>
+                  class="flex items-center gap-1 px-2 sm:px-3.5 h-7 sm:h-9 bg-uq-black hover:bg-uq-charcoal text-white text-[11px] sm:text-xs font-black tracking-widest uppercase transition">
+            <i data-lucide="menu" class="w-3.5 h-3.5"></i>
             <span>MENU</span>
           </button>
         </div>
       </div>
 
-      <!-- 2段目：コントロールバー（検索・フィルター・参考例・凡例を高さ34pxで幾何学的に揃える） -->
-      <div class="mt-3 pt-2.5 border-t border-uq-border flex flex-wrap items-center justify-between gap-2 text-xs">
-        <!-- 検索とフィルター -->
-        <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
+      <!-- 2段目：コントロールバー（検索・フィルター・凡例） -->
+      <div class="mt-2 pt-2 border-t border-uq-border space-y-1.5">
+        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5">
           <!-- 氏名検索 -->
-          <div class="relative flex-1 max-w-xs">
+          <div class="relative flex-1 min-w-0">
             <i data-lucide="search" class="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-uq-muted"></i>
             <input type="text" id="searchInput" oninput="filterTable()" placeholder="氏名を検索..."
-                   class="w-full pl-8 pr-3 h-[34px] text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold">
+                   class="w-full pl-8 pr-3 h-[30px] sm:h-[34px] text-xs bg-white border border-uq-border focus:border-uq-black focus:outline-none font-bold">
           </div>
 
-          <!-- 絞り込みフィルター -->
-          <select id="filterSelect" onchange="filterTable()"
-                  class="h-[34px] bg-white border border-uq-border px-3 font-bold text-uq-black focus:outline-none focus:border-uq-black cursor-pointer">
-            <option value="all">全員表示 (ALL)</option>
-            <option value="has_unpaid">⚠️ 未払いがある人のみ</option>
-            <option value="attending_any">いずれかに参加予定の人</option>
-          </select>
+          <div class="flex items-center gap-1.5 min-w-0">
+            <!-- 絞り込みフィルター -->
+            <select id="filterSelect" onchange="filterTable()"
+                    class="flex-1 min-w-0 sm:flex-initial h-[30px] sm:h-[34px] bg-white border border-uq-border px-2 sm:px-3 text-xs font-bold text-uq-black focus:outline-none focus:border-uq-black cursor-pointer">
+              <option value="all">全員表示 (ALL)</option>
+              <option value="has_unpaid">⚠️ 未払い者のみ</option>
+              <option value="attending_any">参加予定者</option>
+            </select>
 
-          <!-- 参考例表示切り替え -->
-          <label class="flex items-center gap-1.5 h-[34px] text-xs text-uq-black bg-uq-gray hover:bg-white px-3 border border-uq-border cursor-pointer select-none transition">
-            <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
-                   class="accent-uq-red cursor-pointer">
-            <span class="font-bold">参考例（1名）を表示</span>
-          </label>
+            <!-- 参考例表示切り替え -->
+            <label class="flex items-center gap-1 h-[30px] sm:h-[34px] text-[11px] sm:text-xs text-uq-black bg-uq-gray hover:bg-white px-2 sm:px-3 border border-uq-border cursor-pointer select-none transition shrink-0">
+              <input type="checkbox" id="showExamplesToggle" checked onchange="toggleExamples(this.checked)"
+                     class="accent-uq-red cursor-pointer">
+              <span class="font-bold">参考例</span>
+            </label>
+          </div>
         </div>
 
-        <!-- 凡例（高さ34pxで揃えた端正なタグインジケーター） -->
-        <div class="flex items-center gap-1.5 h-[34px] px-3 bg-white border border-uq-border text-[10px] text-uq-black shrink-0">
-          <span class="font-black text-uq-muted uppercase tracking-wider mr-1">STATUS:</span>
-          <span class="inline-flex items-center justify-center font-black text-white bg-uq-black px-1.5 h-5 leading-none">○済</span>
-          <span class="text-uq-muted text-[10px]">支払済</span>
-          <span class="inline-flex items-center justify-center font-black text-white bg-uq-red px-1.5 h-5 leading-none ml-1">○</span>
-          <span class="text-uq-muted text-[10px]">未払い</span>
-          <span class="inline-flex items-center justify-center font-bold text-uq-muted bg-uq-gray px-1.5 h-5 leading-none border border-uq-border ml-1">×</span>
-          <span class="text-uq-muted text-[10px]">不参加</span>
-          <span class="inline-flex items-center justify-center text-uq-muted px-1.5 h-5 leading-none border border-uq-border ml-1">ー</span>
-          <span class="inline-flex items-center justify-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 h-5 leading-none ml-1">中止</span>
+        <!-- 凡例（スマホ横スクロール対応） -->
+        <div class="mobile-legend flex items-center gap-1.5 p-1 bg-white border border-uq-border text-[10px] text-uq-black overflow-x-auto">
+          <span class="font-black text-uq-muted uppercase tracking-wider mr-0.5 shrink-0">STATUS:</span>
+          <span class="inline-flex items-center justify-center font-black text-white bg-uq-black px-1.5 h-4 leading-none shrink-0">○済</span>
+          <span class="text-uq-muted text-[9px] shrink-0">支払済</span>
+          <span class="inline-flex items-center justify-center font-black text-white bg-uq-red px-1.5 h-4 leading-none shrink-0 ml-1">○</span>
+          <span class="text-uq-muted text-[9px] shrink-0">未払い</span>
+          <span class="inline-flex items-center justify-center font-bold text-uq-muted bg-uq-gray px-1.5 h-4 leading-none border border-uq-border shrink-0 ml-1">×</span>
+          <span class="text-uq-muted text-[9px] shrink-0">不参加</span>
+          <span class="inline-flex items-center justify-center text-uq-muted px-1.5 h-4 leading-none border border-uq-border shrink-0 ml-1">ー</span>
+          <span class="inline-flex items-center justify-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 h-4 leading-none shrink-0 ml-1">中止</span>
         </div>
       </div>
     </header>    <!-- ================= UNIQLO風 サイドドロワーメニュー（ハンバーガー展開時） ================= -->
@@ -555,7 +624,7 @@
          class="no-print fixed inset-0 bg-black/60 z-[60] hidden opacity-0 transition-opacity duration-200"></div>
 
     <aside id="sideMenuDrawer"
-           class="no-print fixed top-0 right-0 bottom-0 w-80 sm:w-96 bg-white z-[70] shadow-2xl border-l-2 border-black transform translate-x-full transition-transform duration-200 flex flex-col justify-between overflow-y-auto">
+           class="no-print fixed top-0 right-0 bottom-0 w-[85vw] max-w-[320px] sm:w-96 bg-white z-[70] shadow-2xl border-l-2 border-black transform translate-x-full transition-transform duration-200 flex flex-col justify-between overflow-y-auto">
       <div>
         <!-- ドロワーヘッダー -->
         <div class="p-4 bg-uq-black text-white flex items-center justify-between border-b-2 border-black">
@@ -700,11 +769,11 @@
     </div>
 
     <!-- ================= 統合統計サマリーウィジェット（UNIQLO風） ================= -->
-    <div class="no-print mb-4 bg-white border border-uq-border overflow-hidden" id="summaryWidget">
+    <div class="no-print mb-3 bg-white border border-uq-border overflow-hidden w-full max-w-full" id="summaryWidget">
       <!-- 1. 全体重要KPIバー（プライスタグ風のボールドレイアウト） -->
       <div class="p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-uq-border bg-white">
         <!-- 左側：全体KPI -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3 text-xs" id="overallKpiBar">
+        <div class="flex flex-wrap items-center gap-1.5 sm:gap-3 text-xs w-full sm:w-auto" id="overallKpiBar">
           <!-- JSで動的生成 -->
         </div>
 
@@ -736,8 +805,8 @@
     </div>
 
     <!-- ================= メインテーブルパネル ================= -->
-    <div class="bg-white border-2 border-black overflow-hidden shadow-sm">
-      <div class="table-scroll overflow-x-auto">
+    <div class="bg-white border-2 border-black overflow-hidden shadow-sm w-full max-w-full">
+      <div class="table-scroll overflow-x-auto w-full max-w-full" style="-webkit-overflow-scrolling: touch;">
         <table class="w-full border-collapse text-sm text-center" id="mainTable">
           <thead>
             <!-- 1行目：支部内締切日行（ピュアブラック） -->
@@ -1549,40 +1618,40 @@
         }
       });
 
-      // 全体KPIバー（高さ32pxで綺麗に揃える）
+      // 全体KPIバー（スマホではコンパクトなグリッド、PCでは横並び）
       kpiBar.innerHTML = `
-        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px] font-black">MEMBERS</span>
-          <span class="font-black text-uq-black tnum text-sm">${memberCount}</span>名
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2 sm:px-2.5 h-7 sm:h-8 border border-uq-border text-[11px] sm:text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[9px] sm:text-[10px] font-black">登録</span>
+          <span class="font-black text-uq-black tnum">${memberCount}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px] font-black">ENTRIES</span>
-          <span class="font-black text-uq-black tnum text-sm">${totalAttendingOverall}</span>名
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2 sm:px-2.5 h-7 sm:h-8 border border-uq-border text-[11px] sm:text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[9px] sm:text-[10px] font-black">延べ参加</span>
+          <span class="font-black text-uq-black tnum">${totalAttendingOverall}</span>名
         </div>
 
-        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2.5 h-8 border border-uq-border text-xs uppercase tracking-wider">
-          <span class="text-uq-muted text-[10px] font-black">EVENTS</span>
-          <span class="font-black text-uq-black tnum text-sm">${current.tournaments.length}</span>件
-          ${canceledCount > 0 ? `<span class="text-[10px] text-uq-red font-bold">(中止${canceledCount})</span>` : ''}
+        <div class="flex items-center gap-1.5 font-bold text-uq-black bg-white px-2 sm:px-2.5 h-7 sm:h-8 border border-uq-border text-[11px] sm:text-xs uppercase tracking-wider">
+          <span class="text-uq-muted text-[9px] sm:text-[10px] font-black">大会</span>
+          <span class="font-black text-uq-black tnum">${current.tournaments.length}</span>件
+          ${canceledCount > 0 ? `<span class="text-[9px] text-uq-red font-bold">(中止${canceledCount})</span>` : ''}
         </div>
 
         ${totalUnpaidCountOverall > 0 ? `
-          <div class="flex items-center gap-2 font-black text-white bg-uq-red px-3 h-8 text-xs uppercase tracking-wider shadow-xs">
-            <span>未払総額:</span>
-            <span class="font-black text-white tnum text-sm">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
-            <span class="text-[10px] bg-black/25 px-1 py-0.2 font-mono">${totalUnpaidCountOverall}件</span>
+          <div class="flex items-center gap-1.5 font-black text-white bg-uq-red px-2 sm:px-3 h-7 sm:h-8 text-[11px] sm:text-xs uppercase tracking-wider shadow-xs">
+            <span>未払:</span>
+            <span class="font-black text-white tnum">¥${totalUnpaidAmountOverall.toLocaleString()}</span>
+            <span class="text-[9px] bg-black/25 px-1 py-0.2 font-mono">${totalUnpaidCountOverall}件</span>
           </div>
         ` : `
-          <div class="flex items-center gap-1.5 font-black text-white bg-uq-black px-3 h-8 text-xs uppercase tracking-wider">
-            <span>ALL PAID / 全員集金完了 ✨</span>
+          <div class="flex items-center gap-1 font-black text-white bg-uq-black px-2 sm:px-3 h-7 sm:h-8 text-[11px] sm:text-xs uppercase tracking-wider">
+            <span>全額集金完了 ✨</span>
           </div>
         `}
 
         ${totalRefundCountOverall > 0 ? `
-          <div class="flex items-center gap-1.5 font-black text-uq-red bg-red-50 border border-uq-red px-2.5 h-8 text-xs uppercase tracking-wider">
-            <span>返金要:</span>
-            <span class="font-black text-uq-red tnum text-sm">${totalRefundCountOverall}</span>名
+          <div class="flex items-center gap-1 font-black text-uq-red bg-red-50 border border-uq-red px-2 h-7 sm:h-8 text-[11px] sm:text-xs uppercase tracking-wider">
+            <span>返金:</span>
+            <span class="font-black text-uq-red tnum">${totalRefundCountOverall}</span>名
           </div>
         ` : ''}
       `;
@@ -1750,7 +1819,7 @@
             <td class="sticky-col-no py-2 px-1 text-uq-muted font-mono text-xs text-center border-r border-uq-border font-black bg-uq-gray">例</td>
             <td class="sticky-col-name py-2 px-3 text-left font-black text-uq-black border-r border-uq-border bg-uq-gray">
               <div class="flex items-center gap-1.5">
-                <span class="inline-block px-1.5 py-0.2 bg-uq-black text-white text-[9px] font-black tracking-wider uppercase leading-none">見本</span>
+                <span class="inline-block px-1 py-0.5 bg-uq-black text-white text-[8px] font-black tracking-wider uppercase leading-tight shrink-0">例示</span>
                 <span class="truncate">${escapeHtml(exMember.name)}</span>
               </div>
             </td>
