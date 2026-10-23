@@ -1853,6 +1853,57 @@
       renderStatsSummary();
       lucide.createIcons();
     }
+    // 表の最下段：大会ごとの合計（参考例は集計から除外）
+    function renderTableFooter() {
+      const current = getCurrentData();
+      const tfoot = document.getElementById('tableFoot');
+      if (!tfoot) return;
+      let totalUnpaidOverall = 0;
+
+      const colsHtml = current.tournaments.map(t => {
+        let paid = 0;
+        let attending = 0;
+        current.members.forEach(m => {
+          const st = m.records && m.records[t.id];
+          if (st === 'paid') paid++;
+          else if (st === 'attending') attending++;
+        });
+
+        if (t.isCanceled) {
+          return `
+            <td class="py-2 px-1 text-center text-xs border-r border-uq-border bg-red-50">
+              <span class="text-uq-red font-black block text-[11px]">中止</span>
+              ${paid > 0 ? `<span class="text-[10px] text-uq-red font-black">返金要: ${paid}名</span>` : '<span class="text-[10px] text-uq-muted">集金なし</span>'}
+            </td>
+          `;
+        }
+
+        totalUnpaidOverall += attending * (t.fee || 0);
+        return `
+          <td class="py-2.5 px-1 text-center text-xs border-r border-uq-border">
+            <div class="font-black text-uq-black">計 ${paid + attending}名</div>
+            <div class="text-[10px] mt-0.5">
+              <div class="text-emerald-700 font-bold">済: ${paid}</div>
+              <div class="text-uq-red font-bold">未払: ${attending}</div>
+            </div>
+          </td>
+        `;
+      }).join('');
+
+      tfoot.innerHTML = `
+        <tr class="print-header-bg">
+          <td colspan="2" class="py-3 px-3 text-left font-black text-uq-black border-r border-uq-border text-xs md:text-sm">
+            ${escapeHtml(appStore.currentYear)} 集計（実登録: ${current.members.length}名）
+          </td>
+          ${colsHtml}
+          <td class="py-3 px-2 text-center text-xs font-black ${totalUnpaidOverall > 0 ? 'text-uq-red' : 'text-uq-black'} border-r border-uq-border">
+            ${totalUnpaidOverall > 0 ? '¥' + totalUnpaidOverall.toLocaleString() : '全受領'}
+          </td>
+          <td class="no-print"></td>
+        </tr>
+      `;
+    }
+
     // --- 大会追加・削除 ---
     const MAX_TOURNAMENTS = 50;
 
