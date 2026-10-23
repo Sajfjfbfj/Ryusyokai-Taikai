@@ -85,7 +85,7 @@ export async function togglePush() {
       }
       await saveToken(await getMyToken());
       setFlag(true);
-      alert('通知をオンにしました。新しい投稿・募集・アンケート・大会の中止・締切が近いときにお知らせします。');
+      alert('通知をオンにしました。掲示板・お手伝い募集・アンケート・参加表の更新・大会の中止や締切をお知らせします。');
     }
   } catch (e) {
     console.error('togglePush failed', e);

@@ -14,7 +14,8 @@ const BAD_TOKEN = ['messaging/registration-token-not-registered', 'messaging/inv
 // 登録済みの全端末へ通知を送る。
 //  key      : 同じ出来事を二重に通知しないための印（省略可）
 //  excludeUid: 操作した本人には送らない
-async function sendAll({ title, body, link, key, excludeUid }) {
+//  onlyUids : 指定した人だけに送る（省略すると全員）
+async function sendAll({ title, body, link, key, excludeUid, onlyUids }) {
   init();
   const fs = admin.firestore();
 
@@ -28,7 +29,11 @@ async function sendAll({ title, body, link, key, excludeUid }) {
   }
 
   const snap = await fs.collection('push_tokens').get();
-  const docs = snap.docs.filter(d => d.data().uid !== excludeUid);
+  const docs = snap.docs.filter(d => {
+    const u = d.data().uid;
+    if (u === excludeUid) return false;
+    return !onlyUids || onlyUids.includes(u);
+  });
   const tokens = docs.map(d => d.id);
   let sent = 0;
   for (let i = 0; i < tokens.length; i += 500) {
@@ -66,4 +71,6 @@ function latestYear(years) {
   return best ? { name: best, data: years[best] } : null;
 }
 
-module.exports = { init, admin, sendAll, parseMD, latestYear };
+const normName = (n) => String(n || '').normalize('NFKC').replace(/\s+/g, '');
+
+module.exports = { init, admin, sendAll, parseMD, latestYear, normName };

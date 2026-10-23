@@ -656,6 +656,7 @@
       if (h.closed || isExpired(h)) { alert('この募集は締め切られています。'); return; }
       try {
         await updateDoc(doc(db, HELPS, id), { volunteers: arrayUnion({ uid: me.uid, name: name.slice(0, 30) }) });
+        window.notifyEvent({ type: 'helpjoin', id });
         delete joinDrafts[id];
         setStatus('');
       } catch (e) { console.error(e); setStatus(errText(e), true); }
@@ -809,6 +810,7 @@
       sel.forEach(i => { upd['counts.c' + i] = increment(1); });
       try {
         await updateDoc(doc(db, POLLS, id), upd);
+        window.notifyEvent({ type: 'pollvote', id });
         delete pollSel[id]; delete peek[id];
         setStatus('');
       } catch (e) { console.error(e); setStatus(errText(e), true); }

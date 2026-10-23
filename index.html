@@ -1216,9 +1216,76 @@
       }
     }
 
+    // --- 参加表の変更を検出して、他の人へ通知する ---
+    // 変更前後の「要点」を比べ、新年度・大会の追加/変更/中止/再開・参加者の登録・集金の確認を見つける。
+    // 他の人の変更を取り込んだときは基準を取り直すので、自分の操作ぶんだけが通知される。
+    let notifyBase = null, notifyTimer = null;
+
+    function sheetFacts() {
+      const out = {};
+      Object.keys(appStore.years || {}).forEach(yn => {
+        const y = appStore.years[yn] || {};
+        const t = {}, m = {};
+        (y.tournaments || []).forEach(x => {
+          t[x.id] = { name: x.name || '', date: x.date || '', deadline: x.deadline || '', fee: x.fee || 0, c: x.isCanceled ? 1 : 0 };
+        });
+        (y.members || []).forEach(x => {
+          if (!x || x.isExample || isExampleName(x.name)) return;
+          m[x.id] = Object.keys(x.records || {}).filter(tid => x.records[tid] === 'paid');
+        });
+        out[yn] = { t, m };
+      });
+      return out;
+    }
+
+    function diffFacts(a, b) {
+      const ev = [];
+      const added = Object.keys(b).filter(k => !(k in a));
+      const removed = Object.keys(a).filter(k => !(k in b));
+      if (added.length && !removed.length) added.forEach(year => ev.push({ k: 'year', year }));   // 年度名の変更は通知しない
+      Object.keys(b).forEach(year => {
+        if (!(year in a)) return;                                                                 // 新年度の中身は通知しない
+        const A = a[year], B = b[year];
+        Object.keys(B.t).forEach(id => {
+          const n = B.t[id], o = A.t[id];
+          if (!o) { ev.push({ k: 'tAdded', year, id }); return; }
+          if (!o.c && n.c) ev.push({ k: 'canceled', year, id });
+          else if (o.c && !n.c) ev.push({ k: 'resumed', year, id });
+          if (!n.c && (o.name !== n.name || o.date !== n.date || o.deadline !== n.deadline || o.fee !== n.fee)) ev.push({ k: 'tChanged', year, id });
+        });
+        Object.keys(B.m).forEach(id => {
+          const o = A.m[id];
+          if (!o) { ev.push({ k: 'member', year, id }); return; }
+          B.m[id].forEach(tid => { if (!o.includes(tid)) ev.push({ k: 'paid', year, id, tid }); });
+        });
+      });
+      return ev;
+    }
+
+    function fireSheetNotify() {
+      notifyTimer = null;
+      let now;
+      try { now = sheetFacts(); } catch (e) { return; }
+      if (!notifyBase) { notifyBase = now; return; }
+      const ev = diffFacts(notifyBase, now);
+      notifyBase = now;
+      // 一括取り込みなどで変更が多すぎるときは通知しない
+      if (ev.length && ev.length <= 20 && window.notifyEvent) window.notifyEvent({ type: 'sheet', events: ev }, 2500);
+    }
+
+    function scheduleSheetNotify() {
+      if (notifyTimer) clearTimeout(notifyTimer);
+      notifyTimer = setTimeout(fireSheetNotify, 4000);
+    }
+
+    function flushSheetNotify() {
+      if (notifyTimer) { clearTimeout(notifyTimer); fireSheetNotify(); }
+    }
+
     function saveStore() {
       saveLocal();
       if (window.cloudSave) window.cloudSave();
+      scheduleSheetNotify();
     }
 
     function getYearsForCloud() {
@@ -1226,10 +1293,12 @@
     }
 
     function setStoreFromCloud(years) {
+      flushSheetNotify();   // 取り込む前に、自分の未通知の変更ぶんを確定させる
       appStore.years = years || {};
       normalizeStore();
       cleanDuplicateExamples();
       saveLocal();
+      try { notifyBase = sheetFacts(); } catch (e) { notifyBase = null; }
     }
 
     function backupLocalOnce() {
@@ -1383,7 +1452,6 @@
       if (t) {
         t.isCanceled = !t.isCanceled;
         saveStore();
-        if (t.isCanceled && window.notifyEvent) window.notifyEvent({ type: 'cancel', year: appStore.currentYear, ids: [t.id] }, 3000);
         renderTable();
         renderStatsSummary();
       }
@@ -2139,11 +2207,8 @@
     function saveTournamentSettings() {
       syncDraftFromDom();
       const current = getCurrentData();
-      const wasCanceled = new Set(current.tournaments.filter(t => t.isCanceled).map(t => t.id));
-      const newlyCanceled = tournamentDraft.filter(t => t.isCanceled && !wasCanceled.has(t.id)).map(t => t.id);
       current.tournaments = tournamentDraft;
       saveStore();
-      if (newlyCanceled.length && window.notifyEvent) window.notifyEvent({ type: 'cancel', year: appStore.currentYear, ids: newlyCanceled }, 3000);
       closeTournamentSettingsModal();
       renderTable();
     }
