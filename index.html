@@ -459,9 +459,19 @@
         white-space: nowrap;
         -webkit-overflow-scrolling: touch;
       }
-    }  </style>
+    }
+    /* 一般メンバー（管理者でないアカウント）には管理用の操作を表示しない */
+    body.role-member [onclick^="openNewYearModal"],
+    body.role-member [onclick^="openYearManageModal"],
+    body.role-member [onclick^="openTournamentSettingsModal"],
+    body.role-member [onclick^="addTournamentQuick"],
+    body.role-member [onclick^="toggleTournamentCanceled"],
+    body.role-member [onclick^="deleteTournament"],
+    body.role-member [onclick^="deleteMember"],
+    body.role-member label:has(#jsonFileInput) { display: none !important; }
+  </style>
 </head>
-<body class="min-h-screen font-sans antialiased bg-[#F8F8F8]">
+<body class="min-h-screen font-sans antialiased bg-[#F8F8F8] role-member">
 
   <!-- ================= 名前登録（全ページ共通の「自分の名前」） ================= -->
   <div id="nameOverlay" class="no-print fixed inset-0 z-[110] bg-black/60 hidden items-center justify-center p-4">
@@ -1128,7 +1138,10 @@
               if (nk && VALID_STATUS.includes(st)) records[nk] = st;
             });
           }
-          return { id: id, name: String(m.name == null ? '' : m.name).slice(0, 100), records: records };
+          const out = { id: id, name: String(m.name == null ? '' : m.name).slice(0, 100), records: records };
+          // 本人と名簿の行を結びつける uid（サーバーが付与）。消さずに残す
+          if (typeof m.uid === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(m.uid)) out.uid = m.uid;
+          return out;
         });
 
         out[key] = {
@@ -1442,6 +1455,7 @@
     }
 
     function toggleTournamentCanceled(tournamentId) {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       const t = current.tournaments.find(item => item.id === tournamentId);
       if (t) {
@@ -1481,6 +1495,7 @@
     }
 
     function createNewYear() {
+      if (!requireAdmin()) return;
       const name = document.getElementById('newYearNameInput').value.trim();
       if (!name) {
         alert('年度名を入力してください。');
@@ -1540,6 +1555,7 @@
     }
 
     function renameCurrentYear() {
+      if (!requireAdmin()) return;
       const newName = document.getElementById('renameYearInput').value.trim();
       if (!newName || newName === appStore.currentYear) {
         closeYearManageModal();
@@ -1562,6 +1578,7 @@
     }
 
     function deleteCurrentYear() {
+      if (!requireAdmin()) return;
       const keys = Object.keys(appStore.years);
       if (keys.length <= 1) {
         alert('年度データは最低1つ必要なため、削除できません。');
@@ -1914,6 +1931,7 @@
       // 6. フッター合計描画
       renderTableFooter();
       renderStatsSummary();
+      applyRoleUI();
       lucide.createIcons();
     }
     // 表の最下段：大会ごとの合計（参考例は集計から除外）
@@ -1975,6 +1993,7 @@
     }
 
     function addTournamentQuick() {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       if (current.tournaments.length >= MAX_TOURNAMENTS) {
         alert(`大会は最大${MAX_TOURNAMENTS}件までです。`);
@@ -2004,6 +2023,7 @@
     }
 
     function deleteTournament(id) {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       if (current.tournaments.length <= 1) {
         alert('大会は最低1つ必要です。');
@@ -2021,6 +2041,7 @@
     }
 
     function updateTournamentField(id, field, value) {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       const tournament = current.tournaments.find(t => t.id === id);
       if (tournament) {
@@ -2036,11 +2057,83 @@
       }
     }
 
+    // --- 権限（管理者／一般メンバー） ---
+    // window.__isAdmin は、ログイン後に Firestore の admins/{uid} があるかどうかで決まる（書き込みの強制はサーバー側のルールで行う）
+    function requireAdmin() {
+      if (window.__isAdmin) return true;
+      alert('この操作は管理者のみ行えます。');
+      return false;
+    }
+    function applyRoleUI() {
+      const admin = !!window.__isAdmin;
+      document.body.classList.toggle('role-member', !admin);
+      const title = document.getElementById('appTitle');
+      if (title) title.readOnly = !admin;
+      if (admin) return;
+      document.querySelectorAll('#deadlineHeaderRow input, #tournamentHeaderRow input, #tableBody input[type="text"]')
+        .forEach(i => { i.readOnly = true; });
+      document.querySelectorAll('#tableBody tr').forEach(tr => {
+        const own = !!tr.querySelector('td[title="あなた"]');
+        tr.querySelectorAll('.status-cell').forEach(c => { c.style.cursor = own ? 'pointer' : 'default'; });
+      });
+    }
+    function memberErrText(e) {
+      const map = {
+        'paid-locked': '集金済みのため、ここからは変更できません。変更が必要な場合は会計係にお伝えください。',
+        'name-taken': 'この名前は、すでに別のアカウントで使われています。',
+        'not-registered': '参加表に自分の名前がありません。右上の名前ボタンから、名簿に追加してください。',
+        'canceled': 'この大会は中止になっています。',
+        'no-tournament': 'この大会が見つかりません。画面を更新してください。',
+        'no-year': 'この年度が見つかりません。画面を更新してください。',
+        'unauthorized': 'ログインの有効期限が切れました。再読み込みしてログインし直してください。'
+      };
+      return map[e && e.code] || (e && e.message) || '保存できませんでした。時間をおいてもう一度お試しください。';
+    }
+    // 一般メンバー：自分の行だけ「未定 → 参加 → 不参加」を切り替える（集金済みにはできない）。保存はサーバー経由。
+    const MEMBER_CYCLE = ['none', 'attending', 'absent'];
+    let memberBusy = false;
+    async function memberSetStatus(member, tournamentId) {
+      if (memberBusy) return;
+      const me = getMyName();
+      if (!me || normName(member.name) !== normName(me)) return;
+      const t = getCurrentData().tournaments.find(x => x.id === tournamentId);
+      if (!t || t.isCanceled) return;
+      if (!member.records) member.records = {};
+      const curr = member.records[tournamentId] || 'none';
+      if (curr === 'paid') { alert(memberErrText({ code: 'paid-locked' })); return; }
+      const next = MEMBER_CYCLE[(MEMBER_CYCLE.indexOf(curr) + 1) % MEMBER_CYCLE.length];
+      const year = appStore.currentYear, memberId = member.id;
+      member.records[tournamentId] = next;
+      renderTable();
+      memberBusy = true;
+      try {
+        await window.memberApi({ action: 'set', year: year, tid: tournamentId, status: next });
+      } catch (e) {
+        console.error('member set failed', e);
+        const y = appStore.years[year];
+        const m2 = y && y.members.find(x => x.id === memberId);
+        if (m2) { if (!m2.records) m2.records = {}; m2.records[tournamentId] = curr; }
+        renderTable();
+        alert(memberErrText(e));
+      } finally { memberBusy = false; }
+    }
+    // 一般メンバー：自分の名前を名簿に追加／改名（サーバー経由）
+    function memberRegister(oldName, newName, addIfMissing) {
+      if (isExampleName(newName)) return;
+      const year = appStore.currentYear;
+      window.memberApi({ action: 'register', year: year, oldName: oldName || '', newName: newName, addIfMissing: !!addIfMissing })
+        .then(res => {
+          if (res && res.created && window.notifyEvent) window.notifyEvent({ type: 'sheet', events: [{ k: 'member', year: year, id: res.id }] }, 0);
+        })
+        .catch(e => { console.error('member register failed', e); alert(memberErrText(e)); });
+    }
+
     // --- セル状態変更 ---
     function cycleStatus(memberId, tournamentId) {
       const current = getCurrentData();
       const member = current.members.find(m => m.id === memberId);
       if (!member) return;
+      if (!window.__isAdmin) { memberSetStatus(member, tournamentId); return; }
 
       if (!member.records) member.records = {};
       const curr = member.records[tournamentId] || 'none';
@@ -2051,6 +2144,7 @@
     }
 
     function openContextMenu(e, memberId, tournamentId) {
+      if (!window.__isAdmin) return;   // 一般メンバーには右クリックメニュー（○済など）を出さない
       e.preventDefault();
       activeCell = { memberId, tournamentId };
       const menu = document.getElementById('statusMenu');
@@ -2061,6 +2155,7 @@
     }
 
     function applyCellStatus(newStatus) {
+      if (!requireAdmin()) return;
       if (!activeCell) return;
       const current = getCurrentData();
       const { memberId, tournamentId } = activeCell;
@@ -2076,6 +2171,7 @@
     }
 
     function updateMemberName(memberId, newName) {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       const member = current.members.find(m => m.id === memberId);
       if (member && newName.trim()) {
@@ -2085,6 +2181,7 @@
     }
 
     function deleteMember(memberId) {
+      if (!requireAdmin()) return;
       const current = getCurrentData();
       const member = current.members.find(m => m.id === memberId);
       if (!member) return;
@@ -2200,6 +2297,7 @@
     }
 
     function saveTournamentSettings() {
+      if (!requireAdmin()) return;
       syncDraftFromDom();
       const current = getCurrentData();
       current.tournaments = tournamentDraft;
@@ -2303,6 +2401,7 @@
     }
 
     function importJSON(event) {
+      if (!requireAdmin()) return;
       const file = event.target.files[0];
       if (!file) return;
 
@@ -2389,6 +2488,7 @@
     // 自分の名前を名簿（参加表）と揃える：既にあれば何もしない／旧名があれば改名／なければ追加
     function syncMyNameToRoster(oldName, newName, addIfMissing) {
       try {
+        if (!window.__isAdmin) { memberRegister(oldName, newName, addIfMissing); return; }
         if (findRosterMember(newName) || isExampleName(newName)) return;
         const old = oldName ? findRosterMember(oldName) : null;
         if (old) {
@@ -2503,6 +2603,21 @@
         await Promise.race([m.syncMyName(user), new Promise(r => setTimeout(r, 4000))]);
       } catch (e) { console.warn('pullMyName failed', e); }
     }
+
+    // 一般メンバーの操作（自分の参加・不参加／名簿への追加）はサーバー（/api/member）が代わりに保存する
+    window.memberApi = async (payload) => {
+      const u = auth.currentUser;
+      if (!u) { const e = new Error('ログインが必要です。'); e.code = 'unauthorized'; throw e; }
+      const idToken = await u.getIdToken();
+      const r = await fetch('/api/member', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+        body: JSON.stringify(payload)
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) { const e = new Error(j.message || ('通信エラー（' + r.status + '）')); e.code = j.error; throw e; }
+      return j;
+    };
 
     let unsubscribe = null;
     let lastJson = null;
@@ -2640,6 +2755,7 @@
     };
 
     async function pushNow() {
+      if (!window.__isAdmin) return;   // 書き込みは管理者のみ（一般メンバーはサーバー経由）
       const json = JSON.stringify(getYearsForCloud());
       if (json === lastJson) { setStatus('☁ 同期済み', 'ok'); return; }
       try {
@@ -2658,7 +2774,7 @@
     }
 
     window.cloudSave = () => {
-      if (!auth.currentUser) return;
+      if (!auth.currentUser || !window.__isAdmin) return;
       setStatus('☁ 保存待ち…', 'busy');
       clearTimeout(saveTimer);
       saveTimer = setTimeout(() => { saveTimer = null; pushNow(); }, 600);
@@ -2700,8 +2816,12 @@
       if (!user) { showLogin(pendingLoginMessage); pendingLoginMessage = ''; return; }
 
       $('loginOverlay').classList.add('hidden');
+      // 管理者かどうか：admins/{自分のuid} があれば管理者（見つからない・読めない場合は一般メンバー扱い）
+      window.__isAdmin = false;
+      try { window.__isAdmin = (await getDoc(doc(db, 'admins', user.uid))).exists(); } catch (e) { window.__isAdmin = false; }
+      try { applyRoleUI(); } catch (e) { console.error(e); }
       const label = $('loginUserLabel');
-      if (label) label.textContent = user.email || '';
+      if (label) label.textContent = (user.email || '') + (window.__isAdmin ? '（管理者）' : '');
       setStatus('☁ 読み込み中…', 'busy');
 
       let ok = false;

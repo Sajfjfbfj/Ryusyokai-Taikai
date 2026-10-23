@@ -17,36 +17,19 @@ function myRegisteredName(user) {
   return n || (user.displayName || '').trim();
 }
 
-// 共有の名簿（参加表）から、自分の名前のメンバーを全年度分削除する。
+// 共有の名簿（参加表）から、自分の名前のメンバーを全年度分削除する（サーバー経由）。
 // 共有データに残る「最終更新者＝自分のメール」も消す。削除した件数を返す。
+// name が空のときは、名簿には触れず「最終更新者」の掃除だけを行う。
 async function removeFromRoster(db, user, name) {
-  const key = normName(name);
-  const ref = doc(db, 'apps', 'kyudoTournament');
-  let removed = 0;
-  await runTransaction(db, async (tx) => {
-    removed = 0;
-    const snap = await tx.get(ref);
-    if (!snap.exists()) return;
-    const d = snap.data();
-    let years;
-    try { years = JSON.parse(d.data); } catch (e) { return; }
-    if (key) {
-      Object.values(years || {}).forEach(y => {
-        if (!y || !Array.isArray(y.members)) return;
-        const before = y.members.length;
-        y.members = y.members.filter(m => !(m && normName(m.name) === key));
-        removed += before - y.members.length;
-      });
-    }
-    const clearEmail = !!d.updatedBy && d.updatedBy === user.email;
-    if (!removed && !clearEmail) return;
-    tx.set(ref, {
-      data: removed ? JSON.stringify(years) : d.data,
-      updatedAt: serverTimestamp(),
-      updatedBy: clearEmail ? '' : (d.updatedBy || '')
-    });
+  const idToken = await user.getIdToken();
+  const r = await fetch('/api/member', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + idToken },
+    body: JSON.stringify({ action: 'leave', remove: !!name, name: name || '' })
   });
-  return removed;
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.message || ('roster removal failed ' + r.status));
+  return j.removed || 0;
 }
 const RED = '#ED0006';
 
