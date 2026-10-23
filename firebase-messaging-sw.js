@@ -16,11 +16,22 @@ self.addEventListener('push', (event) => {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const url = new URL((event.notification.data && event.notification.data.link) || '/', self.location.origin).href;
+  const withTimeout = (p, ms) => Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]);
+
   event.waitUntil((async () => {
     const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-    for (const c of list) {
-      if ('focus' in c) { try { await c.navigate(url); } catch (e) { /* ignore */ } return c.focus(); }
+    const target = list.find(c => c.url.startsWith(self.location.origin));
+    if (target) {
+      // スマホでバックグラウンドにあった画面は、切り替えに失敗することがある。
+      // 失敗したときは必ず新しく開き直す（何も起きないままにしない）。
+      try {
+        const focused = await withTimeout(target.focus(), 3000);
+        const w = focused || target;
+        if (w.url === url) return;                       // すでにそのページ
+        await withTimeout(w.navigate(url), 3000);
+        return;
+      } catch (e) { /* 下で開き直す */ }
     }
-    return self.clients.openWindow(url);
+    try { await self.clients.openWindow(url); } catch (e) { /* ignore */ }
   })());
 });
