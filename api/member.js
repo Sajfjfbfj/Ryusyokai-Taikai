@@ -1,6 +1,6 @@
 // 一般メンバーの操作を、サーバー側で安全に参加表（apps/kyudoTournament）へ反映する API。
 //  ・参加表の書き込みは管理者だけに制限したので、一般メンバーの操作はここ経由になる
-//  ・できること：名簿に自分を追加／改名（register）、自分の参加・不参加の切り替え（set）、退会時の名簿削除（leave）
+//  ・できること：名簿に自分を追加／改名（register）、自分の参加・不参加の切り替え（set）、自分の行の削除（remove）、退会時の名簿削除（leave）
 //  ・できないこと：○済（集金済み）にする／他人の行を変える／大会・年度の編集
 // firebase-admin の初期化は notify.js と同じ ./_lib を使う
 const { init, admin } = require('./_lib');
@@ -81,6 +81,18 @@ function apply(action, user, b, years, myName, doc, result) {
     return { write: true };
   }
 
+  if (action === 'remove') {
+    const y = pickYear(years, b.year);
+    const key = normName(myName || b.name);
+    const idx = y.members.findIndex(x => x && x.uid === user.uid);
+    const i = idx >= 0 ? idx : y.members.findIndex(x => x && !x.uid && key && normName(x.name) === key);
+    if (i < 0) throw new HttpError(404, 'not-registered', '参加表に自分の名前がありません。');
+    const m = y.members[i];
+    if (m.records && Object.values(m.records).includes('paid')) throw new HttpError(409, 'has-paid', '集金済みの記録があるため削除できません。');
+    y.members.splice(i, 1);
+    return { write: true };
+  }
+
   // leave（退会）
   let removed = 0;
   if (b.remove === true) {
@@ -114,7 +126,7 @@ module.exports = async (req, res) => {
     if (typeof b === 'string') { try { b = JSON.parse(b); } catch (e) { b = {}; } }
     b = b && typeof b === 'object' ? b : {};
     const action = String(b.action || '');
-    if (!['register', 'set', 'leave'].includes(action)) throw new HttpError(400, 'bad-action', '不正な操作です。');
+    if (!['register', 'set', 'remove', 'leave'].includes(action)) throw new HttpError(400, 'bad-action', '不正な操作です。');
 
     const db = admin.firestore();
     const ref = db.doc('apps/kyudoTournament');

@@ -467,7 +467,6 @@
     body.role-member [onclick^="addTournamentQuick"],
     body.role-member [onclick^="toggleTournamentCanceled"],
     body.role-member [onclick^="deleteTournament"],
-    body.role-member [onclick^="deleteMember"],
     body.role-member label:has(#jsonFileInput) { display: none !important; }
   </style>
 </head>
@@ -2075,11 +2074,13 @@
       document.querySelectorAll('#tableBody tr').forEach(tr => {
         const own = !!tr.querySelector('td[title="あなた"]');
         tr.querySelectorAll('.status-cell').forEach(c => { c.style.cursor = own ? 'pointer' : 'default'; });
+        if (!own) tr.querySelectorAll('[onclick^="deleteMember"]').forEach(b => { b.style.display = 'none'; });
       });
     }
     function memberErrText(e) {
       const map = {
         'paid-locked': '集金済みのため、ここからは変更できません。変更が必要な場合は会計係にお伝えください。',
+        'has-paid': '集金済みの記録があるため、自分では削除できません。会計係にお伝えください。',
         'name-taken': 'この名前は、すでに別のアカウントで使われています。',
         'not-registered': '参加表に自分の名前がありません。右上の名前ボタンから、名簿に追加してください。',
         'canceled': 'この大会は中止になっています。',
@@ -2116,6 +2117,20 @@
         renderTable();
         alert(memberErrText(e));
       } finally { memberBusy = false; }
+    }
+    // 一般メンバー：自分の行だけ削除する（集金済みの記録がある場合は不可）。保存はサーバー経由。
+    async function memberDeleteOwn(member) {
+      const me = getMyName();
+      if (!me || normName(member.name) !== normName(me)) return;
+      if (Object.values(member.records || {}).includes('paid')) { alert(memberErrText({ code: 'has-paid' })); return; }
+      if (!confirm('参加表から「' + member.name + '」を削除しますか？\n（自分の参加・不参加の記録も消えます）')) return;
+      const year = appStore.currentYear, id = member.id;
+      try {
+        await window.memberApi({ action: 'remove', year: year, name: member.name });
+        const y = appStore.years[year];
+        if (y) y.members = y.members.filter(m => m.id !== id);
+        renderTable();
+      } catch (e) { console.error('member remove failed', e); alert(memberErrText(e)); }
     }
     // 一般メンバー：自分の名前を名簿に追加／改名（サーバー経由）
     function memberRegister(oldName, newName, addIfMissing) {
@@ -2181,10 +2196,10 @@
     }
 
     function deleteMember(memberId) {
-      if (!requireAdmin()) return;
       const current = getCurrentData();
       const member = current.members.find(m => m.id === memberId);
       if (!member) return;
+      if (!window.__isAdmin) { memberDeleteOwn(member); return; }
       if (confirm(`「${member.name}」さんを削除しますか？`)) {
         current.members = current.members.filter(m => m.id !== memberId);
         saveStore();
