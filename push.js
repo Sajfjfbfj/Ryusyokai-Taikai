@@ -10,6 +10,18 @@ import { getMessaging, getToken, deleteToken, isSupported }
 // Firebaseの「ウェブプッシュ証明書」の公開キー（公開して問題ありません）
 const VAPID_KEY = 'BFP6vAEtvicCSp5VKREKI7rwv1kgi0r25rA9Myg5h1M9F0otC2XqRlkDICmgp7DnXlyi16j-hhxBhDizCmnrsu8';
 
+// 通知をタップしたとき、サービスワーカーから「このページへ移動して」と伝えられたら移動する
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('message', (e) => {
+    const d = e.data;
+    if (!d || d.type !== 'goto' || typeof d.url !== 'string') return;
+    try {
+      const u = new URL(d.url, location.origin);
+      if (u.origin === location.origin && u.href !== location.href) location.href = u.href;
+    } catch (err) { /* ignore */ }
+  });
+}
+
 const FLAG = 'ryusyokai_push';
 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;

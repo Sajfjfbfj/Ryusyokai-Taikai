@@ -22,15 +22,16 @@ self.addEventListener('notificationclick', (event) => {
     const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     const target = list.find(c => c.url.startsWith(self.location.origin));
     if (target) {
-      // スマホでバックグラウンドにあった画面は、切り替えに失敗することがある。
-      // 失敗したときは必ず新しく開き直す（何も起きないままにしない）。
-      try {
-        const focused = await withTimeout(target.focus(), 3000);
-        const w = focused || target;
-        if (w.url === url) return;                       // すでにそのページ
-        await withTimeout(w.navigate(url), 3000);
+      // 1) 開いている画面に「このページへ移動して」と直接伝える（スマホのバックグラウンドでも確実に動く）
+      try { target.postMessage({ type: 'goto', url }); } catch (e) { /* ignore */ }
+      // 2) 画面を前に出す
+      let focused = null;
+      try { focused = await withTimeout(target.focus(), 3000); } catch (e) { /* 下で開き直す */ }
+      if (focused) {
+        // 3) 念のため、こちらからも移動を試みる（画面側の移動と同じ行き先なので重複しても問題ない）
+        try { if (focused.url !== url) await withTimeout(focused.navigate(url), 2000); } catch (e) { /* ignore */ }
         return;
-      } catch (e) { /* 下で開き直す */ }
+      }
     }
     try { await self.clients.openWindow(url); } catch (e) { /* ignore */ }
   })());
