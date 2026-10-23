@@ -793,11 +793,6 @@
                 バックアップから復元
                 <input type="file" id="jsonFileInput" accept=".json" class="hidden" onchange="importJSON(event); closeSideMenu();">
               </label>
-              <button onclick="resetDataPrompt(); closeSideMenu();"
-                      class="w-full text-left p-2 bg-white hover:bg-red-50 text-uq-red border border-red-200 font-black flex items-center gap-2 transition">
-                <i data-lucide="rotate-ccw" class="w-4 h-4 text-uq-red"></i>
-                初期状態にリセット
-              </button>
             </div>
           </div>
         </div>
@@ -2331,26 +2326,9 @@
       reader.readAsText(file);
     }
 
-    function resetDataPrompt() {
-      if (confirm('初期状態にリセットしますか？\n（入力したデータは消去されます）')) {
-        appStore = {
-          currentYear: '令和8年度',
-          showExamples: true,
-          years: {
-            '令和8年度': {
-              title: '大会参加・参加費管理表',
-              tournaments: JSON.parse(JSON.stringify(DEFAULT_TOURNAMENTS)),
-              members: []
-            }
-          }
-        };
-        saveStore();
-        init();
-      }
-    }
-
     // --- 自分の名前（全ページ共通：localStorage ＋ Firebaseアカウントの表示名） ---
     const MYNAME_KEY = 'ryusyokai_my_name';
+
     function getMyName() {
       try { return (localStorage.getItem(MYNAME_KEY) || '').trim(); } catch (e) { return ''; }
     }
@@ -2446,8 +2424,7 @@
         yearmanage: () => openYearManageModal(),
         print: () => printSheet(),
         csv: () => exportCSV(),
-        backup: () => exportJSON(),
-        reset: () => resetDataPrompt()
+        backup: () => exportJSON()
       };
       if (!map[h]) return;
       try { history.replaceState(null, '', location.pathname); } catch (e) { /* ignore */ }
