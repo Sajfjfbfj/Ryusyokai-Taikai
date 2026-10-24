@@ -16,6 +16,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
 
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+
   <style>
     *, *::before, *::after { box-sizing: border-box; }
     html { -webkit-text-size-adjust: 100%; }
@@ -585,7 +588,7 @@
         if (snap.exists() && typeof snap.data().data === 'string' && applyYears(snap.data().data)) {
           setStatus('☁ 最新のデータを表示中（自動で更新されます）');
         } else {
-          setStatus('データがまだありません。管理表で登録してください。', true);
+          setStatus('データがまだありません���管理表で登録してください。', true);
           $('view').style.display = 'none';
         }
       } catch (e) {
