@@ -2,6 +2,7 @@
   "name": "ryusyokai-portal",
   "private": true,
   "dependencies": {
+    "@vercel/speed-insights": "^2.0.0",
     "firebase-admin": "^13.0.0"
   }
 }

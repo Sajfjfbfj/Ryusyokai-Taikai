@@ -28,6 +28,12 @@
           integrity="sha384-7t6ugxIvI5KM451iZguW/w4WR9KsajFzrdbn/efIoggU1wLCUBTbdndWJwbkPFQP"
           crossorigin="anonymous"></script>
   <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+  
+  <!-- Vercel Speed Insights -->
+  <script type="module">
+    import { injectSpeedInsights } from '/node_modules/@vercel/speed-insights/dist/index.mjs';
+    injectSpeedInsights();
+  </script>
 
   <script>
     tailwind.config = {
@@ -597,7 +603,7 @@
             ☁ 同期中
           </span>
 
-          <!-- 自分の名前（全ページ共通） -->
+          <!-- 自分の名前（全ページ���通） -->
           <button onclick="openNameModal()" id="myNameChip" title="あなたの表示名（クリックで変更）"
                   class="hidden md:inline-flex items-center gap-1 px-2.5 h-9 bg-white hover:bg-uq-gray text-uq-black border border-uq-border text-xs font-black max-w-[160px]">
             <i data-lucide="user" class="w-3.5 h-3.5 shrink-0"></i>
@@ -715,7 +721,7 @@
               DATA OPERATIONS / 主要操作
             </div>
             <div class="space-y-2">
-              <!-- 大会・日程編集 -->
+              <!-- 大会・日程��集 -->
               <button onclick="openTournamentSettingsModal(); closeSideMenu();"
                       class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
                 <div class="flex items-center gap-2">
@@ -735,7 +741,7 @@
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </a>
 
-              <!-- 支部内掲示板・お手伝い募集・アンケート -->
+              <!-- 支部内掲示板・お手���い募集・アンケート -->
               <a href="board.html"
                  class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
                 <div class="flex items-center gap-2">
@@ -2697,7 +2703,7 @@
         case 'auth/unauthorized-domain': return 'このURLはFirebaseの「承認済みドメイン」に登録されていません。';
         case 'auth/operation-not-allowed': return 'このログイン方法が有効になっていません。';
         case 'auth/popup-blocked': return 'ポップアップがブロックされました。許可してもう一度お試しください。';
-        case 'auth/operation-not-supported-in-this-environment': return 'このブラウザではGoogleログインを使えません。Chrome・Safariなど通常のブラウザで開いてください。';
+        case 'auth/operation-not-supported-in-this-environment': return 'このブラウザではGoogleログインを使えません。Chrome・Safariなど通常のブラウザで開いて��ださい。';
         default: return 'ログインできませんでした（' + code + '）。';
       }
     }
