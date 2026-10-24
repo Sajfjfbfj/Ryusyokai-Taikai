@@ -228,6 +228,12 @@
       body[data-scale="sm"] thead .t-name, body[data-scale="xs"] thead .t-name { font-size: 6.2pt !important; }
     }
   </style>
+  
+  <!-- Vercel Speed Insights -->
+  <script type="module">
+    import { injectSpeedInsights } from '/node_modules/@vercel/speed-insights/dist/index.mjs';
+    injectSpeedInsights();
+  </script>
 </head>
 <body>
 
@@ -585,12 +591,12 @@
         if (snap.exists() && typeof snap.data().data === 'string' && applyYears(snap.data().data)) {
           setStatus('☁ 最新のデータを表示中（自動で更新されます）');
         } else {
-          setStatus('データがまだありません。管理表で登録してください。', true);
+          setStatus('データがまだありません���管理表で登録してください。', true);
           $('view').style.display = 'none';
         }
       } catch (e) {
         console.error(e);
-        // 接続できない時はこの端末に残っている管理表データを表示
+        // 接続できない時はこの端末に残��ている管理表データを表示
         try {
           const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
           if (saved && saved.years && applyYears(JSON.stringify(saved.years))) {
