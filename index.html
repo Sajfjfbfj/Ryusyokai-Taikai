@@ -29,6 +29,9 @@
           crossorigin="anonymous"></script>
   <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
 
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -735,7 +738,7 @@
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </a>
 
-              <!-- 支部内掲示板・お手伝い募集・アンケート -->
+              <!-- 支部内掲示板・お手���い募集・アンケート -->
               <a href="board.html"
                  class="w-full flex items-center justify-between p-3 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-xs font-black uppercase tracking-wider transition">
                 <div class="flex items-center gap-2">
@@ -2696,7 +2699,7 @@
         case 'auth/network-request-failed': return 'ネットワークに接続できません。';
         case 'auth/unauthorized-domain': return 'このURLはFirebaseの「承認済みドメイン」に登録されていません。';
         case 'auth/operation-not-allowed': return 'このログイン方法が有効になっていません。';
-        case 'auth/popup-blocked': return 'ポップアップがブロックされました。許可してもう一度お試しください。';
+        case 'auth/popup-blocked': return 'ポップアップがブロックされました。���可してもう一度お試しください。';
         case 'auth/operation-not-supported-in-this-environment': return 'このブラウザではGoogleログインを使えません。Chrome・Safariなど通常のブラウザで開いてください。';
         default: return 'ログインできませんでした（' + code + '）。';
       }
