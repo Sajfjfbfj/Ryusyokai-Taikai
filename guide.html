@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+  <title>使い方ガイド | 龍翔会ポータル</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="application-name" content="龍翔会ポータル">
+  <meta name="apple-mobile-web-app-title" content="龍翔会ポータル">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <meta name="theme-color" content="#ED0006">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Plus+Jakarta+Sans:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@1.60.0/dist/umd/lucide.min.js"
+          integrity="sha384-7t6ugxIvI5KM451iZguW/w4WR9KsajFzrdbn/efIoggU1wLCUBTbdndWJwbkPFQP"
+          crossorigin="anonymous"></script>
+  <script>window.lucide = window.lucide || { createIcons: function () {} };</script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans JP"', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+          },
+          colors: {
+            uq: {
+              red: '#ED0006',
+              darkred: '#D60005',
+              black: '#111111',
+              charcoal: '#222222',
+              gray: '#F5F5F5',
+              border: '#E5E5E5',
+              muted: '#767676'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      background-color: #ED0006;
+      color: #ffffff;
+      font-weight: 900;
+      font-size: 13px;
+      border-radius: 9999px;
+      flex-shrink: 0;
+    }
+    .guide-card {
+      background: #ffffff;
+      border: 1px solid #E5E5E5;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    @media print {
+      .no-print { display: none !important; }
+      body { background: white !important; color: black !important; font-size: 11pt; }
+      .guide-card { border: 1px solid #ccc !important; box-shadow: none !important; page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="bg-uq-gray text-uq-black font-sans antialiased selection:bg-uq-red selection:text-white pb-20">
+
+  <!-- ================= ヘッダーバー ================= -->
+  <header class="no-print sticky top-0 z-50 bg-uq-black text-white border-b-2 border-black shadow-md">
+    <div class="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="flex items-center gap-2 group">
+          <div class="w-8 h-8 bg-uq-red text-white flex flex-col items-center justify-center font-black leading-none text-[9px] tracking-tighter group-hover:bg-white group-hover:text-uq-red transition">
+            <span>龍翔</span>
+            <span>会</span>
+          </div>
+          <span class="font-black text-sm tracking-wide hidden sm:inline">龍翔会ポータル</span>
+        </a>
+        <span class="text-xs font-black bg-uq-red text-white px-2 py-0.5 tracking-wider">使い方ガイド</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="ryusyokai_guide.pdf" download class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition border border-zinc-700">
+          <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+          <span>PDF版保存</span>
+        </a>
+        <button onclick="window.print()" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-bold transition border border-zinc-700">
+          <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+          <span>印刷</span>
+        </button>
+        <a href="index.html" class="flex items-center gap-1.5 px-3 py-1.5 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black transition">
+          <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i>
+          <span>申し込み表へ戻る</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= メインコンテナ ================= -->
+  <main class="max-w-4xl mx-auto px-4 py-6 sm:py-10 space-y-8">
+
+    <!-- 表紙風ヒーローセクション -->
+    <section class="bg-white border-2 border-black p-6 sm:p-10 shadow-sm relative overflow-hidden">
+      <div class="w-full h-2 bg-uq-red absolute top-0 left-0"></div>
+      <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="space-y-3 flex-1 text-center md:text-left">
+          <div class="text-xs font-black text-uq-red tracking-widest uppercase">RYUSYOKAI PORTAL GUIDE</div>
+          <h1 class="text-3xl sm:text-4xl font-black text-uq-black tracking-tight leading-tight">
+            龍翔会ポータル<br>
+            <span class="text-uq-red">使い方ガイド</span>
+          </h1>
+          <p class="text-xs sm:text-sm font-bold text-uq-muted">
+            大会参加・集金管理ポータル（令和8年度）
+          </p>
+          <div class="pt-2 text-xs font-mono font-bold bg-uq-gray p-2.5 border border-uq-border inline-block max-w-full truncate">
+            アドレス: <a href="https://ryusyokai.vercel.app/" class="text-uq-red underline">https://ryusyokai.vercel.app/</a>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center bg-uq-gray p-4 border border-uq-border text-center shrink-0">
+          <img src="guide_images/img_p1_1.png" alt="ポータルQRコード" class="w-28 h-28 object-contain bg-white p-1 border border-zinc-300">
+          <span class="text-[10px] font-bold text-uq-muted mt-2">カメラで読み取ると開けます</span>
+        </div>
+      </div>
+
+      <!-- 模擬体験モードへの誘導バナー -->
+      <div class="mt-6 p-4 sm:p-5 bg-red-50 border-2 border-uq-red flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2 py-0.5 bg-uq-red text-white text-[10px] font-black uppercase tracking-wider mb-1">
+            <i data-lucide="sparkles" class="w-3 h-3"></i>
+            <span>おすすめ機能</span>
+          </div>
+          <h3 class="text-base font-black text-uq-black">
+            画面を実際に触って覚える！「模擬体験ツアー」
+          </h3>
+          <p class="text-xs font-bold text-uq-charcoal mt-0.5">
+            セルのタップや絞り込み、メニューの開き方を実際に操作しながら1分で体験できます。
+          </p>
+        </div>
+        <a href="index.html?tour=1" class="shrink-0 w-full sm:w-auto px-5 py-3 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black tracking-wider uppercase transition flex items-center justify-center gap-2 shadow">
+          <i data-lucide="play-circle" class="w-4 h-4"></i>
+          <span>模擬体験をスタート</span>
+          <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
+        </a>
+      </div>
+
+      <!-- 目次ナビゲーション -->
+      <div class="mt-8 pt-6 border-t border-uq-border">
+        <h2 class="text-xs font-black text-uq-muted tracking-widest uppercase mb-4 flex items-center gap-2">
+          <span class="w-2 h-2 bg-uq-red inline-block"></span>
+          目次 (クリックすると各項目へ移動します)
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-bold">
+          <a href="#sec1" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">1.</span> ポータルでできること
+          </a>
+          <a href="#sec2" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">2.</span> スマホにアプリとして入れる（おすすめ）
+          </a>
+          <a href="#sec3" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">3.</span> アカウント登録とログイン
+          </a>
+          <a href="#sec4" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">4.</span> 名前の登録（初回のみ）
+          </a>
+          <a href="#sec5" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">5.</span> 参加申し込み表の見方と入力
+          </a>
+          <a href="#sec6" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">6.</span> メニューの使い方
+          </a>
+          <a href="#sec7" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">7.</span> 年度・大会の管理（管理操作）
+          </a>
+          <a href="#sec8" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">8.</span> 参加者一覧ページ
+          </a>
+          <a href="#sec9" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">9.</span> 掲示板・お手伝い募集・アンケート
+          </a>
+          <a href="#sec10" class="flex items-center gap-2 p-2 hover:bg-uq-gray border border-transparent hover:border-uq-border transition">
+            <span class="text-uq-red font-black">10.</span> 印刷・PDF保存・CSV・バックアップ
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 1. ポータルでできること ================= -->
+    <section id="sec1" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">1</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">ポータルでできること</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4 text-sm leading-relaxed">
+          <p class="font-bold text-uq-charcoal">
+            龍翔会ポータルは、大会への参加申し込みと参加費の集金状況を、みんなで共有しながら管理するWebサイトです。変更内容はリアルタイムでクラウドに同期されます。
+          </p>
+
+          <ul class="space-y-2 font-bold text-xs sm:text-sm text-uq-charcoal">
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>大会参加申し込み表</strong>（出欠・参加費の支払い状況の入力と確認）</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>参加者一覧</strong>（誰がどの大会に出るかの確認）</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>支部内掲示板／お手伝い募集／アンケート</strong></span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>A4印刷・PDF保存・CSV出力・バックアップ</strong>（申し込み表のみ）</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>データは基本すべてクラウドに安全保存</strong></span>
+            </li>
+          </ul>
+
+          <div class="p-3 bg-red-50 border-l-4 border-uq-red text-xs font-bold text-uq-black">
+            📱 スマホでは、アプリとして入れて使うのがおすすめです。新着の通知も届きます（第2章参照）。
+          </div>
+        </div>
+
+        <div class="text-center">
+          <img src="guide_images/img_p2_1.png" alt="大会参加申し込み表トップ画面" class="w-full max-w-sm mx-auto rounded border border-uq-border shadow-sm">
+          <p class="text-[11px] font-bold text-uq-muted mt-2">大会参加申し込み表（トップ画面）</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 2. スマホにアプリとして入れる ================= -->
+    <section id="sec2" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">2</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">スマホにアプリとして入れる（おすすめ）</h2>
+      </div>
+
+      <div class="p-4 bg-red-50 border border-uq-red text-xs sm:text-sm font-bold text-uq-black mb-6 leading-relaxed">
+        <strong>アプリとして入れることを強くおすすめします。</strong><br>
+        メニューの「通知」をオンにすると、投稿された内容など、ポータルの新しいお知らせがお使いのスマホに届きます。この通知は、アプリとしてホーム画面に入れた場合だけ使えます。<br>
+        下の簡単な手順で、ホーム画面にポータルのアイコンを作れます（作業は約1分）。次回からはそのアイコンを押すだけで開けます。
+      </div>
+
+      <!-- iPhone & Android 2カラム -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <!-- iPhone の場合 -->
+        <div class="bg-uq-gray p-5 border border-uq-border">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="px-2 py-0.5 bg-uq-black text-white text-xs font-black">iOS</span>
+            <h3 class="font-black text-base text-uq-black">iPhone（アイフォン）の場合</h3>
+          </div>
+          <p class="text-xs font-bold text-uq-red mb-3">※ ブラウザ「Safari」で行います</p>
+
+          <ol class="space-y-3 text-xs sm:text-sm font-bold">
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">1</span>
+              <span>青いコンパスのアイコンの<strong>「Safari」</strong>を開き、ポータルのアドレスを開く<br>
+              <span class="text-[11px] font-mono text-uq-muted">https://ryusyokai.vercel.app/</span></span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">2</span>
+              <span>画面の下にある<strong>「共有」ボタン</strong>（四角から上向き矢印 <i data-lucide="share" class="w-3.5 h-3.5 inline"></i>）を押す</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">3</span>
+              <span>出てきたメニューを上へ動かし、<strong>「ホーム画面に追加」</strong>を押す</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">4</span>
+              <span>画面の右上の<strong>「追加」</strong>を押す</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">5</span>
+              <span>ホーム画面にアイコンができます。次回からは、このアイコンから開いてください</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">6</span>
+              <span>アイコンから開き、「MENU」を押して、「通知」をオンにする。確認が出たら「許可」を押す</span>
+            </li>
+          </ol>
+          <div class="mt-4 p-2 bg-white border border-uq-border text-[11px] font-bold text-uq-muted">
+            ※ iPhoneはホーム画面に追加したアイコンから開いたときだけ通知が届きます。iOSのバージョンが古い（16.4より前）と通知が届かない場合があります。
+          </div>
+        </div>
+
+        <!-- Android の場合 -->
+        <div class="bg-uq-gray p-5 border border-uq-border">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="px-2 py-0.5 bg-green-700 text-white text-xs font-black">Android</span>
+            <h3 class="font-black text-base text-uq-black">Android（アンドロイド）の場合</h3>
+          </div>
+          <p class="text-xs font-bold text-uq-red mb-3">※ ブラウザ「Chrome」で行います</p>
+
+          <ol class="space-y-3 text-xs sm:text-sm font-bold">
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">1</span>
+              <span>赤・黄・緑・青の丸いアイコンの<strong>「Chrome」</strong>を開き、ポータルのアドレスを開く<br>
+              <span class="text-[11px] font-mono text-uq-muted">https://ryusyokai.vercel.app/</span></span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">2</span>
+              <span>画面の右上にある<strong>点が縦に3つ並んだマーク（︙）</strong>を押す</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">3</span>
+              <span><strong>「アプリをインストール」</strong>または<strong>「ホーム画面に追加」</strong>を押す（機種により表示が異なります）</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">4</span>
+              <span>確認の画面が出たら、<strong>「インストール」</strong>または<strong>「追加」</strong>を押す</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">5</span>
+              <span>ホーム画面にアイコンができます。次回からは、このアイコンから開いてください</span>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="step-badge">6</span>
+              <span>アイコンから開き、「MENU」を押して、「通知」をオンにする。確認が出たら「許可」を押す</span>
+            </li>
+          </ol>
+          <div class="mt-4 p-2 bg-white border border-uq-border text-[11px] font-bold text-uq-muted">
+            <strong>通知が届かないときは：</strong><br>
+            スマホの「設定」アプリで、このアプリ（ポータルアイコン）の通知が許可されているか確認してください。
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ================= 3. アカウント登録とログイン ================= -->
+    <section id="sec3" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">3</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">アカウント登録とログイン</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-5 text-xs sm:text-sm font-bold">
+          <p class="leading-relaxed">
+            はじめて利用する場合は、ログイン画面下部の<strong>「はじめての方は新規登録」</strong>から登録します。
+          </p>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+            <h4 class="text-xs font-black text-uq-red tracking-wider uppercase">新規登録の手順</h4>
+            <ol class="space-y-1.5 list-decimal list-inside text-uq-charcoal">
+              <li>メールアドレスを入力</li>
+              <li>パスワードを入力（6文字以上）</li>
+              <li>パスワード（確認）に同じものをもう一度入力</li>
+              <li>「登録する」を押して完了</li>
+            </ol>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+            <h4 class="text-xs font-black text-uq-red tracking-wider uppercase">ログイン方法</h4>
+            <ul class="space-y-1.5 text-uq-charcoal">
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-uq-black shrink-0"></i>
+                <span>登録済みのメールアドレスとパスワードを入力してログイン</span>
+              </li>
+              <li class="flex items-center gap-2">
+                <i data-lucide="check" class="w-4 h-4 text-uq-black shrink-0"></i>
+                <span><strong>「Googleでログイン」</strong>からGoogleアカウントでも簡単にログインできます</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <img src="guide_images/img_p5_1.png" alt="ログイン画面" class="w-full max-w-xs mx-auto rounded border border-uq-border shadow-sm">
+          <p class="text-[11px] font-bold text-uq-muted mt-2">ログイン画面</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 4. 名前の登録（初回のみ） ================= -->
+    <section id="sec4" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">4</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">名前の登録（初回のみ）</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4 text-xs sm:text-sm font-bold leading-relaxed">
+          <p>
+            初回ログイン後に<strong>「あなたの名前を入力してください」</strong>という画面が出ます。
+          </p>
+          <p class="p-3 bg-red-50 border-l-4 border-uq-red text-uq-black">
+            ここで登録した名前は、参加表の氏名・掲示板の投稿者名・お手伝い募集・支部内締切日の設定者として<strong>全ページ共通</strong>で使われます。
+          </p>
+
+          <ul class="space-y-2 text-uq-charcoal">
+            <li class="flex items-start gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span>名簿にすでに自分の名前がある場合は、候補から選べます</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span><strong>「参加表（名簿）にも自分を追加する」</strong>にチェックを入れると、参加申し込み表にあなたの行が自動追加されます</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span>入力後、<strong>「登録する」</strong>ボタンを押します</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-uq-red shrink-0 mt-0.5"></i>
+              <span>あとから変更する場合は、画面上部の<strong>「名前を登録」</strong>またはメニュー内の<strong>「変更」</strong>からいつでも行えます</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="text-center">
+          <img src="guide_images/img_p6_1.png" alt="名前の登録画面" class="w-full max-w-xs mx-auto rounded border border-uq-border shadow-sm">
+          <p class="text-[11px] font-bold text-uq-muted mt-2">名前の登録画面</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 5. 参加申し込み表の見方と入力 ================= -->
+    <section id="sec5" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">5</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">参加申し込み表の見方と入力</h2>
+      </div>
+
+      <div class="space-y-6">
+        <!-- 記号の意味 -->
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-wider text-uq-red mb-3 flex items-center gap-1.5">
+            <span class="w-2 h-2 bg-uq-red inline-block"></span>
+            記号の意味（ステータス）
+          </h3>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-black">
+            <div class="p-3 bg-white border border-black flex items-center gap-2">
+              <span class="w-7 h-7 bg-uq-black text-white flex items-center justify-center text-xs">○済</span>
+              <div>
+                <div class="text-uq-black">参加</div>
+                <div class="text-[10px] text-uq-muted">参加費支払い済み</div>
+              </div>
+            </div>
+            <div class="p-3 bg-white border border-uq-red flex items-center gap-2">
+              <span class="w-7 h-7 bg-uq-red text-white flex items-center justify-center text-xs">○</span>
+              <div>
+                <div class="text-uq-red">参加</div>
+                <div class="text-[10px] text-uq-muted">未払い</div>
+              </div>
+            </div>
+            <div class="p-3 bg-white border border-uq-border flex items-center gap-2">
+              <span class="w-7 h-7 bg-uq-gray text-uq-muted border border-uq-border flex items-center justify-center text-xs">×</span>
+              <div>
+                <div class="text-uq-charcoal">不参加</div>
+              </div>
+            </div>
+            <div class="p-3 bg-white border border-uq-border flex items-center gap-2">
+              <span class="w-7 h-7 bg-white text-uq-muted border border-uq-border flex items-center justify-center text-xs">ー</span>
+              <div>
+                <div class="text-uq-muted">未定・クリア</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 入力のしかた ＆ 表示の絞り込み -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div class="space-y-4 text-xs sm:text-sm font-bold leading-relaxed">
+            <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+              <h4 class="text-xs font-black text-uq-black uppercase tracking-wider">入力のしかた</h4>
+              <ul class="space-y-2 text-uq-charcoal">
+                <li class="flex items-start gap-2">
+                  <span class="text-uq-red font-black">●</span>
+                  <span>自分の行・参加したい大会のセルを<strong>クリック（タップ）</strong>するとステータスが順に切り替わります</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-uq-red font-black">●</span>
+                  <span><strong>右クリック</strong>すると、ステータス（○済/○/×/ー）をメニューから直接指定できます</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-uq-red font-black">●</span>
+                  <span>締切日・開催日・参加者氏名のセルも、直接クリックして入力・編集できます</span>
+                </li>
+                <li class="flex items-start gap-2">
+                  <span class="text-uq-red font-black">●</span>
+                  <span>参加予定の方は<strong>「○」</strong>を、参加費支払い済みの方は<strong>「○済」</strong>を入力してください</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+              <h4 class="text-xs font-black text-uq-black uppercase tracking-wider">表示の絞り込み（フィルター）</h4>
+              <ul class="space-y-1.5 text-uq-charcoal">
+                <li>• <strong>全員表示（ALL）</strong>：登録メンバー全員を表示します</li>
+                <li>• <strong>未払い者のみ</strong>：参加費の支払いが済んでいない人だけを表示します</li>
+                <li>• <strong>参加予定者</strong>：いずれかの大会に参加予定の人だけを表示します</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <img src="guide_images/img_p7_1.png" alt="申し込み表の操作画面" class="w-full max-w-sm mx-auto rounded border border-uq-border shadow-sm">
+            <p class="text-[11px] font-bold text-uq-muted mt-2">申し込み表画面</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 6. メニューの使い方 ================= -->
+    <section id="sec6" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">6</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">メニューの使い方</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4 text-xs sm:text-sm font-bold leading-relaxed">
+          <p>
+            画面右上の黒い<strong>「MENU」ボタン</strong>を押すと、右側からメニュー設定ドロワーが開きます。
+          </p>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-2.5">
+            <h4 class="text-xs font-black text-uq-red uppercase tracking-wider">主なメニュー項目</h4>
+            <ul class="space-y-2 text-uq-charcoal">
+              <li>
+                <strong>① 年度切替・設定：</strong> 表示する年度の切り替え、新年度の追加、年度編集
+              </li>
+              <li>
+                <strong>② 大会・日程・参加費編集：</strong> 大会の追加・日付・参加費の編集
+              </li>
+              <li>
+                <strong>③ 参加者一覧／支部内掲示板／お手伝い募集／アンケート：</strong> 各管理ページへ直接移動
+              </li>
+              <li>
+                <strong>④ 印刷（A4）・CSV出力：</strong> 申し込み表を用紙やエクセル用に出力
+              </li>
+              <li>
+                <strong>⑤ バックアップ管理：</strong> データの全保存と復元
+              </li>
+              <li>
+                <strong>⑥ アカウント設定：</strong> 表示名の確認・変更、通知のON/OFF、ログアウト、退会
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <img src="guide_images/img_p8_1.png" alt="メニュー設定ドロワー" class="w-full max-w-xs mx-auto rounded border border-uq-border shadow-sm">
+          <p class="text-[11px] font-bold text-uq-muted mt-2">メニュー設定画面</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 7. 年度・大会の管理 ================= -->
+    <section id="sec7" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">7</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">年度・大会の管理（管理操作）</h2>
+      </div>
+
+      <div class="space-y-6 text-xs sm:text-sm font-bold leading-relaxed">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+          <!-- 新年度を追加する -->
+          <div class="bg-uq-gray p-5 border border-uq-border space-y-3">
+            <h3 class="font-black text-base text-uq-black flex items-center gap-2">
+              <span class="w-2 h-2 bg-uq-red inline-block"></span>
+              新年度を追加する
+            </h3>
+            <ol class="space-y-2">
+              <li class="flex items-start gap-2">
+                <span class="step-badge">1</span>
+                <span>メニュー内の<strong>「新年度追加」</strong>を押す</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="step-badge">2</span>
+                <span>年度名を入力（例：令和9年度）</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="step-badge">3</span>
+                <span>引き継ぐデータを選択：<br>
+                ・現在のメンバー名簿（出欠・支払いはクリア）<br>
+                ・現在の大会一覧（大会名・参加費）</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="step-badge">4</span>
+                <span><strong>「新年度を作成」</strong>を押す</span>
+              </li>
+            </ol>
+            <div class="text-center pt-2">
+              <img src="guide_images/img_p10_1.png" alt="新年度の追加画面" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+              <p class="text-[10px] text-uq-muted mt-1">新年度の追加</p>
+            </div>
+          </div>
+
+          <!-- 大会・日程・参加費の編集 ＆ 年度編集 -->
+          <div class="bg-uq-gray p-5 border border-uq-border space-y-3">
+            <h3 class="font-black text-base text-uq-black flex items-center gap-2">
+              <span class="w-2 h-2 bg-uq-red inline-block"></span>
+              大会・日程・参加費の編集
+            </h3>
+            <p>
+              メニューの<strong>「大会・日程・参加費編集」</strong>で大会を追加・編集し、<strong>「保存して適用」</strong>で反映します。大会の中止フラグや削除も行えます。
+            </p>
+            <div class="pt-2">
+              <h4 class="text-xs font-black text-uq-black uppercase">年度名の変更・削除</h4>
+              <p class="text-uq-charcoal mt-1">
+                「年度編集」から年度名の変更や、その年度の削除ができます。
+              </p>
+              <div class="p-2 bg-red-50 border-l-2 border-uq-red text-[11px] text-uq-red mt-2">
+                ⚠️ 削除は元に戻せない可能性があるため、事前にバックアップを取ってください。
+              </div>
+            </div>
+            <div class="text-center pt-2">
+              <img src="guide_images/img_p10_2.png" alt="大会・日程・参加費編集画面" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+              <p class="text-[10px] text-uq-muted mt-1">大会・日程・参加費の編集</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 8. 参加者一覧ページ ================= -->
+    <section id="sec8" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">8</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">参加者一覧ページ</h2>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+        <div class="space-y-4 text-xs sm:text-sm font-bold leading-relaxed">
+          <p>
+            <strong>「参加者一覧」</strong>は、誰がどの大会に出るのかを一覧でスッキリ確認するためのページです。
+          </p>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+            <h4 class="text-xs font-black text-uq-red uppercase tracking-wider">開き方</h4>
+            <ol class="space-y-1.5 list-decimal list-inside text-uq-charcoal">
+              <li>画面右上の<strong>「MENU」</strong>を押す</li>
+              <li>「主要操作」の中にある<strong>「参加者一覧（誰がどの大会に出るか）」</strong>を押す</li>
+            </ol>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+            <h4 class="text-xs font-black text-uq-red uppercase tracking-wider">使い方</h4>
+            <ul class="space-y-1.5 text-uq-charcoal">
+              <li>• 大会ごとの参加予定者を確認できます</li>
+              <li>• 申し込み状況を変更したいときは、トップ画面の「大会参加申し込み表」で自分のセルを入力します</li>
+              <li>• トップ画面へ戻るときは、画面左上の戻るボタンやブラウザの「戻る」をご利用ください</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="text-center">
+          <img src="guide_images/img_p11_1.png" alt="参加者一覧画面" class="w-full max-w-sm mx-auto rounded border border-uq-border shadow-sm">
+          <p class="text-[11px] font-bold text-uq-muted mt-2">参加者一覧画面</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 9. 掲示板・お手伝い募集・アンケート ================= -->
+    <section id="sec9" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">9</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">掲示板・お手伝い募集・アンケート</h2>
+      </div>
+
+      <div class="space-y-6 text-xs sm:text-sm font-bold leading-relaxed">
+        <p>
+          メニューの「支部内掲示板」「お手伝い募集」「アンケート」から掲示板ページを開きます。3つの機能は同じページにタブ形式でまとまっており、投稿者名には登録したあなたの名前が使われます。
+        </p>
+
+        <!-- 掲示板とお手伝い募集 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-3">
+            <h3 class="font-black text-base text-uq-black flex items-center gap-2">
+              <i data-lucide="message-square" class="w-4 h-4 text-uq-red"></i>
+              支部内掲示板
+            </h3>
+            <p class="text-uq-charcoal">
+              連絡事項やお知らせを自由に投稿できます。投稿したメッセージはクラウドを通じて全メンバーに共有されます。
+            </p>
+            <div class="text-center pt-2">
+              <img src="guide_images/img_p13_1.png" alt="支部内掲示板" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+              <p class="text-[10px] text-uq-muted mt-1">支部内掲示板</p>
+            </div>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-3">
+            <h3 class="font-black text-base text-uq-black flex items-center gap-2">
+              <i data-lucide="hand-helping" class="w-4 h-4 text-uq-red"></i>
+              お手伝い募集
+            </h3>
+            <ul class="space-y-2 text-uq-charcoal">
+              <li>• <strong>募集する場合：</strong>「募集を作る」ボタンを押して、タイトル・日程・必要人数を入力して作成します</li>
+              <li>• <strong>応募する場合：</strong>該当の募集にある「手伝える」ボタンを押します</li>
+            </ul>
+            <div class="text-center pt-2">
+              <img src="guide_images/img_p13_2.png" alt="お手伝い募集" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+              <p class="text-[10px] text-uq-muted mt-1">お手伝い募集</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- アンケートの作り方と答え方 -->
+        <div class="p-5 bg-white border-2 border-black space-y-4">
+          <h3 class="text-base font-black text-uq-black flex items-center gap-2">
+            <i data-lucide="bar-chart-3" class="w-4 h-4 text-uq-red"></i>
+            アンケートの作り方と答え方
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- 作る -->
+            <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+              <h4 class="text-xs font-black text-uq-red uppercase tracking-wider">アンケートを作る</h4>
+              <ol class="space-y-1.5 list-decimal list-inside text-uq-charcoal">
+                <li>「アンケート」タブを開き、<strong>「アンケートを作る」</strong>を押す</li>
+                <li>質問・タイトルを入力（補足は任意）</li>
+                <li>選択肢を入力（1行に1つ、2〜8個）</li>
+                <li>回答締切日を設定（任意）</li>
+                <li>複数選ばせたい場合は<strong>「複数選べるようにする」</strong>にチェック</li>
+                <li>「作成する」ボタンを押すと公開されます</li>
+              </ol>
+              <div class="text-center pt-2">
+                <img src="guide_images/img_p14_1.png" alt="アンケート作成フォーム" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+                <p class="text-[10px] text-uq-muted mt-1">① 作る：アンケート作成フォーム</p>
+              </div>
+            </div>
+
+            <!-- 答える -->
+            <div class="bg-uq-gray p-4 border border-uq-border space-y-2">
+              <h4 class="text-xs font-black text-uq-red uppercase tracking-wider">アンケートに答える</h4>
+              <ol class="space-y-1.5 list-decimal list-inside text-uq-charcoal">
+                <li>回答したい選択肢を選択（複数可の場合は複数選択できます）</li>
+                <li><strong>「匿名で回答する」</strong>ボタンを押す</li>
+              </ol>
+              <div class="p-2.5 bg-red-50 border-l-4 border-uq-red text-uq-red text-xs">
+                ⚠️ 選択しただけでは回答は送信されません。必ず<strong>「匿名で回答する」</strong>ボタンを押してください。
+              </div>
+              <div class="text-center pt-2">
+                <img src="guide_images/img_p14_2.png" alt="アンケート回答画面" class="w-full max-w-xs mx-auto rounded border border-uq-border">
+                <p class="text-[10px] text-uq-muted mt-1">② 答える：選択して「匿名で回答する」を押す</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- アンケート注意点 -->
+          <div class="bg-uq-gray p-4 border border-uq-border text-xs space-y-1.5 text-uq-charcoal">
+            <h4 class="font-black text-uq-black uppercase">アンケートのポイント</h4>
+            <p>• <strong>回答は完全匿名です：</strong> 誰がどれを選んだかは一切記録・表示されません。</p>
+            <p>• <strong>回答は1人1回：</strong> 送信後の変更はできません。「回答せず結果を見る」を押すと結果だけ閲覧可能です。</p>
+            <p>• <strong>自動締め切り：</strong> 締切日の23:59を過ぎると自動で締め切られます（「回答を締め切る」で手動締切も可能）。</p>
+          </div>
+        </div>
+
+        <!-- データの保存について -->
+        <div class="p-4 bg-uq-gray border border-uq-border">
+          <h4 class="font-black text-uq-black text-xs uppercase mb-1">データの保存について</h4>
+          <p class="text-uq-charcoal text-xs">
+            このポータルのデータは、基本的にすべてクラウドに保存されます。掲示板・お手伝い募集・アンケートの内容もクラウドに保存されるため、パソコンやスマートフォンを変えても同じ内容を確認できます。
+            ※ 印刷・PDF保存・CSV出力・バックアップ機能は、大会参加申し込み表のみ対象です。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 10. 印刷・PDF保存・CSV出力・バックアップ ================= -->
+    <section id="sec10" class="guide-card p-6 sm:p-8">
+      <div class="flex items-center gap-3 mb-4 border-b pb-3 border-uq-border">
+        <span class="w-8 h-8 bg-uq-red text-white flex items-center justify-center font-black text-sm">10</span>
+        <h2 class="text-xl sm:text-2xl font-black text-uq-black">印刷・PDF保存・CSV出力・バックアップ</h2>
+      </div>
+
+      <div class="space-y-4 text-xs sm:text-sm font-bold leading-relaxed">
+        <p class="text-uq-charcoal">
+          これらの機能は、画面右上の「MENU」から行えます（大会参加申し込み表のみ対象です）。
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-1">
+            <div class="flex items-center gap-2 text-uq-black font-black">
+              <i data-lucide="printer" class="w-4 h-4 text-uq-red"></i>
+              <span>印刷（A4）</span>
+            </div>
+            <p class="text-uq-muted text-xs">参加申し込み表をA4用紙サイズに合わせて綺麗に印刷します。</p>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-1">
+            <div class="flex items-center gap-2 text-uq-black font-black">
+              <i data-lucide="file-text" class="w-4 h-4 text-uq-red"></i>
+              <span>PDF保存</span>
+            </div>
+            <p class="text-uq-muted text-xs">「印刷」を押し、印刷画面の送信先（プリンター）で「PDFに保存」を選んで保存してください。</p>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-1">
+            <div class="flex items-center gap-2 text-uq-black font-black">
+              <i data-lucide="download" class="w-4 h-4 text-uq-red"></i>
+              <span>CSV出力</span>
+            </div>
+            <p class="text-uq-muted text-xs">Excel等の表計算ソフトで開けるCSVファイルをダウンロードします。</p>
+          </div>
+
+          <div class="bg-uq-gray p-4 border border-uq-border space-y-1">
+            <div class="flex items-center gap-2 text-uq-black font-black">
+              <i data-lucide="database" class="w-4 h-4 text-uq-red"></i>
+              <span>全年度バックアップ保存 & 復元</span>
+            </div>
+            <p class="text-uq-muted text-xs">全年度の申し込み表データをJSONファイルとして手元に保存・復元できます。</p>
+          </div>
+        </div>
+
+        <!-- お問い合わせ先フッターコールアウト -->
+        <div class="mt-8 p-5 bg-red-50 border-2 border-uq-red text-center space-y-2">
+          <div class="text-sm font-black text-uq-red tracking-wider">ご質問・サポート</div>
+          <p class="text-xs sm:text-sm font-bold text-uq-black">
+            もしわからないことや困ったことがあれば、<br class="sm:hidden">
+            <strong>鈴木までお気軽にお声がけいただけると幸いです。</strong>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 下部ナビゲーション -->
+    <div class="no-print pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-uq-border">
+      <a href="index.html" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black transition">
+        <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        <span>大会参加申し込み表へ戻る</span>
+      </a>
+
+      <div class="flex items-center gap-2 w-full sm:w-auto">
+        <a href="ryusyokai_guide.pdf" download class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-3 bg-white hover:bg-uq-gray border border-uq-border text-uq-black text-xs font-bold transition">
+          <i data-lucide="download" class="w-4 h-4"></i>
+          <span>PDFをダウンロード</span>
+        </a>
+        <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-4 py-3 bg-white hover:bg-uq-gray border border-uq-border text-uq-black text-xs font-bold transition">
+          <i data-lucide="arrow-up" class="w-4 h-4"></i>
+          <span>ページ上部へ</span>
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    });
+  </script>
+</body>
+</html>

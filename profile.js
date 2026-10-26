@@ -19,21 +19,30 @@ export async function syncMyName(user) {
   try {
     const snap = await getDoc(ref);
     readOk = true;
-    cloud = snap.exists() ? String(snap.data().name || '').trim() : '';
+    if (snap.exists()) {
+      const data = snap.data() || {};
+      cloud = String(data.name || '').trim();
+      if (data.tourCompleted) {
+        try { localStorage.setItem('ryusyokai_tour_done_' + user.uid, '1'); } catch (e) { /* ignore */ }
+      }
+    } else {
+      // 初回登録アカウント（Firestoreにまだプロファイルが存在しない）
+      window.__isNewAccount = true;
+    }
   } catch (e) { console.warn('profile read failed', e); }
 
   if (cloud) { setLocal(cloud); return cloud; }
 
   const local = getLocal();
   if (local) {
-    if (readOk) setDoc(ref, { name: local, updatedAt: serverTimestamp() }).catch(() => {});
+    if (readOk) setDoc(ref, { name: local, updatedAt: serverTimestamp() }, { merge: true }).catch(() => {});
     return local;
   }
   // 旧方式（アカウントの表示名）への対応。パスワード登録のアカウントは、表示名＝アプリで登録した名前。
   const dn = (user.displayName || '').trim();
   if (dn && user.providerData.some(p => p.providerId === 'password')) {
     setLocal(dn);
-    if (readOk) setDoc(ref, { name: dn, updatedAt: serverTimestamp() }).catch(() => {});
+    if (readOk) setDoc(ref, { name: dn, updatedAt: serverTimestamp() }, { merge: true }).catch(() => {});
     return dn;
   }
   return '';
@@ -43,5 +52,13 @@ export async function syncMyName(user) {
 export async function saveMyNameToCloud(name) {
   const u = getAuth().currentUser;
   if (!u || !name) return;
-  await setDoc(doc(getFirestore(), 'users', u.uid), { name, updatedAt: serverTimestamp() });
+  await setDoc(doc(getFirestore(), 'users', u.uid), { name, updatedAt: serverTimestamp() }, { merge: true });
+}
+
+// 模擬体験ツアー完了をクラウドに記録（別端末での再起動を防ぐ）
+export async function saveTourCompletedToCloud(uid) {
+  if (!uid) return;
+  try {
+    await setDoc(doc(getFirestore(), 'users', uid), { tourCompleted: true, updatedAt: serverTimestamp() }, { merge: true });
+  } catch (e) { console.warn('saveTourCompletedToCloud failed', e); }
 }
