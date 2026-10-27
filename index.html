@@ -2775,8 +2775,8 @@
         pageY = (e && e.pageY) || window.innerHeight / 2;
       }
 
-      menu.style.left = \px\;
-      menu.style.top = \px\;
+      menu.style.left = `${Math.min(pageX, window.innerWidth - 220)}px`;
+      menu.style.top = `${Math.min(pageY, window.innerHeight + window.scrollY - 160)}px`;
 
       // ツアー中はメニューをツールチップ(z-[160])より上に表示
       if (memberId === '__tour_demo__') {
@@ -2790,7 +2790,6 @@
       if (memberId === '__tour_demo__' && typeof onTourRightClicked === 'function') {
         onTourRightClicked();
       }
-    }
     }
 
     function applyCellStatus(newStatus) {
