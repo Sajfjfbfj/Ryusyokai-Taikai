@@ -629,16 +629,9 @@
 
           <!-- 模擬体験ツアーボタン -->
           <button onclick="startInteractiveTour()" id="tourBtn" title="操作を実際に試せる模擬体験ツアー"
-                  class="flex items-center gap-1 px-2 sm:px-3 h-7 sm:h-9 bg-red-50 hover:bg-red-100 text-uq-red border border-uq-red text-[11px] sm:text-xs font-black tracking-wider transition">
+                  class="flex items-center gap-1 px-2.5 sm:px-3.5 h-7 sm:h-9 bg-red-50 hover:bg-red-100 text-uq-red border border-uq-red text-[11px] sm:text-xs font-black tracking-wider transition">
             <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
-            <span>模擬体験</span>
-          </button>
-
-          <!-- 使い方ガイドボタン -->
-          <button onclick="openHelpModal()" id="helpBtn" title="操作説明・使い方ガイド"
-                  class="flex items-center gap-1 px-2 sm:px-3 h-7 sm:h-9 bg-white hover:bg-uq-gray text-uq-black border border-uq-black text-[11px] sm:text-xs font-black tracking-wider transition">
-            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-uq-red"></i>
-            <span>使い方</span>
+            <span>🔰 模擬体験</span>
           </button>
 
           <!-- MENUボタン（画面右端にピシッと表示！） -->
@@ -689,9 +682,9 @@
           <span class="text-uq-muted text-[9px] shrink-0">不参加</span>
           <span class="inline-flex items-center justify-center text-uq-muted px-1.5 h-4 leading-none border border-uq-border shrink-0 ml-1">ー</span>
           <span class="inline-flex items-center justify-center font-black text-uq-red bg-red-50 border border-uq-red px-1.5 h-4 leading-none shrink-0 ml-1">中止</span>
-          <button onclick="openHelpModal()" class="ml-auto inline-flex items-center gap-1 text-[10px] font-black text-uq-red hover:underline shrink-0 pl-2">
-            <i data-lucide="help-circle" class="w-3 h-3"></i>
-            <span>操作説明</span>
+          <button onclick="startInteractiveTour()" class="ml-auto inline-flex items-center gap-1 text-[10px] font-black text-uq-red hover:underline shrink-0 pl-2">
+            <i data-lucide="play-circle" class="w-3 h-3"></i>
+            <span>🔰 模擬体験</span>
           </button>
         </div>
       </div>
@@ -765,16 +758,6 @@
                 </div>
                 <i data-lucide="chevron-right" class="w-4 h-4"></i>
               </button>
-
-              <!-- 使い方ガイド（操作説明） -->
-              <a href="guide.html" onclick="closeSideMenu()"
-                 class="w-full flex items-center justify-between p-3 bg-red-50 hover:bg-red-100 text-uq-red border border-uq-red text-xs font-black uppercase tracking-wider transition">
-                <div class="flex items-center gap-2">
-                  <i data-lucide="book-open" class="w-4 h-4"></i>
-                  <span>使い方ガイド（操作説明）</span>
-                </div>
-                <i data-lucide="chevron-right" class="w-4 h-4"></i>
-              </a>
 
               <!-- 大会・日程編集 -->
               <button onclick="openTournamentSettingsModal(); closeSideMenu();"
@@ -949,9 +932,9 @@
         </span>
       </div>
       <div class="flex items-center gap-3">
-        <button onclick="openHelpModal()" class="text-xs font-black text-uq-red hover:underline flex items-center gap-1">
-          <i data-lucide="book-open" class="w-3.5 h-3.5"></i>
-          <span>操作説明・使い方</span>
+        <button onclick="startInteractiveTour()" class="text-xs font-black text-uq-red hover:underline flex items-center gap-1">
+          <i data-lucide="play-circle" class="w-3.5 h-3.5"></i>
+          <span>🔰 模擬体験</span>
         </button>
         <div class="text-[11px] text-uq-muted font-bold tracking-wider uppercase">
           REALTIME CLOUD SYNCED
@@ -961,119 +944,6 @@
   </div>
 
   <!-- ================= モーダル群（UNIQLO風スクエアボックス） ================= -->
-
-  <!-- 操作説明・クイックガイドモーダル -->
-  <div id="helpModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center hidden p-4" onclick="if(event.target===this)closeHelpModal()">
-    <div class="bg-white border-2 border-black max-w-lg w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
-      <div class="flex items-center justify-between pb-3 border-b-2 border-black shrink-0">
-        <h3 class="text-base font-black text-uq-black flex items-center gap-2 uppercase tracking-wide">
-          <span class="w-3 h-3 bg-uq-red inline-block"></span>
-          QUICK GUIDE / 操作説明
-        </h3>
-        <button onclick="closeHelpModal()" class="text-uq-black hover:text-uq-red p-1 transition" title="閉じる">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-
-      <div class="overflow-y-auto py-4 space-y-4 text-xs font-bold leading-relaxed text-uq-black flex-1">
-        <!-- 模擬体験ツアーへの誘導カード -->
-        <div class="p-4 bg-red-50 border-2 border-uq-red flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
-          <div>
-            <div class="text-xs font-black text-uq-red flex items-center gap-1.5 uppercase">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-              おすすめ！模擬体験モード
-            </div>
-            <p class="text-xs text-uq-black mt-1">
-              画面のセルを実際にタップしながら、1分で使い方を体験できます！
-            </p>
-          </div>
-          <button onclick="closeHelpModal(); startInteractiveTour()"
-                  class="shrink-0 w-full sm:w-auto px-4 py-2.5 bg-uq-red hover:bg-uq-darkred text-white text-xs font-black uppercase tracking-wider flex items-center justify-center gap-1.5 shadow transition">
-            <i data-lucide="play-circle" class="w-4 h-4"></i>
-            <span>模擬体験を始める</span>
-          </button>
-        </div>
-
-        <!-- 1. 入力のしかた -->
-        <div class="bg-uq-gray p-3.5 border border-uq-border space-y-2">
-          <div class="text-[11px] font-black text-uq-red uppercase tracking-wider flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
-            出欠・支払いの入力方法
-          </div>
-          <p>
-            自分の名前の行で、参加したい大会のセルを<strong>クリック（タップ）</strong>するとステータスが切り替わります（右クリックで直接選択も可能）。
-          </p>
-          <div class="grid grid-cols-2 gap-2 text-[11px] pt-1">
-            <div class="flex items-center gap-1.5 bg-white p-2 border border-black">
-              <span class="w-6 h-6 bg-uq-black text-white flex items-center justify-center font-black">○済</span>
-              <span>参加（支払済）</span>
-            </div>
-            <div class="flex items-center gap-1.5 bg-white p-2 border border-uq-red">
-              <span class="w-6 h-6 bg-uq-red text-white flex items-center justify-center font-black">○</span>
-              <span class="text-uq-red">参加（未払い）</span>
-            </div>
-            <div class="flex items-center gap-1.5 bg-white p-2 border border-uq-border">
-              <span class="w-6 h-6 bg-uq-gray text-uq-muted flex items-center justify-center font-bold">×</span>
-              <span>不参加</span>
-            </div>
-            <div class="flex items-center gap-1.5 bg-white p-2 border border-uq-border">
-              <span class="w-6 h-6 bg-white text-uq-muted flex items-center justify-center">ー</span>
-              <span>未定 / クリア</span>
-            </div>
-          </div>
-          <p class="text-[11px] text-uq-muted pt-1">
-            ※ 参加予定の方は<strong>「○」</strong>、集金された方は<strong>「○済」</strong>を入力してください。
-          </p>
-        </div>
-
-        <!-- 2. 名簿や大会情報 -->
-        <div class="bg-uq-gray p-3.5 border border-uq-border space-y-1.5">
-          <div class="text-[11px] font-black text-uq-red uppercase tracking-wider flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
-            氏名・大会情報の編集
-          </div>
-          <p>
-            氏名、大会締切日、開催日などのセルも直接クリックして変更できます。変更内容はクラウドに自動同期されます。
-          </p>
-        </div>
-
-        <!-- 3. スマホアプリ化 -->
-        <div class="bg-red-50 p-3.5 border border-uq-red space-y-2">
-          <div class="text-[11px] font-black text-uq-red uppercase tracking-wider flex items-center gap-1.5">
-            <span class="w-1.5 h-1.5 bg-uq-red inline-block"></span>
-            📱 スマホのホーム画面に追加（通知が届く！）
-          </div>
-          <div class="text-[11px] space-y-1 text-uq-charcoal">
-            <p>• <strong>iPhone (Safari):</strong> 画面下の「共有」ボタン（四角に上矢印）→「ホーム画面に追加」</p>
-            <p>• <strong>Android (Chrome):</strong> 右上の「︙」メニュー →「アプリをインストール」または「ホーム画面に追加」</p>
-            <p class="text-uq-muted">※ ホーム画面のアイコンから起動し、MENUの「通知」をオンにすると、新着投稿のお知らせが届きます。</p>
-          </div>
-        </div>
-
-        <!-- 完全版ガイドリンク -->
-        <div class="pt-2 text-center space-y-2">
-          <a href="guide.html"
-             class="w-full flex items-center justify-center gap-2 p-3 bg-uq-black hover:bg-uq-charcoal text-white text-xs font-black tracking-wider transition">
-            <i data-lucide="book-open" class="w-4 h-4 text-uq-red"></i>
-            <span>詳しい使い方ガイド（全10章・画像解説）を開く</span>
-            <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
-          </a>
-          <div>
-            <a href="ryusyokai_guide.pdf" download class="inline-flex items-center gap-1 text-[11px] font-bold text-uq-muted hover:text-uq-red underline">
-              <i data-lucide="file-text" class="w-3 h-3"></i>
-              <span>PDF版ガイド（15ページ）をダウンロード</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <div class="pt-3 border-t border-uq-border flex justify-end shrink-0">
-        <button onclick="closeHelpModal()" class="px-5 h-8 bg-uq-gray hover:bg-uq-black hover:text-white text-uq-black border border-uq-border text-xs font-bold transition">
-          閉じる
-        </button>
-      </div>
-    </div>
-  </div>
 
   <!-- ================= 模擬体験ツアー用 コンポーネント ================= -->
   <!-- ハイライト枠（スポットライト） -->
@@ -1630,11 +1500,13 @@
       }, 200);
     }
 
-    // ESCキーでサイドメニューやヘルプモーダルを閉じる
+    // ESCキーでサイドメニューやツアーを閉じる
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         closeSideMenu();
-        closeHelpModal();
+        if (tourActive) endInteractiveTour();
+        closeTourWelcomeModal();
+        closeTourCompleteModal();
       }
     });
 
@@ -1747,19 +1619,6 @@
       }
     }
 
-    // --- 操作説明・クイックガイドモーダル ---
-    function openHelpModal() {
-      const modal = document.getElementById('helpModal');
-      if (modal) {
-        modal.classList.remove('hidden');
-        if (window.lucide) window.lucide.createIcons();
-      }
-    }
-    function closeHelpModal() {
-      const modal = document.getElementById('helpModal');
-      if (modal) modal.classList.add('hidden');
-    }
-
     // ============================================================
     // 🔰 模擬体験ツアー（インタラクティブ・チュートリアル）
     // ============================================================
@@ -1778,7 +1637,7 @@
     function startInteractiveTour() {
       tourActive = true;
       tourCurrentStep = 1;
-      closeHelpModal();
+      closeTourWelcomeModal();
       closeSideMenu();
 
       // 体験用行を先頭に追加（既にあればリセット）
