@@ -1728,33 +1728,47 @@
         // Step 1: 出欠セルのタップ体験
         targetEl = document.getElementById('tour-demo-cell');
         title.innerHTML = '👉 実際にセルをタップ（クリック）してみましょう！';
-        text.innerHTML = '黄色の枠の<b>「🔰 あなた（体験用）」</b>行にある、大会のセルをタップ（クリック）してみてください。<br>タップするたびに出欠状態が切り替わります。';
+        text.innerHTML = window.__isAdmin
+          ? '黄色の枠の<b>「🔰 あなた（体験用）」</b>行にある、大会のセルをタップ（クリック）してみてください。<br>タップするたびに「○」「○済」「×」「ー」の順に出欠状態が切り替わります。'
+          : '黄色の枠の<b>「🔰 あなた（体験用）」</b>行にある、大会のセルをタップ（クリック）してみてください。<br>タップするたびに<b>「○（参加希望）」→「×（不参加）」→「ー（未定）」</b>が切り替わります。<br><span class="text-uq-muted text-[10px]">※参加費支払済みの「○済」への切り替えは、集金確認後に管理人が行います。</span>';
 
         // セルが見える位置へスクロール
         if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       } else if (step === 2) {
         // Step 2: 右クリック（直接選択）
         targetEl = document.getElementById('tour-demo-cell');
-        title.innerHTML = '🖱️ 右クリック（長押し）で直接選択！';
-        text.innerHTML = 'セルを<b>右クリック</b>（スマホの場合は長押し）するとメニューが開き、<b>「○済」「○」「×」「ー」</b>を直接1発で選べます。<br>※もちろん「次へ進む」ボタンで進んでもOKです。';
+        title.innerHTML = window.__isAdmin
+          ? '🖱️ 右クリック（長押し）で直接選択！'
+          : '💡 ステータスの直接選択と集金ロック';
+        text.innerHTML = window.__isAdmin
+          ? 'セルを<b>右クリック</b>（スマホの場合は長押し）するとメニューが開き、<b>「○済」「○」「×」「ー」</b>を直接1発で選べます。<br>管理者はすべての部員の出欠や「○済」の付与を一括で設定可能です。<br>※もちろん「次へ進む」ボタンで進んでもOKです。'
+          : 'セルを<b>右クリック</b>（スマホの場合は長押し）するとメニューが表示され、ステータスを直接選べます。<br><div class="mt-2 p-2 bg-amber-50 border border-amber-300 text-amber-900 text-[10px] rounded leading-relaxed text-left">🔒 <b>【一般メンバーの利用権限】</b><br>• 一般メンバーは<b>「自分の行」</b>の出欠（○、×、ー）のみ変更できます。<br>• 管理人が参加費確認後に<b>「○済」</b>を付けると、集金確定となりご自身のアカウントからは変更できなくなります（ロック保護機能）。</div>※「次へ進む」ボタンで進んでOKです。';
         if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       } else if (step === 3) {
         // Step 3: 絞り込みフィルター
         targetEl = document.getElementById('filterSelect');
         title.innerHTML = '🔍 表示の絞り込み（フィルター）';
-        text.innerHTML = '上のプルダウンで<b>「未払い者のみ」</b>を選んでみてください。<br>大会前に参加費が未払いのメンバーだけをサッと確認できるので、集金管理にとても便利です！';
+        text.innerHTML = window.__isAdmin
+          ? '上のプルダウンで<b>「未払い者のみ」</b>を選んでみてください。<br>大会前に参加費が未払いのメンバーだけをサッと確認できるので、集金管理にとても便利です！'
+          : '上のプルダウンで<b>「参加者のみ」</b>や<b>「未定者のみ」</b>を選んでみてください。<br>どの大会に誰が参加するか、自分が未定のままになっていないかをサッと絞り込んで確認できます！';
         if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (step === 4) {
         // Step 4: 氏名や締切日の直接入力
         targetEl = document.getElementById('tour-demo-name-input');
-        title.innerHTML = '✏️ 氏名や締切日は直接クリックして編集！';
-        text.innerHTML = '名前の文字や大会ヘッダーの締切日・開催日も、<b>セルをクリックして直接文字を打ち替え</b>られます。<br>入力した内容はリアルタイムでクラウドに自動保存されます。';
+        title.innerHTML = window.__isAdmin
+          ? '✏️ 氏名・日程・締切日は直接クリックして編集！'
+          : '📝 あなたの表示名と権限保護について';
+        text.innerHTML = window.__isAdmin
+          ? '管理者は、名前の文字や大会ヘッダーの<b>締切日・開催日・参加費セルを直接クリックして文字を打ち替え</b>られます。<br>入力した内容はリアルタイムで全員に自動同期されます。'
+          : '一般メンバーは、画面右上の<b>「MENU」→「変更」ボタン</b>からご自身の表示名をいつでも登録・変更できます。<br><div class="mt-2 p-2 bg-amber-50 border border-amber-300 text-amber-900 text-[10px] rounded leading-relaxed text-left">🔒 <b>【管理権限による保護】</b><br>大会ヘッダーの日程・締切日・参加費や他のメンバーの行は、誤操作を防ぐため<b>【管理者】のみ</b>が編集できるように安全に保護されています。</div>';
         if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
       } else if (step === 5) {
         // Step 5: MENUを開く
         targetEl = document.getElementById('hamburgerBtn');
         title.innerHTML = '📋 画面右上の「MENU」を押してみましょう！';
-        text.innerHTML = '大会の編集や新年度追加、掲示板・アンケートなど、すべての便利機能は右上の<b>「MENU」ボタン</b>の中にあります。実際に押してみてください！';
+        text.innerHTML = window.__isAdmin
+          ? '新年度追加・年度設定、大会編集、データバックアップ、掲示板・アンケートなど、すべての管理機能は右上の<b>「MENU」ボタン</b>の中にあります。実際に押してみてください！'
+          : '連絡用の掲示板やお悩み・お手伝い募集、アンケート、参加者一覧、表示名変更などは右上の<b>「MENU」ボタン</b>の中にあります。実際に押してみてください！';
         if (targetEl) targetEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else if (step === 6) {
         // Step 6: MENU内の機能 ＆ スマホアプリ化・通知
@@ -1762,11 +1776,30 @@
         setTimeout(() => {
           const drawer = document.getElementById('sideMenuDrawer');
           targetEl = drawer;
-          title.innerHTML = '📱 スマホアプリ化 ＆ 新着通知（重要）';
-          text.innerHTML = `
-            <div class="space-y-1.5 text-[11px]">
-              <p>• <b>新年度追加・大会編集:</b> メニューから新年度の作成や大会の追加が行えます。</p>
-              <p>• <b>掲示板・アンケート:</b> 連絡事項の投稿やアンケート投票もここから！</p>
+          title.innerHTML = '📱 アプリの活用 ＆ スマホホーム追加（重要）';
+          text.innerHTML = window.__isAdmin ? `
+            <div class="space-y-1.5 text-[11px] text-left">
+              <p>• <b>新年度追加・年度編集:</b> メニューから新年度の作成や年度切り替えが行えます。</p>
+              <p>• <b>大会・日程・参加費編集:</b> 大会の新規追加、締切日・参加費の設定が可能です。</p>
+              <p>• <b>掲示板・アンケート:</b> 連絡事項の投稿やアンケート作成もここから！</p>
+              <p>• <b>バックアップ管理:</b> 全年度データの保存や復元が行えます。</p>
+              <p class="p-2 bg-red-50 border border-uq-red text-uq-red font-bold">
+                📱 <b>スマホのホーム画面に追加:</b><br>
+                iPhoneはSafariの共有ボタン →「ホーム画面に追加」<br>
+                AndroidはChromeの︙ →「アプリをインストール」<br>
+                ホーム画面から起動してMENUの「通知」をオンにすると、新着投稿のお知らせが届きます！
+              </p>
+            </div>
+          ` : `
+            <div class="space-y-1.5 text-[11px] text-left">
+              <p>• <b>💬 支部内掲示板:</b> 大会や稽古に関する連絡事項の確認・投稿ができます。</p>
+              <p>• <b>🙋 お手伝い募集:</b> 準備や役員のお手伝い募集を確認して立候補できます。</p>
+              <p>• <b>📊 アンケート:</b> 支部内のアンケートや日程調整に投票できます。</p>
+              <p>• <b>👥 参加者一覧:</b> 誰がどの大会に出るか一目で確認できます。</p>
+              <div class="p-2 bg-amber-50 border border-amber-300 text-amber-900 text-[10px] rounded leading-relaxed">
+                🔒 <b>【管理機能について】</b><br>
+                「新年度追加」「大会編集」「バックアップ」などの管理項目は、役員・管理者ロールのアカウントにのみ表示されます。
+              </div>
               <p class="p-2 bg-red-50 border border-uq-red text-uq-red font-bold">
                 📱 <b>スマホのホーム画面に追加:</b><br>
                 iPhoneはSafariの共有ボタン →「ホーム画面に追加」<br>
@@ -1791,14 +1824,25 @@
       if (!feedback || !nextBtn) return;
 
       const labels = {
-        'attending': '「○（未払い・参加予定）」',
+        'attending': '「○（未払い・参加希望）」',
         'paid': '「○済（参加費支払い済み）」',
         'absent': '「×（不参加）」',
         'none': '「ー（未定・クリア）」'
       };
       const label = labels[newStatus] || newStatus;
 
-      feedback.innerHTML = `✨ <b>ナイス！${label} に切り替わりました！</b><br>参加予定の方は「○」、集金された方は「○済」にします。<br>何回かタップして試したら「次へ進む」を押してください。`;
+      let desc = '';
+      if (newStatus === 'attending') {
+        desc = '参加したい大会はタップして「○」にします。';
+      } else if (newStatus === 'paid') {
+        desc = '参加費の受け取りを確認したら管理人が「○済」にします。';
+      } else if (newStatus === 'absent') {
+        desc = '出られない大会は「×」にしておくと役員が集計しやすくなります。';
+      } else {
+        desc = '予定がまだ未定の場合は「ー」のままでOKです。';
+      }
+
+      feedback.innerHTML = `✨ <b>ナイス！${label} に切り替わりました！</b><br>${desc}<br>何回かタップして試したら「次へ進む」を押してください。`;
       feedback.classList.remove('hidden');
       nextBtn.classList.add('animate-pulse');
 
@@ -1813,7 +1857,9 @@
       const nextBtn = document.getElementById('tourNextBtn');
       if (!feedback || !nextBtn) return;
 
-      feedback.innerHTML = `✨ <b>メニューが開きました！</b> お好きなステータスをクリックすると一発で指定できます。`;
+      feedback.innerHTML = window.__isAdmin
+        ? `✨ <b>メニューが開きました！</b> 管理者はここから任意のステータス（○済など）を直接一発で設定できます。`
+        : `✨ <b>メニューが開きました！</b> 出欠を直接一発で指定できます（※「○済」の付与は集金担当の管理人が行います）。`;
       feedback.classList.remove('hidden');
       nextBtn.classList.add('animate-pulse');
     }
@@ -2737,7 +2783,9 @@
         if (!member) return;
         if (!member.records) member.records = {};
         const curr = member.records[tournamentId] || 'none';
-        member.records[tournamentId] = getNextStatus(curr);
+        const cycle = window.__isAdmin ? STATUS_CYCLE : ['none', 'attending', 'absent'];
+        const nextIdx = (cycle.indexOf(curr) + 1) % cycle.length;
+        member.records[tournamentId] = cycle[nextIdx];
         renderTable();
         if (typeof onTourCellClicked === 'function') onTourCellClicked(member.records[tournamentId]);
         return;
