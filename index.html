@@ -1656,7 +1656,46 @@
       // ステップ1へ
       setTimeout(() => {
         setTourStep(1);
+        attachTourDemoTouchLongPress();
       }, 100);
+    }
+
+    // スマホ長押し（touchstart）対応：__tour_demo__ セルへのリスナー追加
+    let tourLongPressTimer = null;
+    function attachTourDemoTouchLongPress() {
+      const cell = document.getElementById('tour-demo-cell');
+      if (!cell) return;
+      // 既存リスナーを除去（再アタッチ防止）
+      cell.removeEventListener('touchstart', cell._tourTouchStart);
+      cell.removeEventListener('touchend', cell._tourTouchEnd);
+      cell.removeEventListener('touchmove', cell._tourTouchEnd);
+
+      cell._tourTouchStart = function(e) {
+        if (!tourActive) return;
+        clearTimeout(tourLongPressTimer);
+        tourLongPressTimer = setTimeout(() => {
+          // 長押し成立：contextmenu相当処理
+          const touch = e.touches[0];
+          const fakeEvent = {
+            pageX: touch.pageX,
+            pageY: touch.pageY,
+            touches: e.touches,
+            preventDefault: () => {}
+          };
+          // onclickからtournamentIdを取得して一度だけ呼ぶ
+          const onclickAttr = cell.getAttribute('onclick') || '';
+          const tidMatch = onclickAttr.match(/cycleStatus\('__tour_demo__',\s*'([^']+)'\)/);
+          const tourTid = tidMatch ? tidMatch[1] : null;
+          openContextMenu(fakeEvent, '__tour_demo__', tourTid);
+        }, 500);
+      };
+      cell._tourTouchEnd = function() {
+        clearTimeout(tourLongPressTimer);
+      };
+
+      cell.addEventListener('touchstart', cell._tourTouchStart, { passive: true });
+      cell.addEventListener('touchend', cell._tourTouchEnd);
+      cell.addEventListener('touchmove', cell._tourTouchEnd);
     }
 
     function setTourStep(step) {
@@ -1907,6 +1946,10 @@
       if (tooltip) tooltip.classList.add('hidden');
 
       // サイドメニュー閉じる
+      // ステータスメニューのz-indexをリセット
+      const statusMenuForReset = document.getElementById('statusMenu');
+      if (statusMenuForReset) statusMenuForReset.style.zIndex = '';
+
       closeSideMenu();
 
       // 体験用メンバーの削除
@@ -2714,18 +2757,40 @@
     }
 
     function openContextMenu(e, memberId, tournamentId) {
-      if (memberId !== '__tour_demo__' && !window.__isAdmin) return;   // 一般メンバーには右クリックメニュー（○済など）を出さない
-      e.preventDefault();
+      if (memberId !== '__tour_demo__' && !window.__isAdmin) return;
+      if (e && typeof e.preventDefault === 'function') e.preventDefault();
       activeCell = { memberId, tournamentId };
       const menu = document.getElementById('statusMenu');
-      
-      menu.style.left = `${Math.min(e.pageX, window.innerWidth - 210)}px`;
-      menu.style.top = `${e.pageY}px`;
+
+      // タッチイベントとマウスイベント両対応の座標取得
+      let pageX, pageY;
+      if (e && e.touches && e.touches.length > 0) {
+        pageX = e.touches[0].pageX;
+        pageY = e.touches[0].pageY;
+      } else if (e && e.changedTouches && e.changedTouches.length > 0) {
+        pageX = e.changedTouches[0].pageX;
+        pageY = e.changedTouches[0].pageY;
+      } else {
+        pageX = (e && e.pageX) || window.innerWidth / 2;
+        pageY = (e && e.pageY) || window.innerHeight / 2;
+      }
+
+      menu.style.left = \px\;
+      menu.style.top = \px\;
+
+      // ツアー中はメニューをツールチップ(z-[160])より上に表示
+      if (memberId === '__tour_demo__') {
+        menu.style.zIndex = '175';
+      } else {
+        menu.style.zIndex = '';
+      }
+
       menu.classList.remove('hidden');
 
       if (memberId === '__tour_demo__' && typeof onTourRightClicked === 'function') {
         onTourRightClicked();
       }
+    }
     }
 
     function applyCellStatus(newStatus) {
